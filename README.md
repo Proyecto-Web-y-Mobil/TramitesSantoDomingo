@@ -35,11 +35,44 @@ Actualmente, la Municipalidad de Santo Domingo presenta una oferta digital incom
 
 | **RNF-02** | Rendimiento: Tiempos de respuesta aceptables bajo alta demanda.
 
-| **RF-03** |Seguridad: Acceso restringido mediante rutas protegidas y validación JWT.
+| **RNF-03** |Seguridad: Acceso restringido mediante rutas protegidas y validación JWT.
 
-## 4. Arquitectura de Navegación y UX (EP 1.4)
+## 4. Diseño UI/UX (EP 1.3)
+Se han diseñado 7 mockups diferenciados para versiones móvil y web, considerando una jerarquía visual clara y navegación adaptativa[cite: 3, 6].
+
+* **Prototipo Navegable en Figma:** [Acceder al Prototipo](https://www.figma.com/design/2x3lhSDr8Qh3J415n52FCj/Sin-t%C3%ADtulo?node-id=0-1&t=lk1vlgy2RKpvECyH-1)
+
+## 5. Arquitectura de Navegación y UX (EP 1.4)
 
 ### Mapa de Rutas
 * **Públicas:** `/login`, `/registro`, `/home`.
 * **Protegidas (Ciudadano):** `/perfil`, `/mis-tramites`, `/agendamiento`, `/dideco`.
 * **Protegidas (Funcionario):** `/admin/panel`, `/admin/revision`, `/admin/reportes`.
+
+### Estrategia de Experiencia de Usuario (UX)
+Siguiendo los principios de usabilidad de la cátedra, el diseño contempla:
+* **Claridad y Control:** Acciones principales visibles y manejo de estados vacíos útiles.
+* **Carga Cognitiva Mínima:** Tareas divididas por pantallas y copy conciso.
+* **Apoyo:** Micro-feedback inmediato ante errores o éxito en la carga de archivos.
+
+### Flujos de Tarea (Task Flows)
+1. **Inscripción a Taller:** Login -> Trámites -> DIDECO -> Detalle Taller -> Formulario -> Confirmación.
+2. **Agendar Licencia:** Login -> Trámites Presenciales -> Ver disponibilidad -> Seleccionar hora -> Confirmar.
+3. **Validación Residencia:** Perfil -> Subir documento -> Revisión Admin -> Aprobación -> Cambio a Rol Residente.
+
+---
+
+## 6. Gestión del Proyecto
+El desarrollo se gestiona íntegramente mediante herramientas de GitHub:
+* **GitHub Projects:** Tablero Kanban para el seguimiento de tareas en tiempo real.
+* **GitHub Issues:** Registro detallado de cada requerimiento funcional con sus criterios de aceptación.
+
+---
+
+## 7. Instrucciones de Ejecución
+```bash
+# Instalar dependencias
+npm install
+
+# Ejecutar en el navegador
+ionic serve
