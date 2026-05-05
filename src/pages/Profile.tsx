@@ -52,7 +52,7 @@ const Profile = () => {
       <div style={{ position: 'relative', width: '100%', height: '140px', overflow: 'hidden' }}>
         {/* Imagen panorámica de fondo */}
         <img
-          src="/assets/SantoDomingoPaisaje.jpg"
+          src="/assets/FondoSantoDomingo.jpg"
           alt="Santo Domingo"
           style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 60%' }}
         />
