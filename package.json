@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@ionic/react": "^8.8.5",
+    "@ionic/react-router": "^8.8.5",
+    "react-router": "^5.3.4",
+    "react-router-dom": "^5.3.4",
+    "tailwindcss": "^4.2.4"
+  }
+}
