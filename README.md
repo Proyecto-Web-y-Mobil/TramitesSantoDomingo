@@ -40,6 +40,6 @@ Actualmente, la Municipalidad de Santo Domingo presenta una oferta digital incom
 ## 4. Arquitectura de Navegación y UX (EP 1.4)
 
 ### Mapa de Rutas
-* **Públicas:** `/login`, `/registro`, `/home`[cite: 5].
-* **Protegidas (Ciudadano):** `/perfil`, `/mis-tramites`, `/agendamiento`, `/dideco`[cite: 5].
-* **Protegidas (Funcionario):** `/admin/panel`, `/admin/revision`, `/admin/reportes`[cite: 5].
+* **Públicas:** `/login`, `/registro`, `/home`.
+* **Protegidas (Ciudadano):** `/perfil`, `/mis-tramites`, `/agendamiento`, `/dideco`.
+* **Protegidas (Funcionario):** `/admin/panel`, `/admin/revision`, `/admin/reportes`.
