@@ -20,14 +20,10 @@ Actualmente, la Municipalidad de Santo Domingo presenta una oferta digital incom
 ---
 
 ## 3. Requerimientos del Proyecto (EP 1.1)
-| **RF-01** |	Validación de Residencia	
-Carga de comprobante para pasar de estado 'invitado' a 'residente'.  
+| **RF-01** |	Validación de Residencia: Carga de comprobante para pasar de estado 'invitado' a 'residente'.  
 
-| **RF-02** |	Gestión de Estados	
-Cambio de estado de trámites (Enviado, En revisión, Aprobado/Rechazado).  
+| **RF-02** |	Gestión de Estados: Cambio de estado de trámites (Enviado, En revisión, Aprobado/Rechazado).  
 
-| **RF-05** |	Corrección de Errores	
-Capacidad de editar datos de un trámite en estado 'Por modificar'.  
+| **RF-05** |	Corrección de Errores: Capacidad de editar datos de un trámite en estado 'Por modificar'.  
 
-| **RF-06** |	Agendamiento de Hora	
-Solicitud de horas presenciales para exámenes de conducir.
+| **RF-06** |	Agendamiento de Hora: Solicitud de horas presenciales para exámenes de conducir.
