@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+/* Esto asegura que los componentes de Ionic no tapen los estilos de Tailwind */
+:root {
+  --ion-background-color: #f3f4f6;
+}
