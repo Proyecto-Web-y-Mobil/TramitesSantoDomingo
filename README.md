@@ -26,9 +26,15 @@ Actualmente, la Municipalidad de Santo Domingo presenta una oferta digital incom
 
 | **RF-02** |	Gestión de Estados: Cambio de estado de trámites (Enviado, En revisión, Aprobado/Rechazado).  
 
+| **RF-03** | Diferencia de Usuarios: Capacidad del sistema de modificar funcionalidades según el tipo de usuario.
+
+| **RF-04** | Gestión de Reportes: Generación de reportes de inscripciones y asistencia para administradores.
+
 | **RF-05** |	Corrección de Errores: Capacidad de editar datos de un trámite en estado 'Por modificar'.  
 
 | **RF-06** |	Agendamiento de Hora: Solicitud de horas presenciales para exámenes de conducir.
+
+| **RF-07** | Inscripción DIDECO: Registro de residentes en talleres con recordatorios automáticos.
 
 ### Requerimientos No Funcionales (RNF)
 | **RNF-01** | Responsividad: Interfaz adaptada a móvil y web mediante componentes de Ionic.
@@ -38,9 +44,9 @@ Actualmente, la Municipalidad de Santo Domingo presenta una oferta digital incom
 | **RNF-03** |Seguridad: Acceso restringido mediante rutas protegidas y validación JWT.
 
 ## 4. Diseño UI/UX (EP 1.3)
-Se han diseñado 7 mockups diferenciados para versiones móvil y web, considerando una jerarquía visual clara y navegación adaptativa[cite: 3, 6].
+Se han diseñado 7 mockups diferenciados para versiones móvil y web, considerando una jerarquía visual clara y navegación adaptativa.
 
-* **Prototipo Navegable en Figma:** [Acceder al Prototipo](https://www.figma.com/design/2x3lhSDr8Qh3J415n52FCj/Sin-t%C3%ADtulo?node-id=0-1&t=lk1vlgy2RKpvECyH-1)
+* **Prototipo en Figma:** [Acceder al Prototipo](https://www.figma.com/design/2x3lhSDr8Qh3J415n52FCj/Sin-t%C3%ADtulo?node-id=0-1&t=lk1vlgy2RKpvECyH-1)
 
 ## 5. Arquitectura de Navegación y UX (EP 1.4)
 
