@@ -20,6 +20,8 @@ Actualmente, la Municipalidad de Santo Domingo presenta una oferta digital incom
 ---
 
 ## 3. Requerimientos del Proyecto (EP 1.1)
+
+### Requerimientos Funcionales (RF)
 | **RF-01** |	Validación de Residencia: Carga de comprobante para pasar de estado 'invitado' a 'residente'.  
 
 | **RF-02** |	Gestión de Estados: Cambio de estado de trámites (Enviado, En revisión, Aprobado/Rechazado).  
@@ -27,3 +29,17 @@ Actualmente, la Municipalidad de Santo Domingo presenta una oferta digital incom
 | **RF-05** |	Corrección de Errores: Capacidad de editar datos de un trámite en estado 'Por modificar'.  
 
 | **RF-06** |	Agendamiento de Hora: Solicitud de horas presenciales para exámenes de conducir.
+
+### Requerimientos No Funcionales (RNF)
+| **RNF-01** | Responsividad: Interfaz adaptada a móvil y web mediante componentes de Ionic.
+
+| **RNF-02** | Rendimiento: Tiempos de respuesta aceptables bajo alta demanda.
+
+| **RF-03** |Seguridad: Acceso restringido mediante rutas protegidas y validación JWT.
+
+## 4. Arquitectura de Navegación y UX (EP 1.4)
+
+### Mapa de Rutas
+* **Públicas:** `/login`, `/registro`, `/home`[cite: 5].
+* **Protegidas (Ciudadano):** `/perfil`, `/mis-tramites`, `/agendamiento`, `/dideco`[cite: 5].
+* **Protegidas (Funcionario):** `/admin/panel`, `/admin/revision`, `/admin/reportes`[cite: 5].
