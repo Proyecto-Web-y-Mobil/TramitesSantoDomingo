@@ -3,9 +3,12 @@ import {
   IonContent, IonPage, IonGrid, IonRow, IonCol, 
   IonItem, IonInput, IonButton, IonIcon 
 } from '@ionic/react';
+import { useHistory } from 'react-router-dom';
 import { eye, eyeOff } from 'ionicons/icons';
+import { authService } from '../services/authService'; // Asegúrate de que la ruta sea correcta
 
 const Register: React.FC = () => {
+  const history = useHistory(); // Hook para redirección
   const [showPass, setShowPass] = useState(false);
   const [formData, setFormData] = useState({
     nombres: '', apellidoP: '', apellidoM: '',
@@ -13,30 +16,53 @@ const Register: React.FC = () => {
     comuna: '', password: '', confirmPassword: ''
   });
 
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault(); // Evita recarga de página
+    
+    try {
+      // Validaciones básicas
+      if (formData.password !== formData.confirmPassword) {
+        alert("Las contraseñas no coinciden");
+        return;
+      }
+      
+      // Guardar en localStorage a través del servicio
+      authService.register(formData);
+      
+      alert("¡Registro exitoso! Ahora inicia sesión.");
+      history.push('/login'); // Redirigir al login tras éxito
+      
+    } catch (error: any) {
+      alert(error.message); // Muestra error si el usuario ya existe
+    }
+  };
+
+  // Estilos consistentes con tu diseño
   const labelStyle = { display: 'block', fontWeight: 'bold', marginBottom: '8px', color: '#333', fontSize: '0.9rem' };
   const inputContainerStyle = { marginBottom: '25px' }; 
-  
-  // Nueva clase de estilo para dar espacio entre columnas
   const columnStyle = { padding: '0 15px' }; 
 
   return (
     <IonPage>
       <IonContent className="ion-padding">
         <IonGrid>
+          {/* Centrado vertical total (Punto G de coherencia) */}
           <IonRow className="ion-justify-content-center ion-align-items-center" style={{ minHeight: '100vh' }}>
             <IonCol size="12" sizeLg="9" style={{ background: 'white', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.15)', overflow: 'hidden', padding: '0' }}>
               
-              <div style={{ backgroundColor: '#0088d6', padding: '20px', display: 'flex', alignItems: 'center', position: 'relative' }}>
+              {/* Header Institucional Azul */}
+              <div style={{ backgroundColor: '#0088d6', padding: '20px', display: 'flex', alignItems: 'center', position: 'relative', minHeight: '80px' }}>
                 <img src="/assets/logo.webp" alt="Logo" style={{ height: '60px', zIndex: 2 }} />
                 <div style={{ position: 'absolute', width: '100%', left: 0, textAlign: 'center' }}>
                   <h2 style={{ color: 'white', margin: '0', fontSize: '1.8rem', fontWeight: 'bold' }}>Registro</h2>
                 </div>
               </div>
 
-              <form style={{ padding: '30px' }}>
+              {/* Formulario con evento de envío */}
+              <form onSubmit={handleRegister} style={{ padding: '30px' }}>
                 <IonGrid>
                   <IonRow>
-                    {/* Columna Izquierda con padding */}
+                    {/* Columna Izquierda con espaciado lateral */}
                     <IonCol size="12" sizeMd="6" style={columnStyle}>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Nombres</label>
@@ -60,7 +86,7 @@ const Register: React.FC = () => {
                       </div>
                     </IonCol>
 
-                    {/* Columna Derecha con padding */}
+                    {/* Columna Derecha con espaciado lateral */}
                     <IonCol size="12" sizeMd="6" style={columnStyle}>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Región</label>
@@ -93,7 +119,7 @@ const Register: React.FC = () => {
                   <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '20px' }}>
                     Al crear un perfil aceptas los <a href="#" style={{ color: '#0088d6' }}>términos y condiciones</a>
                   </p>
-                  <IonButton expand="block" style={{ maxWidth: '300px', margin: '0 auto', '--background': '#0056b3' }}>
+                  <IonButton expand="block" type="submit" style={{ maxWidth: '300px', margin: '0 auto', '--background': '#0056b3' }}>
                     REGISTRARSE
                   </IonButton>
                 </div>

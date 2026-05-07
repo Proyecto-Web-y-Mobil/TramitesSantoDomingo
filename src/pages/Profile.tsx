@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   IonPage,
   IonContent,
@@ -31,11 +31,32 @@ const cssVariables = `
 const Profile = () => {
   const history = useHistory();
   const [editMode, setEditMode] = useState(false);
+  
+  // Estados para los campos de información
   const [nombre, setNombre] = useState('');
   const [rut, setRut] = useState('');
   const [correo, setCorreo] = useState('');
   const [region, setRegion] = useState('');
   const [comuna, setComuna] = useState('');
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Lógica para recuperar la sesión del localStorage
+  useEffect(() => {
+    const session = localStorage.getItem('user_session');
+    if (session) {
+      const user = JSON.parse(session);
+      // Unimos los nombres y apellidos para el campo de visualización
+      setNombre(`${user.nombres} ${user.apellidoP} ${user.apellidoM}`);
+      setRut(user.rut);
+      setCorreo(user.correo);
+      setRegion(user.region);
+      setComuna(user.comuna);
+      setIsLoaded(true);
+    } else {
+      // Si no hay sesión iniciada, redirigimos al login
+      history.push('/login');
+    }
+  }, [history]);
 
   const handleFileUpload = () => {
     const input = document.createElement('input');
@@ -44,26 +65,34 @@ const Profile = () => {
     input.click();
   };
 
+  // Pantalla de carga para evitar que el componente se vea en blanco mientras lee el storage[cite: 1]
+  if (!isLoaded) {
+    return (
+      <IonPage>
+        <IonContent>
+          <div style={{ textAlign: 'center', marginTop: '50px' }}>Cargando datos del perfil...</div>
+        </IonContent>
+      </IonPage>
+    );
+  }
+
   return (
     <IonPage>
       <style>{cssVariables}</style>
 
       {/* ── HEADER BANNER ── */}
       <div style={{ position: 'relative', width: '100%', height: '140px', overflow: 'hidden' }}>
-        {/* Imagen panorámica de fondo */}
         <img
           src="/assets/FondoSantoDomingo.jpg"
           alt="Santo Domingo"
           style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 60%' }}
         />
 
-        {/* Overlay semitransparente */}
         <div style={{
           position: 'absolute', inset: 0,
           background: 'linear-gradient(to right, rgba(27,58,107,0.75) 0%, rgba(27,58,107,0.35) 60%, transparent 100%)'
         }} />
 
-        {/* Logo + Título */}
         <div style={{
           position: 'absolute', top: 0, left: 0, bottom: 0,
           display: 'flex', alignItems: 'center', gap: '14px', padding: '0 20px'
@@ -85,7 +114,6 @@ const Profile = () => {
           </h1>
         </div>
 
-        {/* Foto de perfil esquina superior derecha */}
         <div style={{
           position: 'absolute', top: '12px', right: '16px',
           width: '72px', height: '72px',
@@ -102,7 +130,6 @@ const Profile = () => {
           />
         </div>
 
-        {/* Botones navegación abajo izquierda */}
         <div style={{
           position: 'absolute', bottom: '10px', left: '20px',
           display: 'flex', gap: '10px'
@@ -137,7 +164,6 @@ const Profile = () => {
           </IonButton>
         </div>
 
-        {/* Botón Modificar Perfil abajo derecha */}
         <div style={{
           position: 'absolute', bottom: '10px', right: '16px'
         }}>
@@ -164,103 +190,77 @@ const Profile = () => {
           <IonRow className="ion-justify-content-center">
             <IonCol sizeMd="7" sizeLg="6" sizeXl="5" size="12">
 
-              {/* Nombre Completo */}
+              {/* Nombre Completo[cite: 1] */}
               <IonLabel>
                 <p style={{ fontWeight: '600', fontSize: '18px', marginBottom: '4px', color: '#333333' }}>
                   Nombre Completo
                 </p>
               </IonLabel>
-              <IonItem style={{
-                '--background': '#ffffff',
-                '--border-radius': '8px',
-                marginBottom: '12px'
-              }}>
+              <IonItem style={{ '--background': '#ffffff', '--border-radius': '8px', marginBottom: '12px' }}>
                 <IonInput
-                  placeholder=""
                   value={nombre}
                   readonly={!editMode}
                   onIonChange={e => setNombre(e.detail.value!)}
                 />
               </IonItem>
 
-              {/* RUT */}
+              {/* RUT[cite: 1] */}
               <IonLabel>
                 <p style={{ fontWeight: '600', fontSize: '18px', marginBottom: '4px', color: '#333333' }}>
                   RUT
                 </p>
               </IonLabel>
-              <IonItem style={{
-                '--background': '#ffffff',
-                '--border-radius': '8px',
-                marginBottom: '12px'
-              }}>
+              <IonItem style={{ '--background': '#ffffff', '--border-radius': '8px', marginBottom: '12px' }}>
                 <IonInput
-                  placeholder=""
                   value={rut}
                   readonly={!editMode}
                   onIonChange={e => setRut(e.detail.value!)}
                 />
               </IonItem>
 
-              {/* Correo Electrónico */}
+              {/* Correo Electrónico[cite: 1] */}
               <IonLabel>
                 <p style={{ fontWeight: '600', fontSize: '18px', marginBottom: '4px', color: '#333333' }}>
                   Correo Electrónico
                 </p>
               </IonLabel>
-              <IonItem style={{
-                '--background': '#ffffff',
-                '--border-radius': '8px',
-                marginBottom: '12px'
-              }}>
+              <IonItem style={{ '--background': '#ffffff', '--border-radius': '8px', marginBottom: '12px' }}>
                 <IonInput
                   type="email"
-                  placeholder=""
                   value={correo}
                   readonly={!editMode}
                   onIonChange={e => setCorreo(e.detail.value!)}
                 />
               </IonItem>
 
-              {/* Región */}
+              {/* Región[cite: 1] */}
               <IonLabel>
                 <p style={{ fontWeight: '600', fontSize: '18px', marginBottom: '4px', color: '#333333' }}>
                   Región
                 </p>
               </IonLabel>
-              <IonItem style={{
-                '--background': '#ffffff',
-                '--border-radius': '8px',
-                marginBottom: '12px'
-              }}>
+              <IonItem style={{ '--background': '#ffffff', '--border-radius': '8px', marginBottom: '12px' }}>
                 <IonInput
-                  placeholder=""
                   value={region}
                   readonly={!editMode}
                   onIonChange={e => setRegion(e.detail.value!)}
                 />
               </IonItem>
 
-              {/* Comuna */}
+              {/* Comuna[cite: 1] */}
               <IonLabel>
                 <p style={{ fontWeight: '600', fontSize: '18px', marginBottom: '4px', color: '#333333' }}>
                   Comuna
                 </p>
               </IonLabel>
-              <IonItem style={{
-                '--background': '#ffffff',
-                '--border-radius': '8px',
-                marginBottom: '16px'
-              }}>
+              <IonItem style={{ '--background': '#ffffff', '--border-radius': '8px', marginBottom: '16px' }}>
                 <IonInput
-                  placeholder=""
                   value={comuna}
                   readonly={!editMode}
                   onIonChange={e => setComuna(e.detail.value!)}
                 />
               </IonItem>
 
-              {/* Estado + Acreditar Residencia */}
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -270,23 +270,14 @@ const Profile = () => {
                 padding: '8px 0'
               }}>
                 <IonText>
-                  <p style={{
-                    fontStyle: 'italic',
-                    fontSize: '18px',
-                    color: '#333333',
-                    margin: 0
-                  }}>
+                  <p style={{ fontStyle: 'italic', fontSize: '18px', color: '#333333', margin: 0 }}>
                     Estado Actual: <strong>Ciudadano</strong>
                   </p>
                 </IonText>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <IonText>
-                    <span style={{
-                      fontStyle: 'italic',
-                      fontSize: '14px',
-                      color: '#333333'
-                    }}>
+                    <span style={{ fontStyle: 'italic', fontSize: '14px', color: '#333333' }}>
                       Acreditar Residencia en la comuna
                     </span>
                   </IonText>

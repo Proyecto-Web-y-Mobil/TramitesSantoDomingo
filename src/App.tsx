@@ -3,6 +3,7 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Login from './pages/Login'; 
 import Register from './pages/Register';
+import Profile from './pages/Profile';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -29,11 +30,16 @@ const App: React.FC = () => (
         <Route exact path="/login">
           <Login />
         </Route>
-        <Route exact path="/">
-          <Redirect to="/login" />
-        </Route>
         <Route exact path="/register">
           <Register />
+        </Route>
+        {/* Asegúrate de que el path sea EXACTAMENTE igual al que usas en el history.push */}
+        <Route exact path="/profile">
+          <Profile />
+        </Route>
+        {/* Redirección por defecto para evitar rutas vacías */}
+        <Route exact path="/">
+          <Redirect to="/login" />
         </Route>
       </IonRouterOutlet>
     </IonReactRouter>
