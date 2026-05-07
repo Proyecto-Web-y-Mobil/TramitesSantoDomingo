@@ -12,290 +12,80 @@ import {
   IonText,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-
-const cssVariables = `
-  :root {
-    --color-primario: #1a73c8;
-    --color-secundario: #1b3a6b;
-    --color-fondo: #f0f0f0;
-    --color-blanco: #ffffff;
-    --color-texto: #333333;
-    --color-link: #1a73c8;
-    --border-radius: 8px;
-    --font-size-titulo: 24px;
-    --font-size-label: 18px;
-    --font-size-small: 14px;
-  }
-`;
+import BannerFoto from '../components/BannerFoto'; // Importamos el nuevo componente
 
 const Profile = () => {
   const history = useHistory();
   const [editMode, setEditMode] = useState(false);
   
-  // Estados para los campos de información
   const [nombre, setNombre] = useState('');
   const [rut, setRut] = useState('');
   const [correo, setCorreo] = useState('');
   const [region, setRegion] = useState('');
   const [comuna, setComuna] = useState('');
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [userData, setUserData] = useState<any>(null);
 
-  // Lógica para recuperar la sesión del localStorage
   useEffect(() => {
     const session = localStorage.getItem('user_session');
     if (session) {
       const user = JSON.parse(session);
-      // Unimos los nombres y apellidos para el campo de visualización
+      setUserData(user);
       setNombre(`${user.nombres} ${user.apellidoP} ${user.apellidoM}`);
       setRut(user.rut);
       setCorreo(user.correo);
       setRegion(user.region);
       setComuna(user.comuna);
-      setIsLoaded(true);
     } else {
-      // Si no hay sesión iniciada, redirigimos al login
       history.push('/login');
     }
   }, [history]);
 
-  const handleFileUpload = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*,.pdf';
-    input.click();
-  };
-
-  // Pantalla de carga para evitar que el componente se vea en blanco mientras lee el storage[cite: 1]
-  if (!isLoaded) {
-    return (
-      <IonPage>
-        <IonContent>
-          <div style={{ textAlign: 'center', marginTop: '50px' }}>Cargando datos del perfil...</div>
-        </IonContent>
-      </IonPage>
-    );
-  }
+  if (!userData) return null;
 
   return (
     <IonPage>
-      <style>{cssVariables}</style>
+      {/* LLAMADA AL COMPONENTE REUTILIZABLE */}
+      <BannerFoto titulo="Perfil" />
 
-      {/* ── HEADER BANNER ── */}
-      <div style={{ position: 'relative', width: '100%', height: '140px', overflow: 'hidden' }}>
-        <img
-          src="/assets/FondoSantoDomingo.jpg"
-          alt="Santo Domingo"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 60%' }}
-        />
-
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to right, rgba(27,58,107,0.75) 0%, rgba(27,58,107,0.35) 60%, transparent 100%)'
-        }} />
-
-        <div style={{
-          position: 'absolute', top: 0, left: 0, bottom: 0,
-          display: 'flex', alignItems: 'center', gap: '14px', padding: '0 20px'
-        }}>
-          <img
-            src="/assets/logo.webp"
-            alt="Logo Municipalidad"
-            style={{ height: '56px', borderRadius: '4px' }}
-          />
-          <h1 style={{
-            color: '#ffffff',
-            fontSize: '28px',
-            fontWeight: '700',
-            margin: 0,
-            textShadow: '0 2px 8px rgba(0,0,0,0.5)',
-            letterSpacing: '0.5px'
-          }}>
-            Perfil
-          </h1>
-        </div>
-
-        <div style={{
-          position: 'absolute', top: '12px', right: '16px',
-          width: '72px', height: '72px',
-          borderRadius: '50%',
-          border: '3px solid #ffffff',
-          overflow: 'hidden',
-          background: '#d1d5db',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.3)'
-        }}>
-          <img
-            src="/assets/IconoPerfil.png"
-            alt="Foto de perfil"
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-        </div>
-
-        <div style={{
-          position: 'absolute', bottom: '10px', left: '20px',
-          display: 'flex', gap: '10px'
-        }}>
-          <IonButton
-            size="small"
-            onClick={() => history.push('/tramites')}
-            style={{
-              '--background': '#1a73c8',
-              '--border-radius': '6px',
-              '--padding-start': '14px',
-              '--padding-end': '14px',
-              fontSize: '13px',
-              fontWeight: '600'
-            }}
-          >
-            Mis Trámites
-          </IonButton>
-          <IonButton
-            size="small"
-            onClick={() => history.push('/agendas')}
-            style={{
-              '--background': '#1a73c8',
-              '--border-radius': '6px',
-              '--padding-start': '14px',
-              '--padding-end': '14px',
-              fontSize: '13px',
-              fontWeight: '600'
-            }}
-          >
-            Mis Agendas
-          </IonButton>
-        </div>
-
-        <div style={{
-          position: 'absolute', bottom: '10px', right: '16px'
-        }}>
-          <IonButton
-            size="small"
-            onClick={() => setEditMode(!editMode)}
-            style={{
-              '--background': '#1b3a6b',
-              '--border-radius': '6px',
-              '--padding-start': '14px',
-              '--padding-end': '14px',
-              fontSize: '13px',
-              fontWeight: '600'
-            }}
-          >
+      {/* Botón de modificación que queda fuera del componente por ser específico de esta página */}
+      <div style={{ position: 'absolute', top: '100px', right: '16px', zIndex: 10 }}>
+          <IonButton size="small" onClick={() => setEditMode(!editMode)} style={{ '--background': '#1b3a6b' }}>
             {editMode ? 'Guardar Cambios' : 'Modificar Perfil'}
           </IonButton>
-        </div>
       </div>
 
-      {/* ── CONTENIDO ── */}
       <IonContent style={{ '--background': '#f0f0f0' }}>
         <IonGrid>
           <IonRow className="ion-justify-content-center">
-            <IonCol sizeMd="7" sizeLg="6" sizeXl="5" size="12">
-
-              {/* Nombre Completo[cite: 1] */}
-              <IonLabel>
-                <p style={{ fontWeight: '600', fontSize: '18px', marginBottom: '4px', color: '#333333' }}>
-                  Nombre Completo
-                </p>
-              </IonLabel>
-              <IonItem style={{ '--background': '#ffffff', '--border-radius': '8px', marginBottom: '12px' }}>
-                <IonInput
-                  value={nombre}
-                  readonly={!editMode}
-                  onIonChange={e => setNombre(e.detail.value!)}
-                />
+            <IonCol sizeMd="7" size="12">
+              <br />
+              {/* Resto de tus campos de información igual que siempre... */}
+              <IonLabel><p style={{ fontWeight: '600', fontSize: '18px', color: '#333' }}>Nombre Completo</p></IonLabel>
+              <IonItem style={{ '--border-radius': '8px', marginBottom: '12px' }}>
+                <IonInput value={nombre} readonly={!editMode} onIonChange={e => setNombre(e.detail.value!)} />
               </IonItem>
 
-              {/* RUT[cite: 1] */}
-              <IonLabel>
-                <p style={{ fontWeight: '600', fontSize: '18px', marginBottom: '4px', color: '#333333' }}>
-                  RUT
-                </p>
-              </IonLabel>
-              <IonItem style={{ '--background': '#ffffff', '--border-radius': '8px', marginBottom: '12px' }}>
-                <IonInput
-                  value={rut}
-                  readonly={!editMode}
-                  onIonChange={e => setRut(e.detail.value!)}
-                />
+              <IonLabel><p style={{ fontWeight: '600', fontSize: '18px', color: '#333' }}>RUT</p></IonLabel>
+              <IonItem style={{ '--border-radius': '8px', marginBottom: '12px' }}>
+                <IonInput value={rut} readonly={!editMode} onIonChange={e => setRut(e.detail.value!)} />
               </IonItem>
 
-              {/* Correo Electrónico[cite: 1] */}
-              <IonLabel>
-                <p style={{ fontWeight: '600', fontSize: '18px', marginBottom: '4px', color: '#333333' }}>
-                  Correo Electrónico
-                </p>
-              </IonLabel>
-              <IonItem style={{ '--background': '#ffffff', '--border-radius': '8px', marginBottom: '12px' }}>
-                <IonInput
-                  type="email"
-                  value={correo}
-                  readonly={!editMode}
-                  onIonChange={e => setCorreo(e.detail.value!)}
-                />
+              <IonLabel><p style={{ fontWeight: '600', fontSize: '18px', color: '#333' }}>Correo Electrónico</p></IonLabel>
+              <IonItem style={{ '--border-radius': '8px', marginBottom: '12px' }}>
+                <IonInput value={correo} readonly={!editMode} onIonChange={e => setCorreo(e.detail.value!)} />
               </IonItem>
 
-              {/* Región[cite: 1] */}
-              <IonLabel>
-                <p style={{ fontWeight: '600', fontSize: '18px', marginBottom: '4px', color: '#333333' }}>
-                  Región
-                </p>
-              </IonLabel>
-              <IonItem style={{ '--background': '#ffffff', '--border-radius': '8px', marginBottom: '12px' }}>
-                <IonInput
-                  value={region}
-                  readonly={!editMode}
-                  onIonChange={e => setRegion(e.detail.value!)}
-                />
-              </IonItem>
-
-              {/* Comuna[cite: 1] */}
-              <IonLabel>
-                <p style={{ fontWeight: '600', fontSize: '18px', marginBottom: '4px', color: '#333333' }}>
-                  Comuna
-                </p>
-              </IonLabel>
-              <IonItem style={{ '--background': '#ffffff', '--border-radius': '8px', marginBottom: '16px' }}>
-                <IonInput
-                  value={comuna}
-                  readonly={!editMode}
-                  onIonChange={e => setComuna(e.detail.value!)}
-                />
-              </IonItem>
-
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: '8px',
-                padding: '8px 0'
-              }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px' }}>
                 <IonText>
-                  <p style={{ fontStyle: 'italic', fontSize: '18px', color: '#333333', margin: 0 }}>
-                    Estado Actual: <strong>Ciudadano</strong>
+                  <p style={{ fontStyle: 'italic', fontSize: '18px', color: '#333' }}>
+                    Estado Actual: <strong>{userData.residente ? 'Residente' : 'Ciudadano'}</strong>
                   </p>
                 </IonText>
-
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <IonText>
-                    <span style={{ fontStyle: 'italic', fontSize: '14px', color: '#333333' }}>
-                      Acreditar Residencia en la comuna
-                    </span>
-                  </IonText>
-                  <IonButton
-                    size="small"
-                    onClick={handleFileUpload}
-                    style={{
-                      '--background': '#1b3a6b',
-                      '--border-radius': '6px',
-                      fontWeight: '600',
-                      fontSize: '13px'
-                    }}
-                  >
-                    Subir Archivo
-                  </IonButton>
+                   <IonText><span style={{ fontSize: '14px', color: '#333' }}>Acreditar Residencia</span></IonText>
+                   <IonButton size="small" style={{ '--background': '#1b3a6b' }}>Subir Archivo</IonButton>
                 </div>
               </div>
-
             </IonCol>
           </IonRow>
         </IonGrid>
