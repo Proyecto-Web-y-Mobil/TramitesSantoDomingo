@@ -6,6 +6,7 @@ import LoginFuncionario from './pages/LoginFuncionario';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Tramites from './pages/Tramites';
+import TramitesLogueado from './pages/TramitesLogueado';
 import AdminDashboard from './pages/AdminDashboard';
 import TalleresDideco from './pages/TalleresDideco';
 
@@ -52,8 +53,11 @@ const App: React.FC = () => (
         <Route exact path="/talleres">
           <TalleresDideco />
         </Route>
+        <Route exact path="/tramites-user">
+          <TramitesLogueado/>
+        </Route>
         <Route exact path="/">
-          <Redirect to="/talleres" />
+          <Redirect to="/tramites" />
         </Route>
       </IonRouterOutlet>
     </IonReactRouter>

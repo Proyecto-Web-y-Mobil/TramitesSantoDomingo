@@ -22,7 +22,7 @@ const Login: React.FC = () => {
     const user = authService.login(credential, pass);
     
     if (user) {
-      setTimeout(() => history.push('/profile'), 100);
+      setTimeout(() => history.push('/tramites-user'), 100);
     } else {
       alert("Usuario no encontrado. Revisa los datos.");
     }

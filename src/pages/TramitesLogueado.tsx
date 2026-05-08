@@ -10,15 +10,21 @@ import {
 } from "@ionic/react";
 import { useHistory } from 'react-router-dom';
 
-export default function TalleresDideco() {
+export default function TramitesLogueado() {
   const history = useHistory();
-  const talleres = [
-    { titulo: "Arteterapia", img: "/assets/arte.png" },
-    { titulo: "Zumba", img: "/assets/zumba.png" },
-    { titulo: "Folklore", img: "/assets/folklore.png" },
-    { titulo: "Cocina Saludable", img: "/assets/cocina.png" },
-    { titulo: "Yoga 3ra edad", img: "/assets/yoga.png" },
-    { titulo: "Fútbol Femenino", img: "/assets/futbol.png" },
+
+  const tramites = [
+    { titulo: "Permiso Circulación", img: "/assets/permiso.png" },
+    { titulo: "Patentes Comerciales", img: "/assets/patente.png" },
+    { titulo: "Pago Derechos de aseo", img: "/assets/aseo.png" },
+    { titulo: "Tránsito", subtitulo: "(Primer permiso de circulación)", img: "/assets/transito.png" },
+    { 
+      titulo: "Talleres DIDECO", 
+      img: "/assets/talleres.png", 
+      ruta: "/talleres" // Ruta hacia la página de talleres ordenada
+    },
+    { titulo: "Dirección de obras municipales", subtitulo: "(DOM)", img: "/assets/dom.png" },
+    { titulo: "Trámites Presenciales", img: "/assets/presencial.png" },
   ];
 
   return (
@@ -26,10 +32,10 @@ export default function TalleresDideco() {
       <IonContent fullscreen>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
 
-          {/* HEADER (Mismo estilo que Trámites) */}
+          {/* HEADER CON BOTÓN DE MI PERFIL */}
           <header
             style={{
-              backgroundImage: `linear-gradient(rgba(68, 43, 146, 0.4), rgba(68, 43, 146, 0.4)), url('/assets/headtalleres.png')`,
+              backgroundImage: `linear-gradient(rgba(68, 43, 146, 0.4), rgba(68, 43, 146, 0.4)), url('/assets/headerTramites.png')`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               padding: '20px',
@@ -42,31 +48,25 @@ export default function TalleresDideco() {
                 <IonCol size="6" sizeMd="4">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <img src="/assets/logo.webp" alt="Logo" style={{ height: '60px' }} />
-                    <h1 style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>Talleres</h1>
+                    <h1 style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>Trámites</h1>
                   </div>
                 </IonCol>
                 
                 <IonCol size="6" sizeMd="8" style={{ textAlign: 'right' }}>
                   <div style={{ display: 'inline-block' }}>
                     <IonButton 
-                      onClick={() => history.push('/login')}
+                      onClick={() => history.push('/profile')}
                       style={{ '--background': '#0088d6', '--border-radius': '4px', fontWeight: 'bold' }}
                     >
-                      Iniciar Sesión
+                      Mi Perfil
                     </IonButton>
-                    <p 
-                      onClick={() => history.push('/login-funcionario')}
-                      style={{ fontSize: '0.75rem', marginTop: '5px', cursor: 'pointer', color: 'white' }}
-                    >
-                      Inicio Sesión Funcionarios
-                    </p>
                   </div>
                 </IonCol>
               </IonRow>
             </IonGrid>
           </header>
 
-          {/* CUERPO (Grid equilibrado de 3 columnas máx) */}
+          {/* GRID DE TRÁMITES */}
           <main style={{ flex: 1, padding: '40px 20px', display: 'flex', justifyContent: 'center' }}>
             <div style={{ 
               display: 'grid',
@@ -76,7 +76,7 @@ export default function TalleresDideco() {
               maxWidth: '1000px',
               justifyContent: 'center'
             }}>
-              {talleres.map((item, index) => (
+              {tramites.map((item, index) => (
                 <IonCard key={index} style={{ 
                   margin: '0 auto', 
                   width: '100%',
@@ -88,18 +88,14 @@ export default function TalleresDideco() {
                   border: 'none',
                   overflow: 'hidden'
                 }}>
-                  <div style={{ 
-                    width: '100%', 
-                    paddingTop: '85%', 
-                    position: 'relative'
-                  }}>
+                  <div style={{ width: '100%', paddingTop: '85%', position: 'relative' }}>
                     <img 
                       src={item.img} 
                       alt={item.titulo} 
                       style={{ 
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
+                        position: 'absolute', 
+                        top: 0, 
+                        left: 0, 
                         width: '100%', 
                         height: '100%', 
                         objectFit: 'cover' 
@@ -108,19 +104,26 @@ export default function TalleresDideco() {
                   </div>
                   
                   <IonCardContent style={{ padding: '0', flex: 1 }}>
-                    {/* El título ahora es el botón de acción */}
                     <IonButton 
                       expand="block" 
+                      onClick={() => item.ruta ? history.push(item.ruta) : null}
                       style={{ 
                         '--background': '#1b3a6b', 
-                        '--border-radius': '0',
-                        margin: '0',
-                        minHeight: '60px'
+                        '--border-radius': '0', 
+                        margin: '0', 
+                        minHeight: '60px' 
                       }}
                     >
-                      <span style={{ fontSize: '0.9rem', fontWeight: 'bold', textTransform: 'none', whiteSpace: 'normal' }}>
-                        {item.titulo}
-                      </span>
+                      <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'center', width: '100%' }}>
+                        <span style={{ fontSize: '0.9rem', fontWeight: 'bold', textTransform: 'none', whiteSpace: 'normal' }}>
+                          {item.titulo}
+                        </span>
+                        {item.subtitulo && (
+                          <span style={{ fontSize: '0.7rem', fontWeight: 'normal', fontStyle: 'italic', marginTop: '2px', textTransform: 'none', whiteSpace: 'normal', opacity: 0.9 }}>
+                            {item.subtitulo}
+                          </span>
+                        )}
+                      </div>
                     </IonButton>
                   </IonCardContent>
                 </IonCard>
@@ -128,7 +131,6 @@ export default function TalleresDideco() {
             </div>
           </main>
 
-          {/* FOOTER (Mismo estilo que Trámites) */}
           <footer style={{ backgroundColor: '#0088d6', color: 'white', padding: '25px 20px' }}>
             <IonGrid style={{ maxWidth: '1000px' }}>
               <IonRow>
@@ -142,7 +144,7 @@ export default function TalleresDideco() {
                 </IonCol>
                 <IonCol size="12" sizeMd="5" style={{ textAlign: 'right' }}>
                   <p style={{ margin: '0 0 5px 0' }}>Emergencias 24 horas:</p>
-                  <p style={{ margin: '0 0 5px 0' }}>+563 2238 1603 - +563 5220 4200</p>
+                  <p style={{ margin: '0 0 5px 0' }}>+563 2236 1603 - +563 5222 4200</p>
                   <p style={{ margin: '0 0 5px 0' }}>Seguridad: 1458</p>
                   <p style={{ margin: '0' }}>contacto@santodomingo.cl</p>
                 </IonCol>
