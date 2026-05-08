@@ -1,14 +1,10 @@
 import React from 'react';
-import { IonButton } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
 
 interface BannerProps {
   titulo: string;
 }
 
 const BannerFoto: React.FC<BannerProps> = ({ titulo }) => {
-  const history = useHistory();
-
   return (
     <div style={{ 
       position: 'relative', 
@@ -16,21 +12,18 @@ const BannerFoto: React.FC<BannerProps> = ({ titulo }) => {
       height: '140px', 
       overflow: 'hidden' 
     }}>
-      {/* Imagen de fondo compartida */}
       <img 
         src="/assets/FondoSantoDomingo.jpg" 
         alt="Santo Domingo" 
-        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+        style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 60%' }} 
       />
       
-      {/* Degradado institucional */}
       <div style={{ 
         position: 'absolute', 
         inset: 0, 
-        background: 'linear-gradient(to right, rgba(27,58,107,0.75), transparent)' 
+        background: 'linear-gradient(to right, rgba(27,58,107,0.75) 0%, rgba(27,58,107,0.35) 60%, transparent 100%)' 
       }} />
       
-      {/* Logo y Título Variable */}
       <div style={{ 
         position: 'absolute', 
         top: 0, 
@@ -38,16 +31,25 @@ const BannerFoto: React.FC<BannerProps> = ({ titulo }) => {
         bottom: 0, 
         display: 'flex', 
         alignItems: 'center', 
-        gap: '14px', 
-        padding: '0 20px' 
+        gap: '20px', // Aumentado el espacio entre logo y título
+        padding: '0 30px' // Aumentado el padding izquierdo total
       }}>
-        <img src="/assets/logo.webp" alt="Logo" style={{ height: '56px' }} />
-        <h1 style={{ color: '#ffffff', fontSize: '28px', fontWeight: '700', margin: 0 }}>
+        <img 
+          src="/assets/logo.webp" 
+          alt="Logo Municipalidad" 
+          style={{ height: '75px', width: 'auto', borderRadius: '4px' }} 
+        />
+        <h1 style={{ 
+          color: '#ffffff', 
+          fontSize: '28px', 
+          fontWeight: '700', 
+          margin: 0,
+          textShadow: '0 2px 8px rgba(0,0,0,0.5)'
+        }}>
           {titulo}
         </h1>
       </div>
 
-      {/* Círculo de Perfil */}
       <div style={{ 
         position: 'absolute', 
         top: '12px', 
@@ -57,19 +59,10 @@ const BannerFoto: React.FC<BannerProps> = ({ titulo }) => {
         borderRadius: '50%', 
         border: '3px solid #ffffff', 
         overflow: 'hidden', 
-        background: '#d1d5db' 
+        background: '#d1d5db',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.3)'
       }}>
         <img src="/assets/IconoPerfil.png" alt="Perfil" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      </div>
-
-      {/* Navegación inferior izquierda */}
-      <div style={{ position: 'absolute', bottom: '10px', left: '20px', display: 'flex', gap: '10px' }}>
-        <IonButton size="small" onClick={() => history.push('/tramites')} style={{ '--background': '#1a73c8' }}>
-          Mis Trámites
-        </IonButton>
-        <IonButton size="small" style={{ '--background': '#1a73c8' }}>
-          Mis Agendas
-        </IonButton>
       </div>
     </div>
   );

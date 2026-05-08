@@ -15,8 +15,10 @@ const Login: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    
     const credential = userCredential.trim();
     const pass = password.trim();
+  
     const user = authService.login(credential, pass);
     
     if (user) {
@@ -33,28 +35,34 @@ const Login: React.FC = () => {
           <IonRow className="ion-justify-content-center ion-align-items-center" style={{ minHeight: '100vh' }}>
             <IonCol size="12" sizeMd="8" sizeLg="5" style={{ background: 'white', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.15)', overflow: 'hidden', padding: '0' }}>
               
-              {/* NUEVO BANNER AZUL INTEGRADO */}
               <div style={{ backgroundColor: '#0088d6', padding: '20px', display: 'flex', alignItems: 'center', position: 'relative', minHeight: '100px' }}>
                 <img src="/assets/logo.webp" alt="Logo" style={{ height: '70px', zIndex: 2 }} />
                 <div style={{ position: 'absolute', width: '100%', left: 0, textAlign: 'center' }}>
-                  <h2 style={{ color: 'white', margin: '0', fontSize: '1.6rem', fontWeight: 'bold', fontStyle: 'italic' }}>
-                    Inicio de Sesión
-                  </h2>
+                  <h2 style={{ color: 'white', margin: '0', fontSize: '1.6rem', fontWeight: 'bold', fontStyle: 'italic' }}>Inicio de Sesión</h2>
                 </div>
               </div>
 
               <form onSubmit={handleLogin} style={{ padding: '30px' }}>
-                <div style={{ marginBottom: '20px' }}>
+                <div style={{ marginBottom: '25px' }}>
                   <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>RUT / Correo Electrónico</label>
                   <IonItem lines="outline">
-                    <IonInput value={userCredential} onIonChange={e => setUserCredential(e.detail.value!)} />
+                    <IonInput 
+                      value={userCredential} 
+                      placeholder="12.345.678-9 / ejemplo@gmail.com" 
+                      onIonChange={e => setUserCredential(e.detail.value!)} 
+                    />
                   </IonItem>
                 </div>
 
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Contraseña</label>
                   <IonItem lines="outline">
-                    <IonInput type={showPass ? 'text' : 'password'} value={password} onIonChange={e => setPassword(e.detail.value!)} />
+                    <IonInput 
+                      type={showPass ? 'text' : 'password'} 
+                      value={password} 
+                      placeholder="ejemplo123"
+                      onIonChange={e => setPassword(e.detail.value!)} 
+                    />
                     <IonButton fill="clear" slot="end" onClick={() => setShowPass(!showPass)}>
                       <IonIcon icon={showPass ? eyeOff : eye} color="medium" />
                     </IonButton>
@@ -67,6 +75,21 @@ const Login: React.FC = () => {
 
                 <IonButton expand="block" type="submit" style={{ marginBottom: '15px', '--background': '#0056b3' }}>
                   INICIAR SESIÓN
+                </IonButton>
+
+                {/* BOTÓN MODIFICADO PARA REDIRIGIR AL LOGIN DE FUNCIONARIO */}
+                <IonButton 
+                  expand="block" 
+                  fill="outline"
+                  onClick={() => history.push('/login-funcionario')}
+                  style={{ marginBottom: '15px', '--color': '#0088d6', '--border-color': '#0088d6' }}
+                >
+                  <img 
+                    src="/assets/claveunica_logo.png" 
+                    alt="Logo" 
+                    style={{ height: '20px', marginRight: '10px' }} 
+                  />
+                  ACCESO FUNCIONARIO
                 </IonButton>
 
                 <p style={{ textAlign: 'center', fontSize: '0.9rem' }}>

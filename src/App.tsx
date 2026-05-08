@@ -2,6 +2,7 @@ import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Login from './pages/Login'; 
+import LoginFuncionario from './pages/LoginFuncionario'; 
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 
@@ -36,6 +37,9 @@ const App: React.FC = () => (
         {/* Asegúrate de que el path sea EXACTAMENTE igual al que usas en el history.push */}
         <Route exact path="/profile">
           <Profile />
+        </Route>
+        <Route exact path="/login-funcionario">
+          <LoginFuncionario />
         </Route>
         {/* Redirección por defecto para evitar rutas vacías */}
         <Route exact path="/">
