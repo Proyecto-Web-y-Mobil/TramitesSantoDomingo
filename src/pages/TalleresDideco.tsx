@@ -2,16 +2,14 @@ import {
   IonPage, 
   IonContent, 
   IonButton, 
-  IonGrid, 
-  IonRow, 
-  IonCol,
-  IonCard,
-  IonCardContent
+  IonCard, 
+  IonCardContent 
 } from "@ionic/react";
-import { useHistory } from 'react-router-dom';
+import FooterBanner from '../components/FooterBanner';
+import HeaderBanner from '../components/HeaderBanner';
+import ConstructionAlert from '../components/ConstructionAlert'; // Importación de la alerta reutilizable
 
 export default function TalleresDideco() {
-  const history = useHistory();
   const talleres = [
     { titulo: "Arteterapia", img: "/assets/arte.png" },
     { titulo: "Zumba", img: "/assets/zumba.png" },
@@ -26,47 +24,15 @@ export default function TalleresDideco() {
       <IonContent fullscreen>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
 
-          {/* HEADER (Mismo estilo que Trámites) */}
-          <header
-            style={{
-              backgroundImage: `linear-gradient(rgba(68, 43, 146, 0.4), rgba(68, 43, 146, 0.4)), url('/assets/headtalleres.png')`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              padding: '20px',
-              color: 'white',
-              minHeight: '160px'
-            }}
-          >
-            <IonGrid>
-              <IonRow className="ion-align-items-center">
-                <IonCol size="6" sizeMd="4">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <img src="/assets/logo.webp" alt="Logo" style={{ height: '60px' }} />
-                    <h1 style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>Talleres</h1>
-                  </div>
-                </IonCol>
-                
-                <IonCol size="6" sizeMd="8" style={{ textAlign: 'right' }}>
-                  <div style={{ display: 'inline-block' }}>
-                    <IonButton 
-                      onClick={() => history.push('/login')}
-                      style={{ '--background': '#0088d6', '--border-radius': '4px', fontWeight: 'bold' }}
-                    >
-                      Iniciar Sesión
-                    </IonButton>
-                    <p 
-                      onClick={() => history.push('/login-funcionario')}
-                      style={{ fontSize: '0.75rem', marginTop: '5px', cursor: 'pointer', color: 'white' }}
-                    >
-                      Inicio Sesión Funcionarios
-                    </p>
-                  </div>
-                </IonCol>
-              </IonRow>
-            </IonGrid>
-          </header>
+          {/* Banner superior con botón a Perfil */}
+          <HeaderBanner 
+            title="Talleres"
+            backgroundImage="/assets/headtalleres.png"
+            buttonText="Mi Perfil"
+            buttonRoute="/profile"
+            showSecondaryButton={false} 
+          />
 
-          {/* CUERPO (Grid equilibrado de 3 columnas máx) */}
           <main style={{ flex: 1, padding: '40px 20px', display: 'flex', justifyContent: 'center' }}>
             <div style={{ 
               display: 'grid',
@@ -77,78 +43,45 @@ export default function TalleresDideco() {
               justifyContent: 'center'
             }}>
               {talleres.map((item, index) => (
-                <IonCard key={index} style={{ 
-                  margin: '0 auto', 
-                  width: '100%',
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  borderRadius: '8px', 
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                  backgroundColor: 'white',
-                  border: 'none',
-                  overflow: 'hidden'
-                }}>
-                  <div style={{ 
-                    width: '100%', 
-                    paddingTop: '85%', 
-                    position: 'relative'
+                /* Envoltura de alerta para cada taller individual */
+                <ConstructionAlert key={index}>
+                  <IonCard style={{ 
+                    margin: '0 auto', 
+                    width: '100%',
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    borderRadius: '8px', 
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                    backgroundColor: 'white',
+                    border: 'none',
+                    overflow: 'hidden',
+                    height: '100%'
                   }}>
-                    <img 
-                      src={item.img} 
-                      alt={item.titulo} 
-                      style={{ 
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'cover' 
-                      }} 
-                    />
-                  </div>
-                  
-                  <IonCardContent style={{ padding: '0', flex: 1 }}>
-                    {/* El título ahora es el botón de acción */}
-                    <IonButton 
-                      expand="block" 
-                      style={{ 
-                        '--background': '#1b3a6b', 
-                        '--border-radius': '0',
-                        margin: '0',
-                        minHeight: '60px'
-                      }}
-                    >
-                      <span style={{ fontSize: '0.9rem', fontWeight: 'bold', textTransform: 'none', whiteSpace: 'normal' }}>
-                        {item.titulo}
-                      </span>
-                    </IonButton>
-                  </IonCardContent>
-                </IonCard>
+                    <div style={{ width: '100%', paddingTop: '85%', position: 'relative' }}>
+                      <img 
+                        src={item.img} 
+                        alt={item.titulo} 
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }} 
+                      />
+                    </div>
+                    <IonCardContent style={{ padding: '0', flex: 1 }}>
+                      <IonButton 
+                        expand="block" 
+                        style={{ '--background': '#1b3a6b', '--border-radius': '0', margin: '0', minHeight: '60px' }}
+                      >
+                        <span style={{ fontSize: '0.9rem', fontWeight: 'bold', textTransform: 'none', whiteSpace: 'normal' }}>
+                          {item.titulo}
+                        </span>
+                      </IonButton>
+                    </IonCardContent>
+                  </IonCard>
+                </ConstructionAlert>
               ))}
             </div>
           </main>
 
-          {/* FOOTER (Mismo estilo que Trámites) */}
-          <footer style={{ backgroundColor: '#0088d6', color: 'white', padding: '25px 20px' }}>
-            <IonGrid style={{ maxWidth: '1000px' }}>
-              <IonRow>
-                <IonCol size="12" sizeMd="7">
-                  <p style={{ margin: '0 0 5px 0' }}>Dirección: Avenida Santa Teresa N°1</p>
-                  <p style={{ margin: '0 0 5px 0' }}>Horario de atención:</p>
-                  <ul style={{ margin: 0, paddingLeft: '15px', listStyle: 'none', fontSize: '0.9rem' }}>
-                    <li>- Lunes a Viernes: 08:45 am a 14:00 pm.</li>
-                    <li>- Sábado: 09:30 am a 13:30 pm</li>
-                  </ul>
-                </IonCol>
-                <IonCol size="12" sizeMd="5" style={{ textAlign: 'right' }}>
-                  <p style={{ margin: '0 0 5px 0' }}>Emergencias 24 horas:</p>
-                  <p style={{ margin: '0 0 5px 0' }}>+563 2238 1603 - +563 5220 4200</p>
-                  <p style={{ margin: '0 0 5px 0' }}>Seguridad: 1458</p>
-                  <p style={{ margin: '0' }}>contacto@santodomingo.cl</p>
-                </IonCol>
-              </IonRow>
-            </IonGrid>
-          </footer>
+          <FooterBanner />
+
         </div>
       </IonContent>
     </IonPage>

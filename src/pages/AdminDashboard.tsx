@@ -6,15 +6,14 @@ import {
   IonRow,
   IonCol,
   IonButton,
-  IonAlert,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import BannerFoto from '../components/BannerFoto';
+import ConstructionAlert from '../components/ConstructionAlert';
 
 const AdminDashboard: React.FC = () => {
   const history = useHistory();
   const [nombreAdmin, setNombreAdmin] = useState('Nombre de Ejemplo');
-  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     const session = localStorage.getItem('user_session');
@@ -52,7 +51,7 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <IonPage>
-      {/* Banner con foto de fondo reutilizado */}
+      {/* Banner modificado correctamente */}
       <div style={{ position: 'relative' }}>
         <BannerFoto titulo="Administrador" />
 
@@ -90,7 +89,7 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Contenido principal */}
+      {/* Contenido principal con ConstructionAlert */}
       <IonContent style={{ '--background': '#f0f0f0' }}>
         <IonGrid>
           <IonRow className="ion-justify-content-center">
@@ -98,66 +97,60 @@ const AdminDashboard: React.FC = () => {
               <div style={{ padding: '32px 16px' }}>
 
                 {/* Generar Reportes */}
-                <div
-                  style={cardStyle}
-                  onClick={() => setShowAlert(true)}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
-                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
-                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-                  }}
-                >
-                  <p style={cardTitleStyle}>Generar reportes</p>
-                </div>
+                <ConstructionAlert>
+                  <div
+                    style={cardStyle}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
+                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <p style={cardTitleStyle}>Generar reportes</p>
+                  </div>
+                </ConstructionAlert>
 
                 {/* Trámites Asignados */}
-                <div
-                  style={{ ...cardStyle, background: '#fff5f5' }}
-                  onClick={() => setShowAlert(true)}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
-                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
-                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-                  }}
-                >
-                  <p style={cardTitleStyle}>Tramites asignados</p>
-                </div>
+                <ConstructionAlert>
+                  <div
+                    style={{ ...cardStyle, background: '#fff5f5' }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
+                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <p style={cardTitleStyle}>Tramites asignados</p>
+                  </div>
+                </ConstructionAlert>
 
                 {/* Confirmaciones de Residencia */}
-                <div
-                  style={cardStyle}
-                  onClick={() => setShowAlert(true)}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
-                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
-                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-                  }}
-                >
-                  <p style={cardTitleStyle}>Confirmaciones de residencia</p>
-                </div>
+                <ConstructionAlert>
+                  <div
+                    style={cardStyle}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
+                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <p style={cardTitleStyle}>Confirmaciones de residencia</p>
+                  </div>
+                </ConstructionAlert>
 
               </div>
             </IonCol>
           </IonRow>
         </IonGrid>
-
-        {/* Pop-up "En construcción" */}
-        <IonAlert
-          isOpen={showAlert}
-          onDidDismiss={() => setShowAlert(false)}
-          header="🚧 En construcción"
-          message="Esta funcionalidad estará disponible próximamente."
-          buttons={['Aceptar']}
-        />
       </IonContent>
     </IonPage>
   );

@@ -6,6 +6,7 @@ import {
 import { useHistory } from 'react-router-dom';
 import { eye, eyeOff } from 'ionicons/icons';
 import { authService } from '../services/authService';
+import ConstructionAlert from '../components/ConstructionAlert';
 
 const Register: React.FC = () => {
   const history = useHistory();
@@ -44,41 +45,52 @@ const Register: React.FC = () => {
       <IonContent className="ion-padding">
         <IonGrid>
           <IonRow className="ion-justify-content-center ion-align-items-center" style={{ minHeight: '100vh' }}>
-            <IonCol size="12" sizeLg="9" style={{ background: 'white', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.15)', overflow: 'hidden', padding: '0' }}>
+            <IonCol size="12" sizeMd="10" sizeLg="8" style={{ background: 'white', borderRadius: '8px', boxShadow: '0 4px 10px rgba(0,0,0,0.15)', overflow: 'hidden', padding: '0' }}>
               
-              <div style={{ backgroundColor: '#0088d6', padding: '20px', display: 'flex', alignItems: 'center', position: 'relative', minHeight: '80px' }}>
-                <img src="/assets/logo.webp" alt="Logo" style={{ height: '60px', zIndex: 2 }} />
+              <div style={{ backgroundColor: '#0088d6', padding: '20px', display: 'flex', alignItems: 'center', position: 'relative', minHeight: '100px' }}>
+                <img src="/assets/logo.webp" alt="Logo" style={{ height: '70px', zIndex: 2 }} />
                 <div style={{ position: 'absolute', width: '100%', left: 0, textAlign: 'center' }}>
-                  <h2 style={{ color: 'white', margin: '0', fontSize: '1.8rem', fontWeight: 'bold' }}>Registro</h2>
+                  <h2 style={{ color: 'white', margin: '0', fontSize: '1.6rem', fontWeight: 'bold', fontStyle: 'italic' }}>Registro de Usuario</h2>
                 </div>
               </div>
 
               <form onSubmit={handleRegister} style={{ padding: '30px' }}>
                 <IonGrid>
                   <IonRow>
+                    {/* Columna Izquierda */}
                     <IonCol size="12" sizeMd="6" style={columnStyle}>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Nombres</label>
                         <IonItem lines="outline">
                           <IonInput 
-                            placeholder="Ej: Juan Andrés"
+                            placeholder="Juan Antonio"
                             onIonChange={e => setFormData({...formData, nombres: e.detail.value!})} 
                           />
                         </IonItem>
                       </div>
                       <div style={inputContainerStyle}>
-                        <label style={labelStyle}>Apellido paterno</label>
-                        <IonItem lines="outline"><IonInput onIonChange={e => setFormData({...formData, apellidoP: e.detail.value!})} /></IonItem>
+                        <label style={labelStyle}>Apellido Paterno</label>
+                        <IonItem lines="outline">
+                          <IonInput 
+                            placeholder="Pérez"
+                            onIonChange={e => setFormData({...formData, apellidoP: e.detail.value!})} 
+                          />
+                        </IonItem>
                       </div>
                       <div style={inputContainerStyle}>
-                        <label style={labelStyle}>Apellido materno</label>
-                        <IonItem lines="outline"><IonInput onIonChange={e => setFormData({...formData, apellidoM: e.detail.value!})} /></IonItem>
+                        <label style={labelStyle}>Apellido Materno</label>
+                        <IonItem lines="outline">
+                          <IonInput 
+                            placeholder="García"
+                            onIonChange={e => setFormData({...formData, apellidoM: e.detail.value!})} 
+                          />
+                        </IonItem>
                       </div>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>RUT</label>
                         <IonItem lines="outline">
                           <IonInput 
-                            placeholder="12.345.678-9" 
+                            placeholder="12.345.678-9"
                             onIonChange={e => setFormData({...formData, rut: e.detail.value!})} 
                           />
                         </IonItem>
@@ -87,7 +99,7 @@ const Register: React.FC = () => {
                         <label style={labelStyle}>Correo Electrónico</label>
                         <IonItem lines="outline">
                           <IonInput 
-                            type="email" 
+                            type="email"
                             placeholder="ejemplo@correo.com"
                             onIonChange={e => setFormData({...formData, correo: e.detail.value!})} 
                           />
@@ -95,14 +107,25 @@ const Register: React.FC = () => {
                       </div>
                     </IonCol>
 
+                    {/* Columna Derecha */}
                     <IonCol size="12" sizeMd="6" style={columnStyle}>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Región</label>
-                        <IonItem lines="outline"><IonInput onIonChange={e => setFormData({...formData, region: e.detail.value!})} /></IonItem>
+                        <IonItem lines="outline">
+                          <IonInput 
+                            placeholder="Valparaíso"
+                            onIonChange={e => setFormData({...formData, region: e.detail.value!})} 
+                          />
+                        </IonItem>
                       </div>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Comuna</label>
-                        <IonItem lines="outline"><IonInput onIonChange={e => setFormData({...formData, comuna: e.detail.value!})} /></IonItem>
+                        <IonItem lines="outline">
+                          <IonInput 
+                            placeholder="Santo Domingo"
+                            onIonChange={e => setFormData({...formData, comuna: e.detail.value!})} 
+                          />
+                        </IonItem>
                       </div>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Contraseña</label>
@@ -133,7 +156,12 @@ const Register: React.FC = () => {
 
                 <div style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '20px' }}>
-                    Al crear un perfil aceptas los <a href="#" style={{ color: '#0088d6' }}>términos y condiciones</a>
+                    Al crear un perfil aceptas los {' '}
+                    <ConstructionAlert>
+                      <a href="#" style={{ color: '#0088d6', textDecoration: 'none', fontWeight: 'bold' }}>
+                        términos y condiciones
+                      </a>
+                    </ConstructionAlert>
                   </p>
                   <IonButton expand="block" type="submit" style={{ maxWidth: '300px', margin: '0 auto', '--background': '#0056b3' }}>
                     REGISTRARSE

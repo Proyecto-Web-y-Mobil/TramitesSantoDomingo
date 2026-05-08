@@ -6,6 +6,7 @@ import {
 import { useHistory } from 'react-router-dom';
 import { eye, eyeOff } from 'ionicons/icons';
 import { authService } from '../services/authService';
+import ConstructionAlert from '../components/ConstructionAlert';
 
 const Login: React.FC = () => {
   const history = useHistory();
@@ -15,10 +16,8 @@ const Login: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    
     const credential = userCredential.trim();
     const pass = password.trim();
-  
     const user = authService.login(credential, pass);
     
     if (user) {
@@ -70,14 +69,32 @@ const Login: React.FC = () => {
                 </div>
 
                 <p style={{ fontSize: '0.9rem', marginBottom: '25px' }}>
-                  <a href="#" style={{ color: '#666', textDecoration: 'none' }}>¿Olvidaste tu contraseña?</a>
+                  <ConstructionAlert>
+                    <a href="#" style={{ color: '#666', textDecoration: 'none' }}>¿Olvidaste tu contraseña?</a>
+                  </ConstructionAlert>
                 </p>
 
                 <IonButton expand="block" type="submit" style={{ marginBottom: '15px', '--background': '#0056b3' }}>
                   INICIAR SESIÓN
                 </IonButton>
 
-                <p style={{ textAlign: 'center', fontSize: '0.9rem' }}>
+                {/* Bloque de Clave Única corregido y centrado */}
+                <div style={{ borderTop: '1px solid #ddd', padding: '15px 0', marginTop: '10px', textAlign: 'center' }}>
+                  <p style={{ color: '#666', marginBottom: '15px', fontSize: '0.9rem' }}>
+                    Tambien puedes iniciar sesion con Clave Unica
+                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <ConstructionAlert>
+                      <img 
+                        src="/assets/ClaveUnica.png" 
+                        alt="Clave Única" 
+                        style={{ height: '40px', width: 'auto', cursor: 'pointer', display: 'block', margin: '0 auto' }}
+                      />
+                    </ConstructionAlert>
+                  </div>
+                </div>
+
+                <p style={{ textAlign: 'center', fontSize: '0.9rem', marginTop: '20px' }}>
                   ¿No tienes una cuenta? <a href="/register" style={{ color: '#0088d6', fontWeight: 'bold' }}>regístrate</a>
                 </p>
               </form>
