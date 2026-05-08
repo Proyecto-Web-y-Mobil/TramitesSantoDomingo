@@ -77,21 +77,6 @@ const Login: React.FC = () => {
                   INICIAR SESIÓN
                 </IonButton>
 
-                {/* BOTÓN MODIFICADO PARA REDIRIGIR AL LOGIN DE FUNCIONARIO */}
-                <IonButton 
-                  expand="block" 
-                  fill="outline"
-                  onClick={() => history.push('/login-funcionario')}
-                  style={{ marginBottom: '15px', '--color': '#0088d6', '--border-color': '#0088d6' }}
-                >
-                  <img 
-                    src="/assets/claveunica_logo.png" 
-                    alt="Logo" 
-                    style={{ height: '20px', marginRight: '10px' }} 
-                  />
-                  ACCESO FUNCIONARIO
-                </IonButton>
-
                 <p style={{ textAlign: 'center', fontSize: '0.9rem' }}>
                   ¿No tienes una cuenta? <a href="/register" style={{ color: '#0088d6', fontWeight: 'bold' }}>regístrate</a>
                 </p>
