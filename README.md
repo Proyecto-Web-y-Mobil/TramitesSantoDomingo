@@ -62,9 +62,9 @@ Siguiendo los principios de usabilidad de la cátedra, el diseño contempla:
 * **Apoyo:** Micro-feedback inmediato ante errores o éxito en la carga de archivos.
 
 ### Flujos de Tarea (Task Flows)
-1. **Inscripción a Taller:** Login -> Trámites -> DIDECO -> Detalle Taller -> Formulario -> Confirmación.
-2. **Agendar Licencia:** Login -> Trámites Presenciales -> Ver disponibilidad -> Seleccionar hora -> Confirmar.
-3. **Validación Residencia:** Perfil -> Subir documento -> Revisión Admin -> Aprobación -> Cambio a Rol Residente.
+1. **Inscripción a Taller:** Login -> Trámites -> DIDECO -> Detalle Taller -> Formulario -> Confirmacion Via Correo.
+2. **Agendar Trámite:** Login -> Trámites Presenciales -> Ver disponibilidad -> Seleccionar hora -> Confirmar.
+4. **Validación Residencia:** Perfil -> Subir documento -> Revisión Admin -> Aprobación -> Cambio a Rol Residente.
 
 ---
 
