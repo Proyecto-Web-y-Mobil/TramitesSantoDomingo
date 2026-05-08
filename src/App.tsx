@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import LoginFuncionario from './pages/LoginFuncionario'; 
 import Register from './pages/Register';
 import Profile from './pages/Profile';
+import Tramites from './pages/Tramites';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -41,9 +42,12 @@ const App: React.FC = () => (
         <Route exact path="/login-funcionario">
           <LoginFuncionario />
         </Route>
+        <Route exact path="/tramites">
+          <Tramites />
+        </Route>
         {/* Redirección por defecto para evitar rutas vacías */}
         <Route exact path="/">
-          <Redirect to="/login" />
+          <Redirect to="/tramites" />
         </Route>
       </IonRouterOutlet>
     </IonReactRouter>

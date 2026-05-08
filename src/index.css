@@ -4,3 +4,186 @@
 :root {
   --ion-background-color: #f3f4f6;
 }
+
+/* =========================
+   TRÁMITES
+========================= */
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.tramites-content {
+  --background: #efefef;
+}
+
+.tramites-page {
+  width: 390px;
+  min-height: 100vh;
+  margin: 0 auto;
+  border: 1px solid #777;
+  background: #efefef;
+}
+
+/* HEADER */
+.hero {
+  height: 145px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  color: white;
+}
+
+.hero-logo {
+  position: absolute;
+  top: 5px;
+  left: 8px;
+  width: 62px;
+  height: 78px;
+  object-fit: contain;
+  background: white;
+}
+
+.hero h1 {
+  position: absolute;
+  left: 70px;
+  top: 48px;
+  margin: 0;
+  font-size: 34px;
+  font-weight: bold;
+}
+
+.login-box {
+  position: absolute;
+  top: 28px;
+  right: 12px;
+  text-align: center;
+}
+
+.login-btn {
+  --background: #0b8ed0;
+  --border-radius: 2px;
+  height: 32px;
+  font-size: 16px;
+  text-transform: none;
+}
+
+.funcionarios-link {
+  margin: 0;
+  font-size: 8px;
+  color: white;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* GRID */
+.cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 48px;
+  row-gap: 28px;
+  padding: 30px 28px;
+  align-items: start;
+}
+
+.tramite-card {
+  width: 140px;
+}
+
+.tramite-card img {
+  width: 140px;
+  height: 82px;
+  object-fit: cover;
+  display: block;
+  border-radius: 2px;
+}
+
+/* BOTÓN BLANCO */
+.card-title-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  background: white;
+  padding: 3px 7px;
+
+  font-size: 10px;
+  color: #333;
+
+  margin-top: 4px;
+
+  font-style: italic;
+
+  border: none;
+  cursor: pointer;
+
+  box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.18);
+
+  line-height: 1.15;
+
+  max-width: 140px;
+
+  text-align: left;
+}
+
+.card-title-btn:hover {
+  background: #f2f2f2;
+}
+
+.card-subtitle-inline {
+  font-size: 9px;
+  margin-top: 1px;
+}
+
+/* BOTÓN AZUL */
+.card-btn {
+  --background: #0b2e70;
+  --border-radius: 0;
+
+  height: 25px;
+  width: 95px;
+
+  font-size: 9px;
+
+  margin: 3px 0 0;
+
+  text-transform: none;
+}
+
+.card-btn::part(native) {
+  padding: 0 8px;
+  text-transform: none;
+}
+
+/* FOOTER */
+.footer {
+  background: #0b8ed0;
+  color: white;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  padding: 10px 12px 6px;
+
+  font-size: 9px;
+
+  gap: 15px;
+}
+
+.footer p {
+  margin: 1px 0;
+}
+
+/* COPYRIGHT */
+.copyright {
+  background: #0b8ed0;
+  color: #00355f;
+
+  display: flex;
+  justify-content: space-between;
+
+  font-size: 7px;
+
+  padding: 0 10px 5px;
+}
