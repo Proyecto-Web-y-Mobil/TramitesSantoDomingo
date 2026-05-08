@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Tramites from './pages/Tramites';
 import AdminDashboard from './pages/AdminDashboard';
+import TalleresDideco from './pages/TalleresDideco';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -48,8 +49,11 @@ const App: React.FC = () => (
         <Route exact path="/admin-dashboard">
           <AdminDashboard />
         </Route>
+        <Route exact path="/talleres">
+          <TalleresDideco />
+        </Route>
         <Route exact path="/">
-          <Redirect to="/tramites" />
+          <Redirect to="/talleres" />
         </Route>
       </IonRouterOutlet>
     </IonReactRouter>
