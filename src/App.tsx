@@ -6,6 +6,7 @@ import LoginFuncionario from './pages/LoginFuncionario';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Tramites from './pages/Tramites';
+import AdminDashboard from './pages/AdminDashboard';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -35,7 +36,6 @@ const App: React.FC = () => (
         <Route exact path="/register">
           <Register />
         </Route>
-        {/* Asegúrate de que el path sea EXACTAMENTE igual al que usas en el history.push */}
         <Route exact path="/profile">
           <Profile />
         </Route>
@@ -45,7 +45,9 @@ const App: React.FC = () => (
         <Route exact path="/tramites">
           <Tramites />
         </Route>
-        {/* Redirección por defecto para evitar rutas vacías */}
+        <Route exact path="/admin-dashboard">
+          <AdminDashboard />
+        </Route>
         <Route exact path="/">
           <Redirect to="/tramites" />
         </Route>
