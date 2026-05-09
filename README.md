@@ -76,9 +76,38 @@ El desarrollo se gestiona íntegramente mediante herramientas de GitHub:
 ---
 
 ## 7. Instrucciones de Ejecución
-```bash
-# Instalar dependencias
-npm install
+Para visualizar y probar el proyecto correctamente en su entorno local, siga estos pasos:
 
-# Ejecutar en el navegador
+### 1. Requisitos Previos
+* **Node.js**: Asegúrese de tener instalado.
+* **Ionic CLI**: Recomendado para una mejor gestión del servidor.
+
+### 2. Instalación de Dependencias
+Ejecute el siguiente comando en la terminal del proyecto para instalar los módulos necesarios:
+```bash
+npm install
+```
+### 3. Inicie el servidor de desarrollo local con el siguiente comando:
+```bash
 ionic serve
+
+o alternativamente
+
+npm run dev
+```
+### 4. Credenciales
+En este punto ya deberia encontrarse en la pantalla principal de tramites, como podra darse cuenta en la esquina superior derecha
+podra realizar los respectivos inicios de sesion, para ello podra usar las siguientes credenciales o bien registrarse si asi
+lo desea.
+
+Inicio de sesion (Normal)
+RUT: 22.222.222-2
+Contraseña: 222
+
+Inicio de sesion Funcionario
+Email: admin@municipalidad.cl
+Contraseña: admin123
+
+### 5. Importante
+Cabe destacar que multiples de las funciones pensadas para la pagina aun no han sido implementadas, por ello a aquellas paginas que
+no estan listas se les ha incorporado un mensaje de error.
