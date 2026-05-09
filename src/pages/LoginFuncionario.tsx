@@ -14,13 +14,29 @@ const LoginFuncionario: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const user = authService.login(email.trim(), password.trim());
+    
+    // Captura directa del formulario para asegurar que no se lean campos vacíos
+    const data = new FormData(e.currentTarget);
+    const emailLimpio = (data.get('email-input') as string || email).trim();
+    const passLimpio = (data.get('pass-input') as string || password).trim();
+  
+    if (!emailLimpio || !passLimpio) {
+      alert("Por favor, complete todos los campos.");
+      return;
+    }
+  
+    const user = authService.login(emailLimpio, passLimpio);
+    
     if (user) {
-      setTimeout(() => history.push('/admin-dashboard'), 100);
+      // Pequeño delay de 100ms para asegurar que la sesión se escriba en disco
+      // antes de que el AdminDashboard intente validarla.
+      setTimeout(() => {
+        history.replace('/admin-dashboard');
+      }, 100);
     } else {
-      alert("Credenciales institucionales no válidas.");
+      alert("Credenciales de inicio de sesión incorrectas.");
     }
   };
 
@@ -39,14 +55,26 @@ const LoginFuncionario: React.FC = () => {
                 <div style={{ marginBottom: '25px' }}>
                   <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Correo Institucional</label>
                   <IonItem lines="outline">
-                    <IonInput type="email" value={email} placeholder="usuario@municipalidad.cl" onIonChange={e => setEmail(e.detail.value!)} />
+                    <IonInput 
+                      name="email-input"
+                      type="email" 
+                      value={email} 
+                      placeholder="usuario@municipalidad.cl" 
+                      onIonChange={e => setEmail(e.detail.value!)} 
+                    />
                   </IonItem>
                 </div>
 
                 <div style={{ marginBottom: '15px' }}>
                   <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Contraseña</label>
                   <IonItem lines="outline">
-                    <IonInput type={showPass ? 'text' : 'password'} value={password} placeholder="********" onIonChange={e => setPassword(e.detail.value!)} />
+                    <IonInput 
+                      name="pass-input"
+                      type={showPass ? 'text' : 'password'} 
+                      value={password} 
+                      placeholder="********" 
+                      onIonChange={e => setPassword(e.detail.value!)} 
+                    />
                     <IonButton fill="clear" slot="end" onClick={() => setShowPass(!showPass)}>
                       <IonIcon icon={showPass ? eyeOff : eye} color="medium" />
                     </IonButton>
