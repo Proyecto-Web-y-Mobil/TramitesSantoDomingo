@@ -11,7 +11,11 @@
 ## 2. Definición del Problema y Usuario Objetivo (EP 1.2)
 
 ### Justificación
-Actualmente, la Municipalidad de Santo Domingo presenta una oferta digital incompleta. El sistema actual redirige a sitios externos y carece de una gestión de usuarios personalizada. En un contexto donde solo el 19% de las comunas en Chile permite agendar licencias de conducir en línea, este proyecto busca unificar la experiencia del usuario y automatizar la validación de residencia conforme a la Ley 21.180 de Transformación Digital.
+La Municipalidad de Santo Domingo cuenta actualmente con una plataforma de trámites en línea que presenta múltiples deficiencias, como una oferta limitada de servicios, fragmentación entre distintos sitios web, inconsistencias en la ejecución de trámites, problemas de calidad y falta de gestión de perfiles de usuario.
+
+Este proyecto propone el desarrollo de una nueva plataforma web y móvil que centralice y modernice los trámites municipales, permitiendo a ciudadanos y funcionarios realizar gestiones de forma más eficiente. Entre las funcionalidades contempladas se incluyen inscripción a talleres, solicitud de beneficios sociales, obtención de certificados, pago de permisos y multas, además de herramientas de validación y gestión para funcionarios municipales.
+
+La propuesta también incorpora un sistema de perfiles personalizados y bases de datos orientadas a mejorar la experiencia del usuario. Asimismo, el proyecto se alinea con la transformación digital del sector público en Chile y contribuye al cumplimiento de la Ley 21.180, que establece la digitalización total de los organismos públicos para el año 2027.
 
 ### Perfiles de Usuario
 * **Ciudadano (Invitado/Residente):** Usuarios mayores de 18 años que buscan realizar trámites y beneficios sociales (DIDECO) desde dispositivos móviles o web.
