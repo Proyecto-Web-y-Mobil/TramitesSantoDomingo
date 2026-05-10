@@ -71,11 +71,11 @@ Siguiendo los principios de usabilidad de la cátedra, el diseño contempla:
 3. **Validación Residencia:** Perfil -> Subir documento -> Revisión Admin -> Aprobación -> Cambio a Rol Residente.
 
 <div align="center">
-  <img src="assets/tu-diagrama.png" alt="Flujo de Navegacion" width="600px">
+  <img src="Otros/Flowchart - Flujo navegación.png" alt="Flujo de Navegacion" width="600px">
 </div>
 
 <div align="center">
-  <img src="assets/tu-diagrama.png" alt="Task-Flow" width="600px">
+  <img src="Otros/Flowchart - Task Flow.png" alt="Task-Flow" width="600px">
 </div>
 
 ---
