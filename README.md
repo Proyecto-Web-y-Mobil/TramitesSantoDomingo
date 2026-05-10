@@ -55,9 +55,9 @@ Se han diseñado 7 mockups diferenciados para versiones móvil y web, consideran
 ## 5. Arquitectura de Navegación y UX (EP 1.4)
 
 ### Mapa de Rutas
-* **Públicas:** `/login`, `/registro`, `/home`.
-* **Protegidas (Ciudadano):** `/perfil`, `/mis-tramites`, `/agendamiento`, `/dideco`.
-* **Protegidas (Funcionario):** `/admin/panel`, `/admin/revision`, `/admin/reportes`.
+* **Públicas:** `/login`, `/registro`, `/tramites`.
+* **Protegidas (Ciudadano):** `/profile`, `/mis-tramites`, `/mis-agendas`, `/dideco`.
+* **Protegidas (Funcionario):** `/admin-dashboard`, `/Generar-reportes`, `/tramites-asignados`, `/Confirmaciones-de-Residencia`.
 
 ### Estrategia de Experiencia de Usuario (UX)
 Siguiendo los principios de usabilidad de la cátedra, el diseño contempla:
@@ -69,6 +69,14 @@ Siguiendo los principios de usabilidad de la cátedra, el diseño contempla:
 1. **Inscripción a Taller:** Login -> Trámites -> DIDECO -> Detalle Taller -> Formulario -> Confirmacion Via Correo.
 2. **Agendar Trámite:** Login -> Trámites Presenciales -> Ver disponibilidad -> Seleccionar hora -> Confirmar.
 3. **Validación Residencia:** Perfil -> Subir documento -> Revisión Admin -> Aprobación -> Cambio a Rol Residente.
+
+<div align="center">
+  <img src="assets/tu-diagrama.png" alt="Flujo de Navegacion" width="600px">
+</div>
+
+<div align="center">
+  <img src="assets/tu-diagrama.png" alt="Task-Flow" width="600px">
+</div>
 
 ---
 
