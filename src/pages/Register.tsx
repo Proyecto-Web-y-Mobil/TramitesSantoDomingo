@@ -11,28 +11,52 @@ import ConstructionAlert from '../components/ConstructionAlert';
 const Register: React.FC = () => {
   const history = useHistory();
   const [showPass, setShowPass] = useState(false);
-  const [formData, setFormData] = useState({
-    nombres: '', apellidoP: '', apellidoM: '',
-    rut: '', correo: '', region: '',
-    comuna: '', password: '', confirmPassword: ''
-  });
 
-  const handleRegister = (e: React.FormEvent) => {
+  // El manejador pasa a ser asíncrono para pegarle a la API REST (EP 2.4)
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
+    // Captura limpia del árbol DOM al vuelo con FormData para mitigar bugs de sincronización
+    const data = new FormData(e.currentTarget);
+    
+    const password = (data.get('password-input') as string || '').trim();
+    const confirmPassword = (data.get('confirmPassword-input') as string || '').trim();
+
+    // Validación en el cliente: Contraseñas idénticas (EP 2.6)
+    if (password !== confirmPassword) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+
+    // Estructuramos el objeto JSON exacto que tu servidor Express espera procesar (EP 2.3)
+    const nuevoUsuario = {
+      nombres: (data.get('nombres-input') as string || '').trim(),
+      apellidoP: (data.get('apellidoP-input') as string || '').trim(),
+      apellidoM: (data.get('apellidoM-input') as string || '').trim(),
+      rut: (data.get('rut-input') as string || '').trim(),
+      correo: (data.get('correo-input') as string || '').trim(),
+      region: (data.get('region-input') as string || '').trim(),
+      comuna: (data.get('comuna-input') as string || '').trim(),
+      password: password,
+      rol: 'ciudadano' // Campo implícito obligatorio para el control de roles del backend (EP 2.5)
+    };
+
+    // Validación de obligatoriedad básica en el cliente
+    if (!nuevoUsuario.rut || !nuevoUsuario.correo || !nuevoUsuario.password) {
+      alert("RUT, Correo y Contraseña son campos obligatorios.");
+      return;
+    }
+    
     try {
-      if (formData.password !== formData.confirmPassword) {
-        alert("Las contraseñas no coinciden");
-        return;
-      }
-      
-      authService.register(formData);
+      // Intentamos registrar al usuario en la API con await (EP 2.4)
+      await authService.register(nuevoUsuario);
       
       alert("¡Registro exitoso! Ahora inicia sesión.");
       history.push('/login');
       
     } catch (error: any) {
-      alert(error.message);
+      // Intercepta los errores enviados desde Express (ej: "El usuario ya está registrado")
+      alert(error.message || "Error al procesar el registro.");
     }
   };
 
@@ -54,6 +78,7 @@ const Register: React.FC = () => {
                 </div>
               </div>
 
+              {/* El formulario ejecuta nuestro manejador asíncrono */}
               <form onSubmit={handleRegister} style={{ padding: '30px' }}>
                 <IonGrid>
                   <IonRow>
@@ -62,47 +87,31 @@ const Register: React.FC = () => {
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Nombres</label>
                         <IonItem lines="outline">
-                          <IonInput 
-                            placeholder="Juan Antonio"
-                            onIonChange={e => setFormData({...formData, nombres: e.detail.value!})} 
-                          />
+                          <IonInput name="nombres-input" placeholder="Juan Antonio" />
                         </IonItem>
                       </div>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Apellido Paterno</label>
                         <IonItem lines="outline">
-                          <IonInput 
-                            placeholder="Pérez"
-                            onIonChange={e => setFormData({...formData, apellidoP: e.detail.value!})} 
-                          />
+                          <IonInput name="apellidoP-input" placeholder="Pérez" />
                         </IonItem>
                       </div>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Apellido Materno</label>
                         <IonItem lines="outline">
-                          <IonInput 
-                            placeholder="García"
-                            onIonChange={e => setFormData({...formData, apellidoM: e.detail.value!})} 
-                          />
+                          <IonInput name="apellidoM-input" placeholder="García" />
                         </IonItem>
                       </div>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>RUT</label>
                         <IonItem lines="outline">
-                          <IonInput 
-                            placeholder="12.345.678-9"
-                            onIonChange={e => setFormData({...formData, rut: e.detail.value!})} 
-                          />
+                          <IonInput name="rut-input" placeholder="12.345.678-9" />
                         </IonItem>
                       </div>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Correo Electrónico</label>
                         <IonItem lines="outline">
-                          <IonInput 
-                            type="email"
-                            placeholder="ejemplo@correo.com"
-                            onIonChange={e => setFormData({...formData, correo: e.detail.value!})} 
-                          />
+                          <IonInput name="correo-input" type="email" placeholder="ejemplo@correo.com" />
                         </IonItem>
                       </div>
                     </IonCol>
@@ -112,28 +121,22 @@ const Register: React.FC = () => {
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Región</label>
                         <IonItem lines="outline">
-                          <IonInput 
-                            placeholder="Valparaíso"
-                            onIonChange={e => setFormData({...formData, region: e.detail.value!})} 
-                          />
+                          <IonInput name="region-input" placeholder="Valparaíso" />
                         </IonItem>
                       </div>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Comuna</label>
                         <IonItem lines="outline">
-                          <IonInput 
-                            placeholder="Santo Domingo"
-                            onIonChange={e => setFormData({...formData, comuna: e.detail.value!})} 
-                          />
+                          <IonInput name="comuna-input" placeholder="Santo Domingo" />
                         </IonItem>
                       </div>
                       <div style={inputContainerStyle}>
                         <label style={labelStyle}>Contraseña</label>
                         <IonItem lines="outline">
                           <IonInput 
+                            name="password-input"
                             type={showPass ? 'text' : 'password'} 
                             placeholder="********"
-                            onIonChange={e => setFormData({...formData, password: e.detail.value!})} 
                           />
                           <IonButton fill="clear" slot="end" onClick={() => setShowPass(!showPass)}>
                             <IonIcon icon={showPass ? eyeOff : eye} />
@@ -144,9 +147,9 @@ const Register: React.FC = () => {
                         <label style={labelStyle}>Confirmar Contraseña</label>
                         <IonItem lines="outline">
                           <IonInput 
+                            name="confirmPassword-input"
                             type={showPass ? 'text' : 'password'} 
                             placeholder="********"
-                            onIonChange={e => setFormData({...formData, confirmPassword: e.detail.value!})} 
                           />
                         </IonItem>
                       </div>

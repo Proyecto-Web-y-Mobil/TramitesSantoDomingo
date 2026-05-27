@@ -10,33 +10,39 @@ import BannerFoto from '../components/BannerFoto';
 
 const LoginFuncionario: React.FC = () => {
   const history = useHistory();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  // Modificado a manejador asíncrono para consumir la API (EP 2.4)
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    // Captura directa del formulario para asegurar que no se lean campos vacíos
+    // Captura directa y limpia del formulario usando la API de FormData
     const data = new FormData(e.currentTarget);
-    const emailLimpio = (data.get('email-input') as string || email).trim();
-    const passLimpio = (data.get('pass-input') as string || password).trim();
+    const emailLimpio = (data.get('email-input') as string || '').trim();
+    const passLimpio = (data.get('pass-input') as string || '').trim();
   
+    // Validación de obligatoriedad en el cliente (EP 2.6)
     if (!emailLimpio || !passLimpio) {
       alert("Por favor, complete todos los campos.");
       return;
     }
   
-    const user = authService.login(emailLimpio, passLimpio);
-    
-    if (user) {
-      // Pequeño delay de 100ms para asegurar que la sesión se escriba en disco
-      // antes de que el AdminDashboard intente validarla.
-      setTimeout(() => {
-        history.replace('/admin-dashboard');
-      }, 100);
-    } else {
-      alert("Credenciales de inicio de sesión incorrectas.");
+    try {
+      // Petición real esperando la resolución asíncrona del backend (EP 2.4, EP 2.5)
+      const user = await authService.login(emailLimpio, passLimpio);
+      
+      // Validamos que el usuario retornado posea el rol correspondiente
+      if (user && user.rol === 'funcionario') {
+        // Mantenemos nuestro delay de 100ms para asegurar la consistencia en el almacenamiento local
+        setTimeout(() => {
+          history.replace('/admin-dashboard');
+        }, 100);
+      } else {
+        alert("No tiene permisos para acceder al panel administrativo.");
+      }
+    } catch (error: any) {
+      // Atrapa errores HTTP del backend (como claves inválidas o usuario no registrado)
+      alert(error.message || "Credenciales de inicio de sesión incorrectas.");
     }
   };
 
@@ -55,12 +61,11 @@ const LoginFuncionario: React.FC = () => {
                 <div style={{ marginBottom: '25px' }}>
                   <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Correo Institucional</label>
                   <IonItem lines="outline">
+                    {/* Quitamos value y onIonChange. FormData se encarga usando 'name' */}
                     <IonInput 
                       name="email-input"
                       type="email" 
-                      value={email} 
                       placeholder="usuario@municipalidad.cl" 
-                      onIonChange={e => setEmail(e.detail.value!)} 
                     />
                   </IonItem>
                 </div>
@@ -68,12 +73,11 @@ const LoginFuncionario: React.FC = () => {
                 <div style={{ marginBottom: '15px' }}>
                   <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Contraseña</label>
                   <IonItem lines="outline">
+                    {/* Quitamos value y onIonChange. FormData se encarga usando 'name' */}
                     <IonInput 
                       name="pass-input"
                       type={showPass ? 'text' : 'password'} 
-                      value={password} 
                       placeholder="********" 
-                      onIonChange={e => setPassword(e.detail.value!)} 
                     />
                     <IonButton fill="clear" slot="end" onClick={() => setShowPass(!showPass)}>
                       <IonIcon icon={showPass ? eyeOff : eye} color="medium" />

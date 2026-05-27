@@ -10,25 +10,36 @@ import ConstructionAlert from '../components/ConstructionAlert';
 
 const Login: React.FC = () => {
   const history = useHistory();
-  const [rut, setRut] = useState(''); // Cambiado de userCredential a rut
-  const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  // El manejador ahora es asíncrono (async) para soportar la petición de red (EP 2.4)
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    const rutLimpio = rut.trim();
-    const pass = password.trim();
+    // Captura robusta de datos directa desde el árbol DOM usando FormData
+    const data = new FormData(e.currentTarget);
+    const rutLimpio = (data.get('rut-input') as string || '').trim();
+    const passLimpio = (data.get('pass-input') as string || '').trim();
   
-    // Ahora enviamos explícitamente el RUT al servicio
-    const user = authService.login(rutLimpio, pass);
-    
-    if (user) {
-      requestAnimationFrame(() => {
-        history.replace('/tramites-user');
-      });
-    } else {
-      alert("RUT o contraseña incorrectos. Revisa los datos.");
+    // Validación de inputs del lado del cliente (EP 2.6)
+    if (!rutLimpio || !passLimpio) {
+      alert("Por favor, complete todos los campos.");
+      return;
+    }
+  
+    try {
+      // Consumo de la API con await esperando la validación y el JWT (EP 2.4, EP 2.5)
+      const user = await authService.login(rutLimpio, passLimpio);
+      
+      if (user) {
+        // Mantenemos el truco de sincronización para asegurar la escritura del LocalStorage
+        setTimeout(() => {
+          history.replace('/tramites-user');
+        }, 100);
+      }
+    } catch (error: any) {
+      // Captura los errores controlados enviados por el servidor Express (ej: 401 o 400)
+      alert(error.message || "RUT o contraseña incorrectos. Revisa los datos.");
     }
   };
 
@@ -47,15 +58,15 @@ const Login: React.FC = () => {
                 </div>
               </div>
 
+              {/* El formulario ejecuta nuestro manejador asíncrono */}
               <form onSubmit={handleLogin} style={{ padding: '30px' }}>
-                <div style={{ marginBottom: '25px' }}>
-                  {/* Etiqueta y placeholder modificados para mostrar solo RUT */}
+                <div style={{ GridBottom: '25px', marginBottom: '25px' }}>
                   <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>RUT</label>
                   <IonItem lines="outline">
+                    {/* Agregamos el atributo 'name' para que FormData capture el valor */}
                     <IonInput 
-                      value={rut} 
+                      name="rut-input"
                       placeholder="12.345.678-9" 
-                      onIonChange={e => setRut(e.detail.value!)} 
                     />
                   </IonItem>
                 </div>
@@ -63,19 +74,17 @@ const Login: React.FC = () => {
                 <div style={{ marginBottom: '10px' }}>
                   <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '8px' }}>Contraseña</label>
                   <IonItem lines="outline">
+                    {/* Agregamos el atributo 'name' para que FormData capture el valor */}
                     <IonInput 
+                      name="pass-input"
                       type={showPass ? 'text' : 'password'} 
-                      value={password} 
                       placeholder="********"
-                      onIonChange={e => setPassword(e.detail.value!)} 
                     />
                     <IonButton fill="clear" slot="end" onClick={() => setShowPass(!showPass)}>
                       <IonIcon icon={showPass ? eyeOff : eye} color="medium" />
                     </IonButton>
                   </IonItem>
                 </div>
-
-                {/* ... resto del formulario (Olvide contraseña, Clave Única, etc) igual que antes */}
                 
                 <IonButton expand="block" type="submit" style={{ marginBottom: '15px', '--background': '#0056b3' }}>
                   INICIAR SESIÓN
