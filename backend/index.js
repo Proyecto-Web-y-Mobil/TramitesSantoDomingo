@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const bcrypt = require('bcrypt'); // Librería de encriptación (EP 2.6)
+const jwt = require('jsonwebtoken'); // Librería de tokens (EP 2.5)
 require('dotenv').config();
 const pool = require('./db');
 
@@ -8,15 +10,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Endpoint de verificación
+// Secreto para el JWT (En producción debe estar en el archivo .env)
+const JWT_SECRET = process.env.JWT_SECRET || 'llave_secreta_municipalidad_2026';
+
 app.get('/api', (req, res) => {
-  res.json({ 
-    status: 'success',
-    message: 'Servidor Backend Municipal operativo con base de datos.' 
-  });
+  res.json({ status: 'success', message: 'Servidor Backend Municipal operativo y seguro.' });
 });
 
-// LOGIN
+// LOGIN SEGURO CON BCRYPT Y JWT
 app.post('/api/auth/login', async (req, res) => {
   const { credential, password } = req.body;
 
@@ -25,9 +26,10 @@ app.post('/api/auth/login', async (req, res) => {
   }
 
   try {
+    // 1. Buscamos al usuario SOLO por RUT o Correo (No por contraseña)
     const [rows] = await pool.query(
-      'SELECT * FROM usuarios WHERE (rut = ? OR correo = ?) AND password_hash = ?',
-      [credential, credential, password]
+      'SELECT * FROM usuarios WHERE rut = ? OR correo = ?',
+      [credential, credential]
     );
 
     if (rows.length === 0) {
@@ -36,17 +38,29 @@ app.post('/api/auth/login', async (req, res) => {
 
     const user = rows[0];
 
-    // Obtener nombre del rol
+    // 2. Comparamos la contraseña plana con el Hash indescifrable de la DB
+    const validPassword = await bcrypt.compare(password, user.password_hash);
+    if (!validPassword) {
+      return res.status(401).json({ message: 'Credenciales incorrectas.' });
+    }
+
+    // 3. Obtenemos el nombre del rol
     const [roles] = await pool.query(
       'SELECT nombre FROM roles WHERE id = ?',
       [user.id_rol]
     );
-
     const rol = roles[0]?.nombre || 'ciudadano';
+
+    // 4. Generamos el Token JWT real (EP 2.5)
+    const token = jwt.sign(
+      { id: user.id, rut: user.rut, rol: rol },
+      JWT_SECRET,
+      { expiresIn: '2h' } // El token caduca en 2 horas por seguridad
+    );
 
     res.json({
       message: 'Login exitoso',
-      token: 'jwt_token_simulado_ep2',
+      token: token, // Enviamos el JWT real
       user: {
         rut: user.rut,
         correo: user.correo,
@@ -65,7 +79,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
-// REGISTRO
+// REGISTRO SEGURO CON BCRYPT
 app.post('/api/auth/register', async (req, res) => {
   const { rut, nombres, apellidoP, apellidoM, correo, password, region, comuna } = req.body;
 
@@ -74,7 +88,6 @@ app.post('/api/auth/register', async (req, res) => {
   }
 
   try {
-    // Verificar si ya existe
     const [existe] = await pool.query(
       'SELECT id FROM usuarios WHERE rut = ? OR correo = ?',
       [rut, correo]
@@ -84,12 +97,15 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ message: 'El usuario ya está registrado.' });
     }
 
-    // Insertar nuevo usuario con rol ciudadano (id_rol = 1)
+    // Hasheamos la contraseña antes de guardarla (EP 2.6)
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     await pool.query(
       `INSERT INTO usuarios 
         (nombres, apellido_p, apellido_m, rut, correo, region, comuna, password_hash, id_rol) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
-      [nombres, apellidoP, apellidoM, rut, correo, region, comuna, password]
+      [nombres, apellidoP, apellidoM, rut, correo, region, comuna, hashedPassword] // Insertamos el Hash
     );
 
     res.status(201).json({
@@ -105,5 +121,5 @@ app.post('/api/auth/register', async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
