@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://tramitessantodomingo-production.up.railway.app/api';
 
 export const authService = {
   // 1. REGISTRO CONECTADO AL BACKEND (EP 2.4 / 2.5)
