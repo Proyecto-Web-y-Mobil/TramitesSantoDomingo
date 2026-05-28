@@ -1,92 +1,109 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
+const pool = require('./db');
 
 const app = express();
 
-// Middlewares obligatorios de la EP 2.1
-app.use(cors()); // Evita bloqueos de conexión con Ionic/StackBlitz
-app.use(express.json()); // Permite procesar datos en formato JSON
+app.use(cors());
+app.use(express.json());
 
-// Simulación temporal de datos (Basado en tu login actual)
-const usuariosSimulados = [
-  {
-    id: 1,
-    nombres: 'Admin',
-    apellidoP: 'Municipal',
-    apellidoM: '',
-    rut: '11111111-1',
-    correo: 'admin@municipalidad.cl',
-    password: 'admin123', // En la EP 2.5 esto usará bcrypt
-    rol: 'funcionario'
-  }
-];
-
-// Endpoint Base de Verificación (EP 2.1)
+// Endpoint de verificación
 app.get('/api', (req, res) => {
   res.json({ 
     status: 'success',
-    message: 'Servidor Backend Municipal de la EP 2.1 Operativo con Éxito.' 
+    message: 'Servidor Backend Municipal operativo con base de datos.' 
   });
 });
 
-// Contrato inicial para el Login (EP 2.4)
-app.post('/api/auth/login', (req, res) => {
+// LOGIN
+app.post('/api/auth/login', async (req, res) => {
   const { credential, password } = req.body;
 
   if (!credential || !password) {
     return res.status(400).json({ message: 'Por favor, complete todos los campos.' });
   }
 
-  const user = usuariosSimulados.find(u => 
-    (u.rut === credential || u.correo === credential) && u.password === password
-  );
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM usuarios WHERE (rut = ? OR correo = ?) AND password_hash = ?',
+      [credential, credential, password]
+    );
 
-  if (!user) {
-    return res.status(401).json({ message: 'Credenciales de inicio de sesión incorrectas.' });
-  }
-
-  res.json({
-    message: 'Login exitoso',
-    token: 'jwt_token_simulado_ep2', // En la EP 2.6 generaremos un JWT real
-    user: {
-      rut: user.rut,
-      correo: user.correo,
-      nombres: user.nombres,
-      rol: user.rol
+    if (rows.length === 0) {
+      return res.status(401).json({ message: 'Credenciales incorrectas.' });
     }
-  });
+
+    const user = rows[0];
+
+    // Obtener nombre del rol
+    const [roles] = await pool.query(
+      'SELECT nombre FROM roles WHERE id = ?',
+      [user.id_rol]
+    );
+
+    const rol = roles[0]?.nombre || 'ciudadano';
+
+    res.json({
+      message: 'Login exitoso',
+      token: 'jwt_token_simulado_ep2',
+      user: {
+        rut: user.rut,
+        correo: user.correo,
+        nombres: user.nombres,
+        apellidoP: user.apellido_p,
+        apellidoM: user.apellido_m,
+        region: user.region,
+        comuna: user.comuna,
+        rol: rol
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
 });
 
-// Contrato inicial para el Registro (EP 2.4)
-app.post('/api/auth/register', (req, res) => {
-  const { rut, nombres, apellidoP, apellidoM, correo, password, rol } = req.body;
+// REGISTRO
+app.post('/api/auth/register', async (req, res) => {
+  const { rut, nombres, apellidoP, apellidoM, correo, password, region, comuna } = req.body;
 
   if (!rut || !correo || !password) {
     return res.status(400).json({ message: 'RUT, correo y contraseña son obligatorios.' });
   }
 
-  const existe = usuariosSimulados.find(u => u.rut === rut || u.correo === correo);
-  if (existe) {
-    return res.status(400).json({ message: 'El usuario ya está registrado en el sistema.' });
+  try {
+    // Verificar si ya existe
+    const [existe] = await pool.query(
+      'SELECT id FROM usuarios WHERE rut = ? OR correo = ?',
+      [rut, correo]
+    );
+
+    if (existe.length > 0) {
+      return res.status(400).json({ message: 'El usuario ya está registrado.' });
+    }
+
+    // Insertar nuevo usuario con rol ciudadano (id_rol = 1)
+    await pool.query(
+      `INSERT INTO usuarios 
+        (nombres, apellido_p, apellido_m, rut, correo, region, comuna, password_hash, id_rol) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+      [nombres, apellidoP, apellidoM, rut, correo, region, comuna, password]
+    );
+
+    res.status(201).json({
+      message: 'Usuario registrado con éxito.',
+      user: { rut, correo, rol: 'ciudadano' }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
   }
-
-  const nuevoUsuario = {
-    id: usuariosSimulados.length + 1,
-    rut, nombres, apellidoP, apellidoM, correo, password,
-    rol: rol || 'ciudadano'
-  };
-
-  usuariosSimulados.push(nuevoUsuario);
-
-  res.status(201).json({
-    message: 'Usuario registrado con éxito',
-    user: { rut, correo, rol: nuevoUsuario.rol }
-  });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`==================================================`);
-  console.log(`🚀 Servidor Express corriendo en http://localhost:${PORT}`);
-  console.log(`==================================================`);
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
