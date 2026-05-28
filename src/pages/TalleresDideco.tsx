@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { 
   IonPage, 
   IonContent, 
@@ -5,11 +6,27 @@ import {
   IonCard, 
   IonCardContent 
 } from "@ionic/react";
+import { useHistory } from 'react-router-dom';
 import FooterBanner from '../components/FooterBanner';
 import HeaderBanner from '../components/HeaderBanner';
-import ConstructionAlert from '../components/ConstructionAlert'; // Importación de la alerta reutilizable
+import ConstructionAlert from '../components/ConstructionAlert'; 
+import { authService } from '../services/authService';
 
 export default function TalleresDideco() {
+  const history = useHistory();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        await authService.verifySession();
+      } catch (error) {
+        authService.logout();
+        history.push('/login');
+      }
+    };
+    checkSession();
+  }, [history]);
+
   const talleres = [
     { titulo: "Arteterapia", img: "/assets/arte.png" },
     { titulo: "Zumba", img: "/assets/zumba.png" },

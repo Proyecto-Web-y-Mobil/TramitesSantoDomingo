@@ -14,6 +14,7 @@ import {
 import { useHistory } from 'react-router-dom';
 import BannerFoto from '../components/BannerFoto';
 import ConstructionAlert from '../components/ConstructionAlert';
+import { authService } from '../services/authService';
 
 const cssVariables = `
   :root {
@@ -37,18 +38,25 @@ const Profile = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const session = localStorage.getItem('user_session');
-    if (session) {
-      const user = JSON.parse(session);
-      setNombre(`${user.nombres} ${user.apellidoP} ${user.apellidoM}`);
-      setRut(user.rut);
-      setCorreo(user.correo);
-      setRegion(user.region);
-      setComuna(user.comuna);
-      setIsLoaded(true);
-    } else {
-      history.push('/login');
-    }
+    const checkSession = async () => {
+      try {
+        await authService.verifySession();
+        const session = localStorage.getItem('user_session');
+        if (session) {
+          const user = JSON.parse(session);
+          setNombre(`${user.nombres} ${user.apellidoP} ${user.apellidoM}`);
+          setRut(user.rut);
+          setCorreo(user.correo);
+          setRegion(user.region);
+          setComuna(user.comuna);
+          setIsLoaded(true);
+        }
+      } catch (error) {
+        authService.logout();
+        history.push('/login');
+      }
+    };
+    checkSession();
   }, [history]);
 
   if (!isLoaded) return null;

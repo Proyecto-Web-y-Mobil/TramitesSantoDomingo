@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { 
   IonPage, 
   IonContent, 
@@ -8,10 +9,23 @@ import {
 import { useHistory } from 'react-router-dom';
 import FooterBanner from '../components/FooterBanner';
 import HeaderBanner from '../components/HeaderBanner';
-import ConstructionAlert from '../components/ConstructionAlert'; // Importación de la alerta reutilizable
+import ConstructionAlert from '../components/ConstructionAlert'; 
+import { authService } from '../services/authService';
 
 export default function TramitesLogueado() {
   const history = useHistory();
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        await authService.verifySession();
+      } catch (error) {
+        authService.logout();
+        history.push('/login');
+      }
+    };
+    checkSession();
+  }, [history]);
 
   const tramites = [
     { titulo: "Permiso Circulación", img: "/assets/permiso.png" },
@@ -21,7 +35,7 @@ export default function TramitesLogueado() {
     { 
       titulo: "Talleres DIDECO", 
       img: "/assets/talleres.png", 
-      ruta: "/talleres" // Única ruta activa por ahora
+      ruta: "/talleres" 
     },
     { titulo: "Dirección de obras municipales", subtitulo: "(DOM)", img: "/assets/dom.png" },
     { titulo: "Trámites Presenciales", img: "/assets/presencial.png" },
@@ -50,7 +64,6 @@ export default function TramitesLogueado() {
               justifyContent: 'center'
             }}>
               {tramites.map((item, index) => {
-                // Contenido base de la tarjeta
                 const CardContent = (
                   <IonCard style={{ 
                     margin: '0 auto', 
@@ -92,7 +105,6 @@ export default function TramitesLogueado() {
                   </IonCard>
                 );
 
-                // Si tiene ruta (Talleres), se renderiza normal; si no, se envuelve en la alerta
                 return item.ruta ? (
                   <div key={index}>
                     {CardContent}

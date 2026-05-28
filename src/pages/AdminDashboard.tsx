@@ -10,23 +10,31 @@ import {
 import { useHistory } from 'react-router-dom';
 import BannerFoto from '../components/BannerFoto';
 import ConstructionAlert from '../components/ConstructionAlert';
+import { authService } from '../services/authService';
 
 const AdminDashboard: React.FC = () => {
   const history = useHistory();
-  const [nombreAdmin, setNombreAdmin] = useState('Nombre de Ejemplo');
+  const [nombreAdmin, setNombreAdmin] = useState('Cargando...');
 
   useEffect(() => {
-    const session = localStorage.getItem('user_session');
-    if (session) {
-      const user = JSON.parse(session);
-      setNombreAdmin(`${user.nombres} ${user.apellidoP}`);
-    } else {
-      history.push('/login-funcionario');
-    }
+    const checkSession = async () => {
+      try {
+        await authService.verifySession();
+        const session = localStorage.getItem('user_session');
+        if (session) {
+          const user = JSON.parse(session);
+          setNombreAdmin(`${user.nombres} ${user.apellidoP}`);
+        }
+      } catch (error) {
+        authService.logout();
+        history.push('/login-funcionario');
+      }
+    };
+    checkSession();
   }, [history]);
 
   const handleCerrarSesion = () => {
-    localStorage.removeItem('user_session');
+    authService.logout();
     history.push('/login-funcionario');
   };
 
