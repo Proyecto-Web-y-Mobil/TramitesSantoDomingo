@@ -89,7 +89,19 @@ El desarrollo se gestiona íntegramente mediante herramientas de GitHub:
 
 ---
 
-## 7. Instrucciones de Ejecución
+## 7. Documentación de la API (Punto 2.7)
+A continuación se detallan los principales endpoints de la API RESTful implementada, probados mediante Postman/Insomnia.
+
+| Método | Endpoint | Descripción | Request (Body / Headers) | Respuestas HTTP |
+|---|---|---|---|---|
+| `GET` | `/api` | Verifica el estado del servidor. | *Ninguno* | `200 OK` |
+| `POST` | `/api/auth/register` | Crea un nuevo usuario y encripta su contraseña con bcrypt. | **Body:** `{ "rut": "...", "nombres": "...", "apellidoP": "...", "apellidoM": "...", "correo": "...", "password": "...", "region": "...", "comuna": "..." }` | `201 Created`, `400 Bad Request`, `500 Internal Server Error` |
+| `POST` | `/api/auth/login` | Valida credenciales (RUT o correo) y genera el token JWT. | **Body:** `{ "credential": "...", "password": "..." }` | `200 OK`, `400 Bad Request`, `401 Unauthorized`, `500 Internal Server Error` |
+| `GET` | `/api/dashboard/datos` | Ruta protegida de prueba para acceder a datos municipales. | **Headers:** `Authorization: Bearer <tu_token_jwt>` | `200 OK`, `401 Unauthorized`, `403 Forbidden` |
+
+---
+
+## 8. Instrucciones de Ejecución
 Para visualizar y probar el proyecto correctamente en su entorno local, siga estos pasos:
 
 ### 1. Requisitos Previos
