@@ -4,7 +4,9 @@
 * **Integrantes:** Fernanda Cádiz, Luciano Fredes, Héctor Fuentes, Diego Escobar
 * **Asignatura:** Ingeniería Web y Móvil (ICI 4247-2)
 * **Fecha:** Mayo 2026
-* **Tecnologías:** Ionic Framework, React, TypeScript
+* **Tecnologías Frontend:** Ionic Framework, React, TypeScript
+* **Tecnologías Backend:** Node.js con Express
+* **Base de Datos:** MySQL
 
 ---
 
