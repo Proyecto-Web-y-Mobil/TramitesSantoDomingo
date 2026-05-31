@@ -99,7 +99,7 @@ A continuación se detallan los principales endpoints de la API RESTful implemen
 | `POST` | `/api/auth/login` | Valida credenciales (RUT o correo) y genera el token JWT. | **Body:** `{ "credential": "...", "password": "..." }` | `200 OK`, `400 Bad Request`, `401 Unauthorized`, `500 Internal Server Error` |
 | `GET` | `/api/dashboard/datos` | Ruta protegida de prueba para acceder a datos municipales. | **Headers:** `Authorization: Bearer <tu_token_jwt>` | `200 OK`, `401 Unauthorized`, `403 Forbidden` |
 
-### Evidencia de Pruebas Funcionales (Postman/Insomnia)
+### Evidencia de Pruebas Funcionales (Postman)
 
 **Figura 1 - Registro de Usuario (POST):** Se envía una petición al endpoint `/api/auth/register` adjuntando los datos del ciudadano en el cuerpo (JSON). El servidor responde con un código `201 Created`, confirmando la creación exitosa del registro en la base de datos con su contraseña encriptada.
 <div align="center">
