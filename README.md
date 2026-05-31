@@ -99,6 +99,25 @@ A continuación se detallan los principales endpoints de la API RESTful implemen
 | `POST` | `/api/auth/login` | Valida credenciales (RUT o correo) y genera el token JWT. | **Body:** `{ "credential": "...", "password": "..." }` | `200 OK`, `400 Bad Request`, `401 Unauthorized`, `500 Internal Server Error` |
 | `GET` | `/api/dashboard/datos` | Ruta protegida de prueba para acceder a datos municipales. | **Headers:** `Authorization: Bearer <tu_token_jwt>` | `200 OK`, `401 Unauthorized`, `403 Forbidden` |
 
+### Evidencia de Pruebas Funcionales (Postman/Insomnia)
+
+**Figura 1 - Registro de Usuario (POST):** Se envía una petición al endpoint `/api/auth/register` adjuntando los datos del ciudadano en el cuerpo (JSON). El servidor responde con un código `201 Created`, confirmando la creación exitosa del registro en la base de datos con su contraseña encriptada.
+<div align="center">
+  <img src="Otros/evidencia-registro.png" alt="Evidencia Registro" width="800px">
+</div>
+<br>
+
+**Figura 2 - Autenticación y Generación de JWT (POST):** Se realiza una petición al endpoint `/api/auth/login` con las credenciales del usuario recién creado. El sistema valida la información y devuelve un código `200 OK` junto con el Token JWT asignado para mantener la sesión segura.
+<div align="center">
+  <img src="Otros/evidencia-login.png" alt="Evidencia Login JWT" width="800px">
+</div>
+<br>
+
+**Figura 3 - Acceso a Ruta Privada (GET):** Se ejecuta una consulta al endpoint protegido `/api/dashboard/datos`, enviando el Token JWT en la cabecera de autorización (Bearer Token). El servidor devuelve un `200 OK` y el mensaje de acceso autorizado, demostrando la validación correcta del middleware de seguridad.
+<div align="center">
+  <img src="Otros/evidencia-dashboard.png" alt="Evidencia Ruta Privada" width="800px">
+</div>
+
 ---
 
 ## 8. Instrucciones de Ejecución
