@@ -89,7 +89,21 @@ El desarrollo se gestiona íntegramente mediante herramientas de GitHub:
 
 ---
 
-## 7. Documentación de la API (Punto 2.7)
+## 7. Desarrollo del Backend y Base de Datos (Entrega Parcial 2)
+
+Durante la segunda etapa del proyecto, se construyó e integró el servidor Backend con el Frontend de la aplicación, cumpliendo con los siguientes hitos técnicos:
+
+* **Servidor y API REST (EP 2.1, 2.3 y 2.4):** Se levantó el entorno backend utilizando **Node.js y Express**, desarrollando los endpoints necesarios (GET, POST) manejando respuestas en formato JSON estructurado. Esta API fue conectada con éxito al frontend desarrollado en Ionic con React.
+
+* **Base de Datos (EP 2.2):** Se configuró un *pool* de conexiones seguro a una base de datos relacional en **MySQL**. A continuación, se presenta el Modelo Relacional diseñado para la persistencia de datos del sistema municipal:
+
+<div align="center">
+  <img src="Otros/diagrama-mr.png" alt="Modelo Relacional Base de Datos" width="800px">
+</div>
+
+* **Seguridad y Autenticación (EP 2.5 y 2.6):** Se implementó un sistema de seguridad. El registro y login generan y validan **JWT (JSON Web Tokens)** para proteger las rutas privadas y diferenciar roles (Ciudadano vs Funcionario). Además, las contraseñas de los usuarios son encriptadas utilizando **bcrypt** antes de almacenarse en la base de datos para prevenir vulnerabilidades.
+
+* **Documentación de la API (Punto 2.7)**
 A continuación se detallan los principales endpoints de la API RESTful implementada, probados mediante Postman/Insomnia.
 
 | Método | Endpoint | Descripción | Request (Body / Headers) | Respuestas HTTP |
@@ -120,21 +134,7 @@ A continuación se detallan los principales endpoints de la API RESTful implemen
 
 ---
 
-## 6. Desarrollo del Backend y Base de Datos (Entrega Parcial 2)
-
-Durante la segunda etapa del proyecto, se construyó e integró el servidor Backend con el Frontend de la aplicación, cumpliendo con los siguientes hitos técnicos:
-
-* **Servidor y API REST (EP 2.1, 2.3 y 2.4):** Se levantó el entorno backend utilizando **Node.js y Express**, desarrollando los endpoints necesarios (GET, POST) manejando respuestas en formato JSON estructurado. Esta API fue conectada con éxito al frontend desarrollado en Ionic con React.
-* **Seguridad y Autenticación (EP 2.5 y 2.6):** Se implementó un sistema de seguridad. El registro y login generan y validan **JWT (JSON Web Tokens)** para proteger las rutas privadas y diferenciar roles (Ciudadano vs Funcionario). Además, las contraseñas de los usuarios son encriptadas utilizando **bcrypt** antes de almacenarse en la base de datos para prevenir vulnerabilidades.
-* **Base de Datos (EP 2.2):** Se configuró un *pool* de conexiones seguro a una base de datos relacional en **MySQL**. A continuación, se presenta el Modelo Relacional diseñado para la persistencia de datos del sistema municipal:
-
-<div align="center">
-  <img src="Otros/diagrama-mr.png" alt="Modelo Relacional Base de Datos" width="800px">
-</div>
-
----
-
-## 9. Instrucciones de Ejecución
+## 8. Instrucciones de Ejecución
 Para visualizar y probar el proyecto correctamente en su entorno local, siga estos pasos:
 
 ### 1. Requisitos Previos
