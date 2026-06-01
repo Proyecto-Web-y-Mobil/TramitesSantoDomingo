@@ -127,18 +127,25 @@ Para visualizar y probar el proyecto correctamente en su entorno local, siga est
 * **Node.js**: Asegúrese de tener instalado.
 * **Ionic CLI**: Recomendado para una mejor gestión del servidor.
 
-### 2. Instalación de Dependencias
-Ejecute el siguiente comando en la terminal del proyecto para instalar los módulos necesarios:
+### 2. Inicie el backend via terminal
 ```bash
-npm install
+Ejecute el comando
+"cd backend"
+en la terminal para que esta se diriga al backend
+
+Una vez alli ingrese el comando
+"npm install & npm run dev"
+Tras esto se instalaran las depencias y se ejecutara el backend
+
 ```
+
 ### 3. Inicie el servidor de desarrollo local con el siguiente comando:
 ```bash
-ionic serve
+Abra una nueva terminal para salir de la seccion de backend
 
-o alternativamente
-
-npm run dev
+En la nueva terminal ejecute el comando
+"npm install & npm run dev"
+Tras esto la pagina deberia comenzar a ejecutarse
 ```
 ### 4. Credenciales
 En este punto ya deberia encontrarse en la pantalla principal de tramites, como podra darse cuenta en la esquina superior derecha
@@ -146,8 +153,7 @@ podra realizar los respectivos inicios de sesion, para ello podra usar las sigui
 lo desea.
 
 Inicio de sesion (Normal)
-RUT: 22.222.222-2
-Contraseña: 222
+Recomendamos Crear una nueva cuenta usando la funcion de registro
 
 Inicio de sesion Funcionario
 Email: admin@municipalidad.cl
