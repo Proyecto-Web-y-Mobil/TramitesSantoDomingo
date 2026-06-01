@@ -173,6 +173,14 @@ Inicio de sesion Funcionario
 Email: admin@municipalidad.cl
 Contraseña: admin123
 
+Además, si se desea revisar la base de datos directamente, puede conectarse usando TablePlus o DBeaver con las siguientes credenciales:
+
+Host:     zephyr.proxy.rlwy.net
+Port:     49825
+User:     root
+Password: yzbXDSfWnEhClCrhJSSTLBlecYxwMqeA
+Database: railway
+
 ### 5. Importante
 Cabe destacar que multiples de las funciones pensadas para la pagina aun no han sido implementadas, por ello a aquellas paginas que
 no estan listas se les ha incorporado un mensaje de error.
