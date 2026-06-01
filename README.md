@@ -176,9 +176,13 @@ Contraseña: admin123
 Además, si se desea revisar la base de datos directamente, puede conectarse usando TablePlus o DBeaver con las siguientes credenciales:
 
 Host:     zephyr.proxy.rlwy.net
+
 Port:     49825
+
 User:     root
+
 Password: yzbXDSfWnEhClCrhJSSTLBlecYxwMqeA
+
 Database: railway
 
 ### 5. Importante
