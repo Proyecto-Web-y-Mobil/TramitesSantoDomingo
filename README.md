@@ -95,7 +95,7 @@ Durante la segunda etapa del proyecto, se construyó e integró el servidor Back
 
 * **Servidor y API REST (EP 2.1, 2.3 y 2.4):** Se levantó el entorno backend utilizando **Node.js y Express**, desarrollando los endpoints necesarios (GET, POST) manejando respuestas en formato JSON estructurado. Esta API fue conectada con éxito al frontend desarrollado en Ionic con React.
 
-* **Base de Datos (EP 2.2):** Se configuró un *pool* de conexiones seguro a una base de datos relacional en **MySQL**. A continuación, se presenta el Modelo Relacional diseñado para la persistencia de datos del sistema municipal:
+* **Base de Datos (EP 2.2):** Se creó una base de datos relacional en **MySQL**. A continuación, se presenta el Modelo Relacional diseñado para la persistencia de datos del sistema municipal:
 
 <div align="center">
   <img src="Otros/diagrama-mr.png" alt="Modelo Relacional Base de Datos" width="800px">
