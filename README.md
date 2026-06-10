@@ -61,26 +61,19 @@ Corresponde al personal de las distintas unidades municipales encargado de revis
 ## 3. Requerimientos del Proyecto (EP 1.1)
 
 ### Requerimientos Funcionales (RF)
-RF-01 | Solicitud y Acreditación de Tarjeta Vecino (Reemplaza Validación de Residencia):
-El sistema permitirá a los ciudadanos subir evidencia documental (PDF o imágenes de boletas de servicios) para solicitar la "Tarjeta Vecino". Un funcionario municipal evaluará la solicitud para cambiar el perfil del usuario de 'Invitado' a 'Residente Validado', otorgándole acceso a trámites exclusivos.
+| **RF-01** | Solicitud y acreditación de Tarjeta Vecino: El sistema permitirá a los ciudadanos cargar documentos de respaldo, tales como boletas de servicios básicos en formato PDF o imagen, para solicitar la acreditación como residente mediante la obtención de la Tarjeta Vecino. La solicitud será revisada por un funcionario municipal, quien podrá aprobar o rechazar la validación. En caso de aprobación, el usuario obtendrá el perfil de Residente Validado y acceso a los servicios y trámites exclusivos para residentes.
 
-RF-02 | Bandeja de Gestión Municipal (Reemplaza Diferencia de Usuarios):
-Los usuarios con rol de "Funcionario" tendrán acceso a un panel (Dashboard) exclusivo donde podrán listar, visualizar y filtrar todas las solicitudes ingresadas por los ciudadanos, separadas por departamento (ej. Tránsito, DIDECO, Obras).
+| **RF-02** | Bandeja de gestión municipal: El sistema proporcionará a los funcionarios municipales un panel de gestión que permita visualizar, listar, filtrar y administrar las solicitudes ingresadas por los ciudadanos. Las solicitudes estarán organizadas según el departamento municipal correspondiente, tales como Tránsito, DIDECO u Obras Municipales.
 
-RF-03 | Trazabilidad Ciudadana de Trámites (Reemplaza Gestión de Estados):
-El residente podrá visualizar una línea de tiempo (Timeline) con el historial exacto de su trámite (ej. Patente Comercial), mostrando cuándo fue "Ingresado", cuándo pasó a "Revisión Municipal", y si fue "Aprobado" o "Rechazado", incluyendo comentarios del funcionario.
+| **RF-03** | Seguimiento y trazabilidad de trámites: El sistema permitirá a los ciudadanos consultar el estado y el historial completo de sus trámites mediante una línea de tiempo que muestre cada etapa del proceso, incluyendo fechas, cambios de estado y observaciones realizadas por los funcionarios responsables.
 
-RF-04 | Subsanación de Antecedentes Observados (Reemplaza Corrección de Errores):
-Si un funcionario rechaza un trámite por falta de documentos, el sistema habilitará temporalmente la edición únicamente de los campos o archivos observados, permitiendo al ciudadano reingresar la información sin tener que iniciar todo el trámite desde cero.
+| **RF-04** | Corrección de antecedentes observados: Cuando un trámite presente observaciones o sea rechazado por información incompleta o documentación faltante, el sistema permitirá al ciudadano corregir únicamente los antecedentes observados y reenviar la solicitud, evitando la necesidad de iniciar nuevamente el proceso.
 
-RF-05 | Agendamiento de Tránsito con Ticket Offline (Mejora Agendamiento de Hora):
-El sistema permitirá reservar bloques de horario disponibles para la renovación o toma de exámenes de licencia de conducir. Al confirmar, se guardará un ticket digital en el almacenamiento local del dispositivo (LocalStorage) para que el ciudadano pueda mostrarlo en la municipalidad incluso sin conexión a internet.
+| **RF-05** | Agendamiento de trámites de tránsito: El sistema permitirá a los ciudadanos reservar horarios disponibles para la realización de trámites relacionados con licencias de conducir, tales como renovaciones o exámenes. Una vez confirmada la reserva, se generará un comprobante digital que podrá ser consultado por el usuario incluso sin conexión a internet.
 
-RF-06 | Catálogo e Inscripción a DIDECO con Notificaciones (Mejora Inscripción DIDECO):
-Los residentes podrán explorar los talleres comunitarios disponibles e inscribirse (reduciendo los cupos en la base de datos). El sistema emitirá notificaciones automáticas (alertas en la app) 24 horas antes del inicio del taller para asegurar la asistencia.
+| **RF-06** | Catálogo e inscripción a talleres comunitarios: El sistema permitirá a los residentes visualizar la oferta de talleres comunitarios disponibles, consultar su información e inscribirse según la disponibilidad de cupos. Además, enviará notificaciones automáticas para recordar la asistencia a los talleres programados.
 
-RF-07 | Reportes de Gestión para Alcaldía (Mejora Gestión de Reportes):
-El perfil administrador podrá generar y exportar reportes estadísticos que muestren el volumen de trámites procesados mensualmente y el porcentaje de asistencia a los talleres, para apoyar la toma de decisiones de la municipalidad.
+| **RF-07** | Generación de reportes de gestión: El sistema permitirá a los administradores generar y exportar reportes estadísticos relacionados con la gestión municipal, incluyendo indicadores como la cantidad de trámites procesados, tiempos de respuesta y niveles de participación en talleres comunitarios, con el fin de apoyar la toma de decisiones.
 
 ### Requerimientos No Funcionales (RNF)
 | **RNF-01** | Responsividad: Interfaz adaptada a móvil y web mediante componentes de Ionic.
