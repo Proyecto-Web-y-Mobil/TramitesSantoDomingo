@@ -28,19 +28,26 @@ La propuesta también incorpora un sistema de perfiles personalizados y bases de
 ## 3. Requerimientos del Proyecto (EP 1.1)
 
 ### Requerimientos Funcionales (RF)
-| **RF-01** |	Validación de Residencia: Carga de comprobante para pasar de estado 'invitado' a 'residente'.  
+RF-01 | Solicitud y Acreditación de Tarjeta Vecino (Reemplaza Validación de Residencia):
+El sistema permitirá a los ciudadanos subir evidencia documental (PDF o imágenes de boletas de servicios) para solicitar la "Tarjeta Vecino". Un funcionario municipal evaluará la solicitud para cambiar el perfil del usuario de 'Invitado' a 'Residente Validado', otorgándole acceso a trámites exclusivos.
 
-| **RF-02** |	Gestión de Estados: Cambio de estado de trámites (Enviado, En revisión, Aprobado/Rechazado).  
+RF-02 | Bandeja de Gestión Municipal (Reemplaza Diferencia de Usuarios):
+Los usuarios con rol de "Funcionario" tendrán acceso a un panel (Dashboard) exclusivo donde podrán listar, visualizar y filtrar todas las solicitudes ingresadas por los ciudadanos, separadas por departamento (ej. Tránsito, DIDECO, Obras).
 
-| **RF-03** | Diferencia de Usuarios: Capacidad del sistema de modificar funcionalidades según el tipo de usuario.
+RF-03 | Trazabilidad Ciudadana de Trámites (Reemplaza Gestión de Estados):
+El residente podrá visualizar una línea de tiempo (Timeline) con el historial exacto de su trámite (ej. Patente Comercial), mostrando cuándo fue "Ingresado", cuándo pasó a "Revisión Municipal", y si fue "Aprobado" o "Rechazado", incluyendo comentarios del funcionario.
 
-| **RF-04** | Gestión de Reportes: Generación de reportes de inscripciones y asistencia para administradores.
+RF-04 | Subsanación de Antecedentes Observados (Reemplaza Corrección de Errores):
+Si un funcionario rechaza un trámite por falta de documentos, el sistema habilitará temporalmente la edición únicamente de los campos o archivos observados, permitiendo al ciudadano reingresar la información sin tener que iniciar todo el trámite desde cero.
 
-| **RF-05** |	Corrección de Errores: Capacidad de editar datos de un trámite en estado 'Por modificar'.  
+RF-05 | Agendamiento de Tránsito con Ticket Offline (Mejora Agendamiento de Hora):
+El sistema permitirá reservar bloques de horario disponibles para la renovación o toma de exámenes de licencia de conducir. Al confirmar, se guardará un ticket digital en el almacenamiento local del dispositivo (LocalStorage) para que el ciudadano pueda mostrarlo en la municipalidad incluso sin conexión a internet.
 
-| **RF-06** |	Agendamiento de Hora: Solicitud de horas presenciales para exámenes de conducir.
+RF-06 | Catálogo e Inscripción a DIDECO con Notificaciones (Mejora Inscripción DIDECO):
+Los residentes podrán explorar los talleres comunitarios disponibles e inscribirse (reduciendo los cupos en la base de datos). El sistema emitirá notificaciones automáticas (alertas en la app) 24 horas antes del inicio del taller para asegurar la asistencia.
 
-| **RF-07** | Inscripción DIDECO: Registro de residentes en talleres con recordatorios automáticos.
+RF-07 | Reportes de Gestión para Alcaldía (Mejora Gestión de Reportes):
+El perfil administrador podrá generar y exportar reportes estadísticos que muestren el volumen de trámites procesados mensualmente y el porcentaje de asistencia a los talleres, para apoyar la toma de decisiones de la municipalidad.
 
 ### Requerimientos No Funcionales (RNF)
 | **RNF-01** | Responsividad: Interfaz adaptada a móvil y web mediante componentes de Ionic.

@@ -16,4 +16,4 @@ yarn-error.log*
 # Archivos de sistema / IDEs
 .vscode/
 .DS_Store
-Thumbs.db
+Thumbs.db 
