@@ -76,11 +76,13 @@ Corresponde al personal de las distintas unidades municipales encargado de revis
 | **RF-07** | Generación de reportes de gestión: El sistema permitirá a los administradores generar y exportar reportes estadísticos relacionados con la gestión municipal, incluyendo indicadores como la cantidad de trámites procesados, tiempos de respuesta y niveles de participación en talleres comunitarios, con el fin de apoyar la toma de decisiones.
 
 ### Requerimientos No Funcionales (RNF)
-| **RNF-01** | Responsividad: Interfaz adaptada a móvil y web mediante componentes de Ionic.
 
-| **RNF-02** | Rendimiento: Tiempos de respuesta aceptables bajo alta demanda.
-
-| **RNF-03** |Seguridad: Acceso restringido mediante rutas protegidas y validación JWT.
+| Código | Descripción |
+|---------|-------------|
+| RNF-01 | La plataforma deberá ser accesible desde dispositivos móviles y computadores, adaptando automáticamente la interfaz a distintos tamaños de pantalla mediante diseño responsivo. |
+| RNF-02 | El sistema deberá responder a las consultas y operaciones principales en un tiempo máximo de 3 segundos bajo condiciones normales de uso. |
+| RNF-03 | El acceso a las funcionalidades protegidas deberá realizarse mediante autenticación basada en JWT, y las contraseñas deberán almacenarse utilizando cifrado bcrypt. |
+| RNF-04 | El sistema deberá funcionar correctamente en los navegadores Google Chrome, Microsoft Edge y Mozilla Firefox. |
 
 ## 4. Diseño UI/UX (EP 1.3)
 Se han diseñado 7 mockups diferenciados para versiones móvil y web, considerando una jerarquía visual clara y navegación adaptativa.
