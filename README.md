@@ -19,9 +19,42 @@ Este proyecto propone el desarrollo de una nueva plataforma web y móvil que cen
 
 La propuesta también incorpora un sistema de perfiles personalizados y bases de datos orientadas a mejorar la experiencia del usuario. Asimismo, el proyecto se alinea con la transformación digital del sector público en Chile y contribuye al cumplimiento de la Ley 21.180, que establece la digitalización total de los organismos públicos para el año 2027.
 
-### Perfiles de Usuario
-* **Ciudadano (Invitado/Residente):** Usuarios mayores de 18 años que buscan realizar trámites y beneficios sociales (DIDECO) desde dispositivos móviles o web.
-* **Funcionario Municipal (Administrador):** Encargado de validar documentos de residencia y gestionar los estados de los trámites.
+# Perfiles de Usuario y Funcionalidades
+
+## 1. Ciudadano (Invitado / Residente)
+
+Corresponde a personas mayores de 18 años que utilizan la plataforma para realizar trámites municipales, acceder a servicios comunitarios y efectuar pagos de manera remota mediante dispositivos móviles o computadores.
+
+### Funcionalidades
+
+* **Validación de Residencia:** Permite cargar documentos de respaldo, como comprobantes de domicilio, para solicitar la acreditación como residente de la comuna. Una vez aprobada la solicitud por un funcionario municipal, el usuario obtiene acceso a trámites y beneficios exclusivos para residentes.
+
+* **Inscripción a Programas y Talleres Municipales:** Permite consultar la oferta de talleres y actividades disponibles, revisar su información e inscribirse según la disponibilidad de cupos. El sistema enviará recordatorios automáticos previos al inicio de cada actividad.
+
+* **Gestión de Trámites y Pagos:** Permite solicitar certificados, realizar pagos de permisos de circulación y multas, así como gestionar otros trámites municipales disponibles a través de la plataforma.
+
+* **Agendamiento de Atención Presencial:** Permite reservar horas para trámites que requieren atención presencial, tales como exámenes o renovaciones de licencia de conducir, generando un comprobante digital asociado a la reserva.
+
+* **Seguimiento de Trámites:** Permite consultar el estado e historial de los trámites realizados, visualizando cada etapa del proceso, fechas relevantes y observaciones realizadas por funcionarios municipales.
+
+* **Corrección de Antecedentes Observados:** Permite modificar y reenviar información o documentación cuando un trámite ha sido observado o rechazado por falta de antecedentes, evitando reiniciar completamente el proceso.
+
+
+## 2. Funcionario Municipal
+
+Corresponde al personal de las distintas unidades municipales encargado de revisar solicitudes, validar documentación, gestionar trámites y mantener la correcta operación de los servicios digitales ofrecidos a la comunidad.
+
+### Funcionalidades
+
+* **Validación de Usuarios:** Permite revisar la documentación presentada por los ciudadanos para acreditar residencia y aprobar o rechazar la solicitud según los criterios definidos por la municipalidad.
+
+* **Gestión de Solicitudes Ciudadanas:** Permite acceder a una bandeja de trabajo donde se visualizan, filtran y administran las solicitudes ingresadas por los ciudadanos, organizadas según el departamento municipal correspondiente.
+
+* **Gestión de Estados de Trámites:** Permite actualizar el estado de los trámites durante su ciclo de vida, registrar observaciones, solicitar correcciones y notificar a los ciudadanos sobre avances o resoluciones.
+
+* **Administración de Talleres y Programas:** Permite gestionar la oferta de talleres municipales, controlar la disponibilidad de cupos y supervisar la participación de los ciudadanos inscritos.
+
+* **Generación de Reportes:** Permite generar y exportar reportes estadísticos relacionados con la gestión municipal, incluyendo cantidad de trámites procesados, tiempos de respuesta, inscripciones y asistencia a talleres, apoyando la toma de decisiones institucionales.
 
 ---
 
