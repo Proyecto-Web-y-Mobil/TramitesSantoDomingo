@@ -5,6 +5,10 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const pool = require('./db');
 
+// --- NUEVAS HERRAMIENTAS PARA SUBIR ARCHIVOS ---
+const multer = require('multer');
+const cloudinary = require('./config/cloudinary'); 
+
 const app = express();
 
 app.use(cors());
@@ -16,19 +20,17 @@ const JWT_SECRET = process.env.JWT_SECRET || 'llave_secreta_municipalidad_2026';
 // MIDDLEWARE DE AUTENTICACIÓN (El Guardia de Seguridad)
 // ---------------------------------------------------
 const verifyToken = (req, res, next) => {
-  // El frontend debe enviar el token en la cabecera (Header) 'Authorization'
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Extrae el token de "Bearer <token>"
+  const token = authHeader && authHeader.split(' ')[1]; 
 
   if (!token) {
     return res.status(403).json({ message: 'Acceso denegado: Se requiere un token.' });
   }
 
   try {
-    // Verificamos si el token es válido y no ha caducado
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded; // Guardamos los datos desencriptados (id, rut, rol) en la request
-    next(); // Permite que el código siga hacia la ruta protegida
+    req.user = decoded; 
+    next(); 
   } catch (error) {
     return res.status(401).json({ message: 'Token inválido o expirado. Inicie sesión nuevamente.' });
   }
@@ -139,19 +141,73 @@ app.post('/api/auth/register', async (req, res) => {
 // ---------------------------------------------------
 // RUTAS PRIVADAS (Exigen Token - EP 2.5)
 // ---------------------------------------------------
-
-// Fíjate cómo metemos "verifyToken" justo en medio de la ruta
 app.get('/api/dashboard/datos', verifyToken, (req, res) => {
-  // Si el código llega aquí, significa que el token es 100% válido y real
   res.json({
     message: 'Acceso autorizado a datos municipales',
     datosSeguros: {
       informacion: 'Aquí irían los trámites, pagos o datos sensibles desde la BD.',
-      usuarioToken: req.user // Te devuelve los datos que estaban ocultos dentro del token
+      usuarioToken: req.user 
     }
   });
 });
 
+// ---------------------------------------------------
+// NUEVA RUTA: TRÁMITES CON SUBIDA DE ARCHIVOS (EP 3)
+// ---------------------------------------------------
+
+// Configurar Multer: Guardamos el archivo en la memoria temporal del servidor
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+app.post('/api/tramites/permiso-circulacion', upload.single('documento'), async (req, res) => {
+    try {
+        const { usuario_id, tramite_id, patente, marca, modelo, anio } = req.body;
+        
+        if (!req.file) {
+            return res.status(400).json({ ok: false, error: 'Falta el documento de revisión técnica' });
+        }
+
+        const uploadResult = await new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                { folder: 'municipalidad/revisiones' }, 
+                (error, result) => {
+                    if (error) reject(error);
+                    else resolve(result);
+                }
+            );
+            stream.end(req.file.buffer);
+        });
+
+        const url_revision_tecnica = uploadResult.secure_url;
+
+        // Utilizamos el "pool" que ya tienes configurado en tu proyecto
+        const querySolicitud = `INSERT INTO solicitudes_tramite (usuario_id, tramite_id) VALUES (?, ?)`;
+        const [resultSolicitud] = await pool.query(querySolicitud, [usuario_id, tramite_id]);
+        
+        const solicitud_id = resultSolicitud.insertId;
+
+        const queryVehiculo = `
+            INSERT INTO detalles_vehiculo (solicitud_id, patente, marca, modelo, anio, url_revision_tecnica)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        await pool.query(queryVehiculo, [solicitud_id, patente, marca, modelo, anio, url_revision_tecnica]);
+
+        res.status(201).json({
+            ok: true,
+            message: 'Trámite ingresado correctamente',
+            solicitud_id: solicitud_id,
+            url_documento: url_revision_tecnica
+        });
+
+    } catch (error) {
+        console.error('Error al procesar el trámite:', error);
+        res.status(500).json({ ok: false, error: 'Error interno del servidor al procesar la solicitud' });
+    }
+});
+
+// ---------------------------------------------------
+// INICIO DEL SERVIDOR
+// ---------------------------------------------------
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
