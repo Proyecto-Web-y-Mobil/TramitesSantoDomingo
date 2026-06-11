@@ -207,6 +207,55 @@ app.post('/api/tramites/permiso-circulacion', upload.single('documento'), async 
 });
 
 // ---------------------------------------------------
+// NUEVA RUTA: ACREDITAR RESIDENCIA
+// ---------------------------------------------------
+app.post('/api/usuarios/residencia', upload.single('documento_residencia'), async (req, res) => {
+  try {
+      const { usuario_id } = req.body;
+      
+      if (!req.file) {
+          return res.status(400).json({ ok: false, error: 'Falta el documento de residencia' });
+      }
+      if (!usuario_id) {
+          return res.status(400).json({ ok: false, error: 'Falta el ID del usuario' });
+      }
+
+      // 1. Subir a Cloudinary (en una carpeta separada para mantener el orden)
+      const uploadResult = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+              { folder: 'municipalidad/residencia' }, 
+              (error, result) => {
+                  if (error) reject(error);
+                  else resolve(result);
+              }
+          );
+          stream.end(req.file.buffer);
+      });
+
+      const url_residencia = uploadResult.secure_url;
+
+      // 2. Actualizar al usuario en la Base de Datos
+      // Aquí no hacemos un INSERT, hacemos un UPDATE porque el usuario ya existe
+      const queryUpdate = `
+          UPDATE usuarios 
+          SET url_residencia = ?, estado_validacion = 'En revisión'
+          WHERE id = ?
+      `;
+      await pool.query(queryUpdate, [url_residencia, usuario_id]);
+
+      res.status(200).json({
+          ok: true,
+          message: 'Documento subido y en revisión',
+          url_documento: url_residencia
+      });
+
+  } catch (error) {
+      console.error('Error al subir documento de residencia:', error);
+      res.status(500).json({ ok: false, error: 'Error interno del servidor' });
+  }
+});
+
+// ---------------------------------------------------
 // INICIO DEL SERVIDOR
 // ---------------------------------------------------
 const PORT = process.env.PORT || 3000;
