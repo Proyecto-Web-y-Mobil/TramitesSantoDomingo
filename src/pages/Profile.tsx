@@ -41,7 +41,6 @@ const Profile = () => {
   const [region, setRegion] = useState('');
   const [comuna, setComuna] = useState('');
   
-  // Extraemos el rol dinámicamente y el estado del documento
   const [rolUsuario, setRolUsuario] = useState('ciudadano');
   const [estadoDocumento, setEstadoDocumento] = useState('Sin subir'); 
   
@@ -64,10 +63,7 @@ const Profile = () => {
           setRegion(user.region);
           setComuna(user.comuna);
           
-          // Leemos el rol oficial (ciudadano o residente)
           if (user.rol) setRolUsuario(user.rol.toLowerCase());
-          
-          // Si el backend ya mandara el estado del documento, lo leeríamos aquí:
           if (user.estado_validacion) setEstadoDocumento(user.estado_validacion);
           
           setIsLoaded(true);
@@ -90,10 +86,18 @@ const Profile = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // 🔥 ESCUDO DE SEGURIDAD
+    if (!userId || userId === 0) {
+      presentToast({ message: 'Error de sincronización: No se detectó tu ID. Por favor, recarga la página.', duration: 4000, color: 'danger' });
+      return;
+    }
+
     setSubiendoArchivo(true);
     const formData = new FormData();
-    formData.append('documento_residencia', file);
+    
+    // 🔥 ORDEN ESTRICTO: Primero los textos, luego los archivos
     formData.append('usuario_id', String(userId));
+    formData.append('documento_residencia', file);
 
     try {
       const BACKEND_URL = 'https://tramitessantodomingo-production-5cb4.up.railway.app/api/usuarios/residencia';
@@ -109,17 +113,15 @@ const Profile = () => {
         presentToast({ message: 'Documento subido con éxito. En revisión.', duration: 3000, color: 'success' });
         setEstadoDocumento('En revisión');
 
-        // 🔥 EL TRUCO: Actualizamos la memoria del navegador
+        // 🔥 SINCRONIZACIÓN LOCAL DE MEMORIA
         const sessionData = localStorage.getItem('user_session');
         if (sessionData) {
           let userObj = JSON.parse(sessionData);
-          // Actualizamos el dato dependiendo de si es un array o un objeto
           if (Array.isArray(userObj)) {
             userObj[0].estado_validacion = 'En revisión';
           } else {
             userObj.estado_validacion = 'En revisión';
           }
-          // Guardamos la "foto" actualizada
           localStorage.setItem('user_session', JSON.stringify(userObj));
         }
 
@@ -137,7 +139,6 @@ const Profile = () => {
 
   if (!isLoaded) return null;
 
-  // Lógica visual dependiendo del rol
   const esResidente = rolUsuario === 'residente';
 
   return (
