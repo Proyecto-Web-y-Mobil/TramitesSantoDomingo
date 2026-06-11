@@ -262,13 +262,13 @@ app.get('/api/tramites/usuario/:id', async (req, res) => {
   try {
       const { id } = req.params;
       
-      // Unimos la tabla de solicitudes con la tabla maestra de trámites para obtener el nombre real
+      // Ajustado a los nombres reales de tu base de datos
       const query = `
-          SELECT s.id, s.estado, s.observaciones, s.fecha_creacion, t.nombre AS nombre_tramite
+          SELECT s.id, s.estado, s.observacion, s.fecha_solicitud, t.nombre AS nombre_tramite
           FROM solicitudes_tramite s
           JOIN tramites t ON s.tramite_id = t.id
           WHERE s.usuario_id = ?
-          ORDER BY s.fecha_creacion DESC
+          ORDER BY s.fecha_solicitud DESC
       `;
       
       const [tramites] = await pool.query(query, [id]);

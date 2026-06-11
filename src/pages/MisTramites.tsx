@@ -54,8 +54,9 @@ export default function MisTramites() {
     }
   };
 
-  // Función para renderizar el estado visualmente
   const renderEstado = (estado: string) => {
+    if (!estado) return <IonBadge color="primary" style={{ padding: '8px' }}><IonIcon icon={timeOutline}/> En Revisión</IonBadge>;
+    
     switch (estado.toLowerCase()) {
       case 'aprobado':
         return <IonBadge color="success" style={{ padding: '8px' }}><IonIcon icon={checkmarkCircleOutline}/> Aprobado</IonBadge>;
@@ -63,7 +64,7 @@ export default function MisTramites() {
       case 'requiere modificación':
         return <IonBadge color="warning" style={{ padding: '8px', color: '#000' }}><IonIcon icon={alertCircleOutline}/> Requiere Corrección</IonBadge>;
       default:
-        return <IonBadge color="primary" style={{ padding: '8px' }}><IonIcon icon={timeOutline}/> En Revisión</IonBadge>;
+        return <IonBadge color="primary" style={{ padding: '8px' }}><IonIcon icon={timeOutline}/> {estado}</IonBadge>;
     }
   };
 
@@ -101,7 +102,7 @@ export default function MisTramites() {
                         {tramite.nombre_tramite}
                       </IonCardTitle>
                       <small style={{ color: '#666' }}>
-                        Solicitud #{tramite.id} • {new Date(tramite.fecha_creacion).toLocaleDateString()}
+                        Solicitud #{tramite.id} • {tramite.fecha_solicitud ? new Date(tramite.fecha_solicitud).toLocaleDateString() : 'Sin fecha'}
                       </small>
                     </div>
                     <div>
@@ -112,24 +113,23 @@ export default function MisTramites() {
                   <IonCardContent style={{ padding: '15px' }}>
                     
                     {/* SI EL TRÁMITE TIENE UN ERROR, MOSTRAMOS EL MENSAJE DEL ADMIN Y EL BOTÓN */}
-                    {(tramite.estado.toLowerCase() === 'observado' || tramite.estado.toLowerCase() === 'requiere modificación') && (
+                    {tramite.estado && (tramite.estado.toLowerCase() === 'observado' || tramite.estado.toLowerCase() === 'requiere modificación') && (
                       <div style={{ backgroundColor: '#fff3cd', padding: '15px', borderRadius: '6px', borderLeft: '4px solid #ffc107', marginBottom: '15px' }}>
                         <h4 style={{ margin: '0 0 10px 0', color: '#856404', fontSize: '1rem' }}>
                           <IonIcon icon={alertCircleOutline} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
                           Mensaje del Administrador:
                         </h4>
                         <p style={{ margin: 0, color: '#856404' }}>
-                          {tramite.observaciones || "Por favor, revisa y modifica los datos de tu solicitud."}
+                          {tramite.observacion || "Por favor, revisa y modifica los datos de tu solicitud."}
                         </p>
                       </div>
                     )}
 
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                      {(tramite.estado.toLowerCase() === 'observado' || tramite.estado.toLowerCase() === 'requiere modificación') && (
+                      {tramite.estado && (tramite.estado.toLowerCase() === 'observado' || tramite.estado.toLowerCase() === 'requiere modificación') && (
                         <IonButton 
                           fill="solid" 
                           color="warning"
-                          // Aquí en el futuro lo enviaremos al formulario de edición con los datos precargados
                           onClick={() => alert(`Próximamente: Ir a editar el trámite ${tramite.id}`)}
                         >
                           Corregir Trámite
