@@ -10,6 +10,9 @@ import TramitesLogueado from './pages/TramitesLogueado';
 import AdminDashboard from './pages/AdminDashboard';
 import TalleresDideco from './pages/TalleresDideco';
 
+// Importamos la nueva pantalla
+import PermisoCirculacionInfo from './pages/PermisoCirculacionInfo';
+import PermisoCirculacionForm from './pages/PermisoCirculacionForm';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -56,6 +59,16 @@ const App: React.FC = () => (
         <Route exact path="/tramites-user">
           <TramitesLogueado/>
         </Route>
+
+        {/* NUEVAS RUTAS DE TRÁMITES */}
+        <Route exact path="/tramite/permiso-circulacion/info">
+          <PermisoCirculacionInfo />
+        </Route>
+
+        <Route exact path="/tramite/permiso-circulacion/formulario">
+          <PermisoCirculacionForm />
+        </Route>
+
         <Route exact path="/">
           <Redirect to="/tramites" />
         </Route>

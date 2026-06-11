@@ -28,7 +28,11 @@ export default function TramitesLogueado() {
   }, [history]);
 
   const tramites = [
-    { titulo: "Permiso Circulación", img: "/assets/permiso.png" },
+    { 
+      titulo: "Permiso Circulación", 
+      img: "/assets/permiso.png", 
+      ruta: "/tramite/permiso-circulacion/info" 
+    },
     { titulo: "Patentes Comerciales", img: "/assets/patente.png" },
     { titulo: "Pago Derechos de aseo", img: "/assets/aseo.png" },
     { titulo: "Tránsito", subtitulo: "(Primer permiso de circulación)", img: "/assets/transito.png" },
