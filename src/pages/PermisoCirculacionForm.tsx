@@ -51,9 +51,32 @@ export default function PermisoCirculacionForm() {
 
     setCargando(true);
 
-    // Armamos el paquete de datos (Igual que en Postman)
+    // 1. EXTRAEMOS AL USUARIO DEL LOCALSTORAGE
+    const sessionData = localStorage.getItem('user_session');
+    
+    // Si no hay sesión, detenemos el envío
+    if (!sessionData) {
+      presentToast({
+        message: 'Error: No se encontró una sesión activa. Vuelve a iniciar sesión.',
+        duration: 4000,
+        color: 'danger'
+      });
+      setCargando(false);
+      return;
+    }
+
+    // Convertimos el texto a Javascript
+    const usuarioLogeado = JSON.parse(sessionData);
+    console.log("🕵️‍♂️ Datos guardados en memoria:", usuarioLogeado);
+
+    // TRUCO: Verificamos si es un array o un objeto y extraemos los datos reales
+    const datosReales = Array.isArray(usuarioLogeado) ? usuarioLogeado[0] : usuarioLogeado;
+
+    // 2. ARMAMOS EL PAQUETE DE DATOS
     const formData = new FormData();
-    formData.append('usuario_id', '1'); // Usamos el ID 1 por ahora para la prueba
+    
+    // Inyectamos el ID real de forma segura
+    formData.append('usuario_id', String(datosReales.id)); 
     formData.append('tramite_id', '1'); // El ID de tu trámite semilla
     formData.append('patente', patente);
     formData.append('marca', marca);
@@ -62,13 +85,12 @@ export default function PermisoCirculacionForm() {
     formData.append('documento', archivo);
 
     try {
-      // ATENCIÓN: Reemplaza esta URL con la tuya de StackBlitz o localhost
-      // Ejemplo StackBlitz: 'https://tu-proyecto.stackblitz.io/api/tramites/permiso-circulacion'
-      const BACKEND_URL = 'https://tramitessantodomingo-mnkn--3000--bd880c29.local-credentialless.webcontainer.io/api/tramites/permiso-circulacion';
+      // URL de producción en Railway
+      const BACKEND_URL = 'https://tramitessantodomingo-production-5cb4.up.railway.app/api/tramites/permiso-circulacion';
 
       const respuesta = await fetch(BACKEND_URL, {
         method: 'POST',
-        body: formData, // fetch automáticamente pone el formato 'multipart/form-data'
+        body: formData,
       });
 
       const data = await respuesta.json();
@@ -79,7 +101,7 @@ export default function PermisoCirculacionForm() {
           duration: 4000,
           color: 'success'
         });
-        // Lo devolvemos al menú principal después de un éxito
+        // Volvemos al menú principal
         setTimeout(() => history.push('/tramites-user'), 2000);
       } else {
         throw new Error(data.error || 'Error al enviar');

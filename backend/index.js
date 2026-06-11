@@ -83,6 +83,7 @@ app.post('/api/auth/login', async (req, res) => {
       message: 'Login exitoso',
       token: token, 
       user: {
+        id: user.id,
         rut: user.rut,
         correo: user.correo,
         nombres: user.nombres,
