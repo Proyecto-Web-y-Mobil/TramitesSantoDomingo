@@ -108,6 +108,21 @@ const Profile = () => {
       if (data.ok) {
         presentToast({ message: 'Documento subido con éxito. En revisión.', duration: 3000, color: 'success' });
         setEstadoDocumento('En revisión');
+
+        // 🔥 EL TRUCO: Actualizamos la memoria del navegador
+        const sessionData = localStorage.getItem('user_session');
+        if (sessionData) {
+          let userObj = JSON.parse(sessionData);
+          // Actualizamos el dato dependiendo de si es un array o un objeto
+          if (Array.isArray(userObj)) {
+            userObj[0].estado_validacion = 'En revisión';
+          } else {
+            userObj.estado_validacion = 'En revisión';
+          }
+          // Guardamos la "foto" actualizada
+          localStorage.setItem('user_session', JSON.stringify(userObj));
+        }
+
       } else {
         throw new Error(data.error || 'Error al subir documento');
       }
