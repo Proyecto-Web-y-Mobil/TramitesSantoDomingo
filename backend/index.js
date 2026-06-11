@@ -256,6 +256,34 @@ app.post('/api/usuarios/residencia', upload.single('documento_residencia'), asyn
 });
 
 // ---------------------------------------------------
+// NUEVA RUTA: OBTENER MIS TRÁMITES
+// ---------------------------------------------------
+app.get('/api/tramites/usuario/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      
+      // Unimos la tabla de solicitudes con la tabla maestra de trámites para obtener el nombre real
+      const query = `
+          SELECT s.id, s.estado, s.observaciones, s.fecha_creacion, t.nombre AS nombre_tramite
+          FROM solicitudes_tramite s
+          JOIN tramites t ON s.tramite_id = t.id
+          WHERE s.usuario_id = ?
+          ORDER BY s.fecha_creacion DESC
+      `;
+      
+      const [tramites] = await pool.query(query, [id]);
+      
+      res.status(200).json({
+          ok: true,
+          tramites: tramites
+      });
+  } catch (error) {
+      console.error('Error al obtener trámites:', error);
+      res.status(500).json({ ok: false, error: 'Error interno al cargar los trámites' });
+  }
+});
+
+// ---------------------------------------------------
 // INICIO DEL SERVIDOR
 // ---------------------------------------------------
 const PORT = process.env.PORT || 3000;

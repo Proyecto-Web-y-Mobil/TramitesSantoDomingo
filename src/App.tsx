@@ -9,6 +9,8 @@ import Tramites from './pages/Tramites';
 import TramitesLogueado from './pages/TramitesLogueado';
 import AdminDashboard from './pages/AdminDashboard';
 import TalleresDideco from './pages/TalleresDideco';
+import MisTramites from './pages/MisTramites';
+
 
 // Importamos la nueva pantalla
 import PermisoCirculacionInfo from './pages/PermisoCirculacionInfo';
@@ -58,6 +60,9 @@ const App: React.FC = () => (
         </Route>
         <Route exact path="/tramites-user">
           <TramitesLogueado/>
+        </Route>
+        <Route exact path="/mis-tramites">
+          <MisTramites />
         </Route>
 
         {/* NUEVAS RUTAS DE TRÁMITES */}
