@@ -290,6 +290,75 @@ app.get('/api/tramites/usuario/:id', async (req, res) => {
 });
 
 // ---------------------------------------------------
+// RUTA: VER DETALLE DE UN TRÁMITE (CIUDADANO)
+// ---------------------------------------------------
+app.get('/api/tramites/detalle/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      const query = `
+          SELECT 
+              s.id AS solicitud_id, s.estado, s.fecha_solicitud, s.observacion,
+              t.nombre AS nombre_tramite,
+              d.patente, d.marca, d.modelo, d.anio, d.url_revision_tecnica
+          FROM solicitudes_tramite s
+          JOIN tramites t ON s.tramite_id = t.id
+          LEFT JOIN detalles_vehiculo d ON s.id = d.solicitud_id
+          WHERE s.id = ?
+      `;
+      const [rows] = await pool.query(query, [id]);
+      
+      if (rows.length === 0) return res.status(404).json({ ok: false, error: 'Trámite no encontrado' });
+      
+      res.status(200).json({ ok: true, tramite: rows[0] });
+  } catch (error) {
+      console.error('Error al obtener detalle ciudadano:', error);
+      res.status(500).json({ ok: false, error: 'Error al cargar el detalle' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTA: CORREGIR TRÁMITE COMPLETAMENTE (TEXTO Y/O ARCHIVO)
+// ---------------------------------------------------
+app.put('/api/tramites/:id/corregir', upload.single('documento'), async (req, res) => {
+  try {
+      const { id } = req.params;
+      const { patente, marca, modelo, anio } = req.body;
+      
+      // 1. Actualizamos los datos de texto siempre
+      await pool.query(
+          `UPDATE detalles_vehiculo SET patente = ?, marca = ?, modelo = ?, anio = ? WHERE solicitud_id = ?`, 
+          [patente, marca, modelo, anio, id]
+      );
+
+      // 2. Si el usuario adjuntó un archivo nuevo, lo subimos a Cloudinary y actualizamos la URL
+      if (req.file) {
+          const uploadResult = await new Promise((resolve, reject) => {
+              const stream = cloudinary.uploader.upload_stream(
+                  { folder: 'municipalidad/revisiones', resource_type: 'auto' }, 
+                  (error, result) => {
+                      if (error) reject(error);
+                      else resolve(result);
+                  }
+              );
+              stream.end(req.file.buffer);
+          });
+          await pool.query(
+              `UPDATE detalles_vehiculo SET url_revision_tecnica = ? WHERE solicitud_id = ?`, 
+              [uploadResult.secure_url, id]
+          );
+      }
+      
+      // 3. Cambiamos el estado a 'corregido'
+      await pool.query(`UPDATE solicitudes_tramite SET estado = 'corregido' WHERE id = ?`, [id]);
+
+      res.status(200).json({ ok: true, message: 'Trámite modificado exitosamente' });
+  } catch (error) {
+      console.error('Error al corregir trámite:', error);
+      res.status(500).json({ ok: false, error: 'Error interno al corregir' });
+  }
+});
+
+// ---------------------------------------------------
 // RUTA DE ADMINISTRADOR: LISTAR TODOS LOS TRÁMITES
 // ---------------------------------------------------
 app.get('/api/admin/tramites', async (req, res) => {

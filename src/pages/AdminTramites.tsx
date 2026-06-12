@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   IonPage, IonContent, IonCard, IonCardHeader, IonCardTitle, 
-  IonCardContent, IonButton, IonSpinner, useIonToast, IonIcon, IonBadge
+  IonCardContent, IonButton, IonSpinner, useIonToast, IonIcon, IonBadge,
+  useIonViewWillEnter
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import { documentTextOutline, timeOutline, checkmarkCircleOutline, alertCircleOutline } from 'ionicons/icons';
+import { documentTextOutline, timeOutline, checkmarkCircleOutline, alertCircleOutline, closeCircleOutline } from 'ionicons/icons';
 import HeaderBanner from '../components/HeaderBanner';
 
 export default function AdminTramites() {
@@ -13,12 +14,14 @@ export default function AdminTramites() {
   const [tramites, setTramites] = useState<any[]>([]);
   const [cargando, setCargando] = useState(true);
 
-  useEffect(() => {
+  // El gancho mágico de Ionic que reemplaza a useEffect para evitar el error del F5
+  useIonViewWillEnter(() => {
     cargarTramites();
-  }, []);
+  });
 
   const cargarTramites = async () => {
     try {
+      setCargando(true);
       const response = await fetch('https://tramitessantodomingo-production-5cb4.up.railway.app/api/admin/tramites');
       const data = await response.json();
       if (data.ok) {
@@ -38,6 +41,10 @@ export default function AdminTramites() {
     switch (estado.toLowerCase()) {
       case 'aprobado':
         return <IonBadge color="success"><IonIcon icon={checkmarkCircleOutline}/> Aprobado</IonBadge>;
+      case 'rechazado':
+        return <IonBadge color="danger"><IonIcon icon={closeCircleOutline}/> Rechazado</IonBadge>;
+      case 'corregido':
+        return <IonBadge color="tertiary"><IonIcon icon={checkmarkCircleOutline}/> Corregido por Usuario</IonBadge>;
       case 'observado':
       case 'requiere modificación':
         return <IonBadge color="warning" style={{ color: '#000' }}><IonIcon icon={alertCircleOutline}/> Observado</IonBadge>;

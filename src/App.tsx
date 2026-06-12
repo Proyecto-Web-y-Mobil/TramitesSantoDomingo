@@ -13,6 +13,7 @@ import MisTramites from './pages/MisTramites';
 import ValidarResidencias from './pages/ValidarResidencias';
 import AdminTramites from './pages/AdminTramites';
 import AdminRevisarTramite from './pages/AdminRevisarTramite';
+import DetalleMiTramite from './pages/DetalleMiTramite';
 
 // Importamos la nueva pantalla
 import PermisoCirculacionInfo from './pages/PermisoCirculacionInfo';
@@ -87,6 +88,10 @@ const App: React.FC = () => (
           <AdminRevisarTramite />
         </Route>
 
+        <Route exact path="/mis-tramites/detalle/:id">
+          <DetalleMiTramite />
+        </Route>
+        
         <Route exact path="/">
           <Redirect to="/tramites" />
         </Route>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   IonPage,
   IonContent,
@@ -10,10 +10,11 @@ import {
   IonButton,
   IonSpinner,
   useIonToast,
-  IonIcon
+  IonIcon,
+  useIonViewWillEnter
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import { alertCircleOutline, checkmarkCircleOutline, timeOutline } from 'ionicons/icons';
+import { alertCircleOutline, checkmarkCircleOutline, timeOutline, closeCircleOutline } from 'ionicons/icons';
 import HeaderBanner from '../components/HeaderBanner';
 import FooterBanner from '../components/FooterBanner';
 
@@ -23,12 +24,13 @@ export default function MisTramites() {
   const [tramites, setTramites] = useState<any[]>([]);
   const [cargando, setCargando] = useState(true);
 
-  useEffect(() => {
+  useIonViewWillEnter(() => {
     cargarTramites();
-  }, []);
+  });
 
   const cargarTramites = async () => {
     try {
+      setCargando(true);
       const sessionData = localStorage.getItem('user_session');
       if (!sessionData) {
         history.push('/login');
@@ -60,6 +62,10 @@ export default function MisTramites() {
     switch (estado.toLowerCase()) {
       case 'aprobado':
         return <IonBadge color="success" style={{ padding: '8px' }}><IonIcon icon={checkmarkCircleOutline}/> Aprobado</IonBadge>;
+      case 'rechazado':
+        return <IonBadge color="danger" style={{ padding: '8px' }}><IonIcon icon={closeCircleOutline}/> Rechazado</IonBadge>;
+      case 'corregido':
+        return <IonBadge color="tertiary" style={{ padding: '8px' }}><IonIcon icon={checkmarkCircleOutline}/> Corregido</IonBadge>;
       case 'observado':
       case 'requiere modificación':
         return <IonBadge color="warning" style={{ padding: '8px', color: '#000' }}><IonIcon icon={alertCircleOutline}/> Requiere Corrección</IonBadge>;
@@ -112,7 +118,7 @@ export default function MisTramites() {
 
                   <IonCardContent style={{ padding: '15px' }}>
                     
-                    {/* SI EL TRÁMITE TIENE UN ERROR, MOSTRAMOS EL MENSAJE DEL ADMIN Y EL BOTÓN */}
+                    {/* SI EL TRÁMITE TIENE UN ERROR (OBSERVADO) */}
                     {tramite.estado && (tramite.estado.toLowerCase() === 'observado' || tramite.estado.toLowerCase() === 'requiere modificación') && (
                       <div style={{ backgroundColor: '#fff3cd', padding: '15px', borderRadius: '6px', borderLeft: '4px solid #ffc107', marginBottom: '15px' }}>
                         <h4 style={{ margin: '0 0 10px 0', color: '#856404', fontSize: '1rem' }}>
@@ -125,18 +131,35 @@ export default function MisTramites() {
                       </div>
                     )}
 
+                    {/* SI EL TRÁMITE FUE RECHAZADO */}
+                    {tramite.estado && tramite.estado.toLowerCase() === 'rechazado' && (
+                      <div style={{ backgroundColor: '#f8d7da', padding: '15px', borderRadius: '6px', borderLeft: '4px solid #dc3545', marginBottom: '15px' }}>
+                        <h4 style={{ margin: '0 0 10px 0', color: '#721c24', fontSize: '1rem' }}>
+                          <IonIcon icon={closeCircleOutline} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+                          Motivo del Rechazo:
+                        </h4>
+                        <p style={{ margin: 0, color: '#721c24' }}>
+                          {tramite.observacion || "Su solicitud no cumple con los requisitos mínimos."}
+                        </p>
+                      </div>
+                    )}
+
                     <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
                       {tramite.estado && (tramite.estado.toLowerCase() === 'observado' || tramite.estado.toLowerCase() === 'requiere modificación') && (
                         <IonButton 
                           fill="solid" 
                           color="warning"
-                          onClick={() => alert(`Próximamente: Ir a editar el trámite ${tramite.id}`)}
+                          onClick={() => history.push(`/mis-tramites/detalle/${tramite.id}`)}
                         >
                           Corregir Trámite
                         </IonButton>
                       )}
                       
-                      <IonButton fill="outline" color="primary" onClick={() => alert("Próximamente: Ver comprobante en PDF")}>
+                      <IonButton 
+                        fill="outline" 
+                        color="primary" 
+                        onClick={() => history.push(`/mis-tramites/detalle/${tramite.id}`)}
+                      >
                         Ver Detalles
                       </IonButton>
                     </div>
