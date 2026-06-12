@@ -169,15 +169,18 @@ app.post('/api/tramites/permiso-circulacion', upload.single('documento'), async 
         }
 
         const uploadResult = await new Promise((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-                { folder: 'municipalidad/revisiones' }, 
-                (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
-                }
-            );
-            stream.end(req.file.buffer);
-        });
+          const stream = cloudinary.uploader.upload_stream(
+              { 
+                  folder: 'municipalidad/revisiones',
+                  resource_type: 'auto' // 🔥 ESTA ES LA LÍNEA MÁGICA
+              }, 
+              (error, result) => {
+                  if (error) reject(error);
+                  else resolve(result);
+              }
+          );
+          stream.end(req.file.buffer);
+      });
 
         const url_revision_tecnica = uploadResult.secure_url;
 
@@ -220,15 +223,18 @@ app.post('/api/usuarios/residencia', upload.single('documento_residencia'), asyn
       }
 
       const uploadResult = await new Promise((resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-              { folder: 'municipalidad/residencia' }, 
-              (error, result) => {
-                  if (error) reject(error);
-                  else resolve(result);
-              }
-          );
-          stream.end(req.file.buffer);
-      });
+        const stream = cloudinary.uploader.upload_stream(
+            { 
+                folder: 'municipalidad/residencia',
+                resource_type: 'auto' // 🔥 ESTA ES LA LÍNEA MÁGICA
+            }, 
+            (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+            }
+        );
+        stream.end(req.file.buffer);
+    });
 
       const url_residencia = uploadResult.secure_url;
 
