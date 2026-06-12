@@ -91,7 +91,8 @@ app.post('/api/auth/login', async (req, res) => {
         apellidoM: user.apellido_m,
         region: user.region,
         comuna: user.comuna,
-        rol: rol
+        rol: rol,
+        estado_validacion: user.estado_validacion // <-- ¡Añadido para que el perfil lo lea al logearse!
       }
     });
 
@@ -156,7 +157,6 @@ app.get('/api/dashboard/datos', verifyToken, (req, res) => {
 // NUEVA RUTA: TRÁMITES CON SUBIDA DE ARCHIVOS (EP 3)
 // ---------------------------------------------------
 
-// Configurar Multer: Guardamos el archivo en la memoria temporal del servidor
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -181,7 +181,6 @@ app.post('/api/tramites/permiso-circulacion', upload.single('documento'), async 
 
         const url_revision_tecnica = uploadResult.secure_url;
 
-        // Utilizamos el "pool" que ya tienes configurado en tu proyecto
         const querySolicitud = `INSERT INTO solicitudes_tramite (usuario_id, tramite_id) VALUES (?, ?)`;
         const [resultSolicitud] = await pool.query(querySolicitud, [usuario_id, tramite_id]);
         
@@ -207,17 +206,24 @@ app.post('/api/tramites/permiso-circulacion', upload.single('documento'), async 
 });
 
 // ---------------------------------------------------
-// NUEVA RUTA: ACREDITAR RESIDENCIA
+// NUEVA RUTA: ACREDITAR RESIDENCIA (CON ESPÍAS)
 // ---------------------------------------------------
 app.post('/api/usuarios/residencia', upload.single('documento_residencia'), async (req, res) => {
   try {
+      // ESPÍA 1: Ver qué variables de texto llegaron
+      console.log("🕵️‍♂️ BODY RECIBIDO:", req.body);
+      
+      // ESPÍA 2: Ver si el archivo llegó correctamente
+      console.log("🕵️‍♂️ ARCHIVO RECIBIDO:", req.file ? req.file.originalname : "Ninguno");
+
       const { usuario_id } = req.body;
       
       if (!req.file) {
           return res.status(400).json({ ok: false, error: 'Falta el documento de residencia' });
       }
-      if (!usuario_id) {
-          return res.status(400).json({ ok: false, error: 'Falta el ID del usuario' });
+      if (!usuario_id || usuario_id === 'null' || usuario_id === 'undefined') {
+          console.log("❌ ERROR: El ID de usuario es inválido:", usuario_id);
+          return res.status(400).json({ ok: false, error: 'Falta o es inválido el ID del usuario' });
       }
 
       // 1. Subir a Cloudinary (en una carpeta separada para mantener el orden)
@@ -233,15 +239,23 @@ app.post('/api/usuarios/residencia', upload.single('documento_residencia'), asyn
       });
 
       const url_residencia = uploadResult.secure_url;
+      console.log("✅ CLOUDINARY OK:", url_residencia);
 
       // 2. Actualizar al usuario en la Base de Datos
-      // Aquí no hacemos un INSERT, hacemos un UPDATE porque el usuario ya existe
       const queryUpdate = `
           UPDATE usuarios 
           SET url_residencia = ?, estado_validacion = 'En revisión'
           WHERE id = ?
       `;
-      await pool.query(queryUpdate, [url_residencia, usuario_id]);
+      
+      // ESPÍA 3: Revisar si MySQL realmente actualizó la fila
+      const [resultadoBD] = await pool.query(queryUpdate, [url_residencia, usuario_id]);
+      console.log("📊 RESULTADO MYSQL:", resultadoBD);
+
+      if (resultadoBD.affectedRows === 0) {
+           console.log("⚠️ ALERTA: No se encontró ningún usuario con el ID", usuario_id);
+           return res.status(404).json({ ok: false, error: 'Usuario no encontrado en la BD' });
+      }
 
       res.status(200).json({
           ok: true,
@@ -250,7 +264,7 @@ app.post('/api/usuarios/residencia', upload.single('documento_residencia'), asyn
       });
 
   } catch (error) {
-      console.error('Error al subir documento de residencia:', error);
+      console.error('❌ Error general al subir documento:', error);
       res.status(500).json({ ok: false, error: 'Error interno del servidor' });
   }
 });
@@ -262,7 +276,6 @@ app.get('/api/tramites/usuario/:id', async (req, res) => {
   try {
       const { id } = req.params;
       
-      // Ajustado a los nombres reales de tu base de datos
       const query = `
           SELECT s.id, s.estado, s.observacion, s.fecha_solicitud, t.nombre AS nombre_tramite
           FROM solicitudes_tramite s
