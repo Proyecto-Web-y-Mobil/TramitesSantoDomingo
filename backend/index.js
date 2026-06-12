@@ -284,6 +284,40 @@ app.get('/api/tramites/usuario/:id', async (req, res) => {
 });
 
 // ---------------------------------------------------
+// RUTA DE ADMINISTRADOR: LISTAR TODOS LOS TRÁMITES
+// ---------------------------------------------------
+app.get('/api/admin/tramites', async (req, res) => {
+  try {
+      // Unimos solicitudes_tramite, tramites y usuarios para tener toda la foto completa
+      const query = `
+          SELECT 
+              s.id AS solicitud_id, 
+              s.estado, 
+              s.fecha_solicitud, 
+              t.nombre AS nombre_tramite,
+              u.nombres, 
+              u.apellido_p, 
+              u.apellido_m, 
+              u.rut
+          FROM solicitudes_tramite s
+          JOIN tramites t ON s.tramite_id = t.id
+          JOIN usuarios u ON s.usuario_id = u.id
+          ORDER BY s.fecha_solicitud DESC
+      `;
+      
+      const [tramites] = await pool.query(query);
+      
+      res.status(200).json({
+          ok: true,
+          tramites: tramites
+      });
+  } catch (error) {
+      console.error('Error al obtener la lista de trámites (Admin):', error);
+      res.status(500).json({ ok: false, error: 'Error al cargar los trámites' });
+  }
+});
+
+// ---------------------------------------------------
 // RUTAS DE ADMINISTRADOR: RESIDENCIAS
 // ---------------------------------------------------
 

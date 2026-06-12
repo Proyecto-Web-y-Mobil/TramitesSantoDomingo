@@ -121,22 +121,21 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 </ConstructionAlert>
 
-                {/* Trámites Asignados */}
-                <ConstructionAlert>
-                  <div
-                    style={{ ...cardStyle, background: '#fff5f5' }}
-                    onMouseEnter={e => {
-                      (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
-                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={e => {
-                      (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
-                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-                    }}
-                  >
-                    <p style={cardTitleStyle}>Tramites asignados</p>
-                  </div>
-                </ConstructionAlert>
+                {/* Trámites asignados */}
+                <div
+                  style={cardStyle}
+                  onClick={() => history.push('/admin/tramites')}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
+                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
+                  }}
+                >
+                  <p style={cardTitleStyle}>Trámites asignados</p>
+                </div>
 
                 {/* Confirmaciones de Residencia */}
                 <div

@@ -11,6 +11,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import TalleresDideco from './pages/TalleresDideco';
 import MisTramites from './pages/MisTramites';
 import ValidarResidencias from './pages/ValidarResidencias';
+import AdminTramites from './pages/AdminTramites';
 
 // Importamos la nueva pantalla
 import PermisoCirculacionInfo from './pages/PermisoCirculacionInfo';
@@ -75,6 +76,10 @@ const App: React.FC = () => (
 
         <Route exact path="/admin/residencias">
           <ValidarResidencias />
+        </Route>
+
+        <Route exact path="/admin/tramites">
+          <AdminTramites />
         </Route>
 
         <Route exact path="/">
