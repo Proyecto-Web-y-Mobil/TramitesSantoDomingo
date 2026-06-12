@@ -284,6 +284,57 @@ app.get('/api/tramites/usuario/:id', async (req, res) => {
 });
 
 // ---------------------------------------------------
+// RUTAS DE ADMINISTRADOR: RESIDENCIAS
+// ---------------------------------------------------
+
+// 1. Obtener la lista de usuarios pendientes
+app.get('/api/admin/residencias-pendientes', async (req, res) => {
+  try {
+      const query = `
+          SELECT id, rut, nombres, apellido_p, apellido_m, correo, url_residencia, estado_validacion 
+          FROM usuarios 
+          WHERE estado_validacion = 'En revisión'
+      `;
+      const [pendientes] = await pool.query(query);
+      
+      res.status(200).json({ ok: true, usuarios: pendientes });
+  } catch (error) {
+      console.error('Error al obtener residencias:', error);
+      res.status(500).json({ ok: false, error: 'Error al cargar los datos' });
+  }
+});
+
+// 2. Aprobar residencia
+app.put('/api/admin/residencias/aprobar/:id', async (req, res) => {
+  try {
+      const userId = req.params.id;
+      // Cambiamos el id_rol a 2 (Residente) y el estado a Aprobado
+      const query = `UPDATE usuarios SET id_rol = 2, estado_validacion = 'Aprobado' WHERE id = ?`;
+      await pool.query(query, [userId]);
+      
+      res.status(200).json({ ok: true, message: 'Usuario promovido a Residente' });
+  } catch (error) {
+      console.error('Error al aprobar residencia:', error);
+      res.status(500).json({ ok: false, error: 'Error al aprobar' });
+  }
+});
+
+// 3. Rechazar residencia
+app.put('/api/admin/residencias/rechazar/:id', async (req, res) => {
+  try {
+      const userId = req.params.id;
+      // Devolvemos el estado a 'Sin subir' y borramos la URL del documento malo
+      const query = `UPDATE usuarios SET estado_validacion = 'Sin subir', url_residencia = NULL WHERE id = ?`;
+      await pool.query(query, [userId]);
+      
+      res.status(200).json({ ok: true, message: 'Documento rechazado' });
+  } catch (error) {
+      console.error('Error al rechazar residencia:', error);
+      res.status(500).json({ ok: false, error: 'Error al rechazar' });
+  }
+});
+
+// ---------------------------------------------------
 // INICIO DEL SERVIDOR
 // ---------------------------------------------------
 const PORT = process.env.PORT || 3000;

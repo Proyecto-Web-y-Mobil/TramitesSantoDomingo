@@ -10,7 +10,7 @@ import TramitesLogueado from './pages/TramitesLogueado';
 import AdminDashboard from './pages/AdminDashboard';
 import TalleresDideco from './pages/TalleresDideco';
 import MisTramites from './pages/MisTramites';
-
+import ValidarResidencias from './pages/ValidarResidencias';
 
 // Importamos la nueva pantalla
 import PermisoCirculacionInfo from './pages/PermisoCirculacionInfo';
@@ -65,13 +65,16 @@ const App: React.FC = () => (
           <MisTramites />
         </Route>
 
-        {/* NUEVAS RUTAS DE TRÁMITES */}
         <Route exact path="/tramite/permiso-circulacion/info">
           <PermisoCirculacionInfo />
         </Route>
 
         <Route exact path="/tramite/permiso-circulacion/formulario">
           <PermisoCirculacionForm />
+        </Route>
+
+        <Route exact path="/admin/residencias">
+          <ValidarResidencias />
         </Route>
 
         <Route exact path="/">
