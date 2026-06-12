@@ -206,27 +206,19 @@ app.post('/api/tramites/permiso-circulacion', upload.single('documento'), async 
 });
 
 // ---------------------------------------------------
-// NUEVA RUTA: ACREDITAR RESIDENCIA (CON ESPÍAS)
+// RUTA: ACREDITAR RESIDENCIA
 // ---------------------------------------------------
 app.post('/api/usuarios/residencia', upload.single('documento_residencia'), async (req, res) => {
   try {
-      // ESPÍA 1: Ver qué variables de texto llegaron
-      console.log("🕵️‍♂️ BODY RECIBIDO:", req.body);
-      
-      // ESPÍA 2: Ver si el archivo llegó correctamente
-      console.log("🕵️‍♂️ ARCHIVO RECIBIDO:", req.file ? req.file.originalname : "Ninguno");
-
       const { usuario_id } = req.body;
       
       if (!req.file) {
           return res.status(400).json({ ok: false, error: 'Falta el documento de residencia' });
       }
       if (!usuario_id || usuario_id === 'null' || usuario_id === 'undefined') {
-          console.log("❌ ERROR: El ID de usuario es inválido:", usuario_id);
           return res.status(400).json({ ok: false, error: 'Falta o es inválido el ID del usuario' });
       }
 
-      // 1. Subir a Cloudinary (en una carpeta separada para mantener el orden)
       const uploadResult = await new Promise((resolve, reject) => {
           const stream = cloudinary.uploader.upload_stream(
               { folder: 'municipalidad/residencia' }, 
@@ -239,21 +231,16 @@ app.post('/api/usuarios/residencia', upload.single('documento_residencia'), asyn
       });
 
       const url_residencia = uploadResult.secure_url;
-      console.log("✅ CLOUDINARY OK:", url_residencia);
 
-      // 2. Actualizar al usuario en la Base de Datos
       const queryUpdate = `
           UPDATE usuarios 
           SET url_residencia = ?, estado_validacion = 'En revisión'
           WHERE id = ?
       `;
       
-      // ESPÍA 3: Revisar si MySQL realmente actualizó la fila
       const [resultadoBD] = await pool.query(queryUpdate, [url_residencia, usuario_id]);
-      console.log("📊 RESULTADO MYSQL:", resultadoBD);
 
       if (resultadoBD.affectedRows === 0) {
-           console.log("⚠️ ALERTA: No se encontró ningún usuario con el ID", usuario_id);
            return res.status(404).json({ ok: false, error: 'Usuario no encontrado en la BD' });
       }
 
@@ -264,7 +251,7 @@ app.post('/api/usuarios/residencia', upload.single('documento_residencia'), asyn
       });
 
   } catch (error) {
-      console.error('❌ Error general al subir documento:', error);
+      console.error('Error al subir documento de residencia:', error);
       res.status(500).json({ ok: false, error: 'Error interno del servidor' });
   }
 });
