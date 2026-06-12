@@ -318,6 +318,58 @@ app.get('/api/admin/tramites', async (req, res) => {
 });
 
 // ---------------------------------------------------
+// RUTA: VER DETALLE DE UN TRÁMITE ESPECÍFICO (ADMIN)
+// ---------------------------------------------------
+app.get('/api/admin/tramites/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      
+      // Unimos solicitudes, tramites, usuarios y detalles_vehiculo
+      const query = `
+          SELECT 
+              s.id AS solicitud_id, s.estado, s.fecha_solicitud, s.observacion,
+              t.nombre AS nombre_tramite,
+              u.nombres, u.apellido_p, u.apellido_m, u.rut, u.correo,
+              d.patente, d.marca, d.modelo, d.anio, d.url_revision_tecnica
+          FROM solicitudes_tramite s
+          JOIN tramites t ON s.tramite_id = t.id
+          JOIN usuarios u ON s.usuario_id = u.id
+          LEFT JOIN detalles_vehiculo d ON s.id = d.solicitud_id
+          WHERE s.id = ?
+      `;
+      
+      const [rows] = await pool.query(query, [id]);
+      
+      if (rows.length === 0) {
+          return res.status(404).json({ ok: false, error: 'Trámite no encontrado' });
+      }
+      
+      res.status(200).json({ ok: true, tramite: rows[0] });
+  } catch (error) {
+      console.error('Error al obtener detalle del trámite:', error);
+      res.status(500).json({ ok: false, error: 'Error al cargar el detalle' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTA: ACTUALIZAR ESTADO DEL TRÁMITE (APROBAR/OBSERVAR)
+// ---------------------------------------------------
+app.put('/api/admin/tramites/:id/estado', async (req, res) => {
+  try {
+      const { id } = req.params;
+      const { estado, observacion } = req.body;
+      
+      const query = `UPDATE solicitudes_tramite SET estado = ?, observacion = ? WHERE id = ?`;
+      await pool.query(query, [estado, observacion || null, id]);
+      
+      res.status(200).json({ ok: true, message: 'Estado del trámite actualizado' });
+  } catch (error) {
+      console.error('Error al actualizar estado:', error);
+      res.status(500).json({ ok: false, error: 'Error al actualizar el trámite' });
+  }
+});
+
+// ---------------------------------------------------
 // RUTAS DE ADMINISTRADOR: RESIDENCIAS
 // ---------------------------------------------------
 

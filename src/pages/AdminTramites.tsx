@@ -96,7 +96,7 @@ export default function AdminTramites() {
 
                   <IonButton 
                     color="primary" 
-                    onClick={() => alert(`Próximamente: Ver detalles completos del trámite ${tramite.solicitud_id}`)}
+                    onClick={() => history.push(`/admin/tramites/revisar/${tramite.solicitud_id}`)}
                   >
                     <IonIcon slot="start" icon={documentTextOutline} />
                     Revisar Trámite

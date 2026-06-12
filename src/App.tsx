@@ -12,6 +12,7 @@ import TalleresDideco from './pages/TalleresDideco';
 import MisTramites from './pages/MisTramites';
 import ValidarResidencias from './pages/ValidarResidencias';
 import AdminTramites from './pages/AdminTramites';
+import AdminRevisarTramite from './pages/AdminRevisarTramite';
 
 // Importamos la nueva pantalla
 import PermisoCirculacionInfo from './pages/PermisoCirculacionInfo';
@@ -80,6 +81,10 @@ const App: React.FC = () => (
 
         <Route exact path="/admin/tramites">
           <AdminTramites />
+        </Route>
+
+        <Route exact path="/admin/tramites/revisar/:id">
+          <AdminRevisarTramite />
         </Route>
 
         <Route exact path="/">
