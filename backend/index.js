@@ -447,6 +447,40 @@ app.post('/api/dideco/inscripcion', async (req, res) => {
 });
 
 // ---------------------------------------------------
+// RUTA: AGENDAMIENTO DE TRÁMITES PRESENCIALES
+// ---------------------------------------------------
+app.post('/api/agendamientos/crear', async (req, res) => {
+  try {
+      const { usuario_id, fecha_cita, hora_cita } = req.body;
+
+      // 1. Validar que la fecha no esté tomada en ese mismo bloque horario
+      const [ocupado] = await pool.query(
+          'SELECT * FROM agendamientos_transito WHERE fecha_reserva = ? AND hora_reserva = ?',
+          [fecha_cita, hora_cita]
+      );
+
+      if (ocupado.length > 0) {
+          return res.status(400).json({ 
+              ok: false, 
+              error: 'Este bloque horario ya se encuentra reservado. Por favor, seleccione otro.' 
+          });
+      }
+
+      // 2. Insertar la reserva usando tus columnas exactas.
+      // Guardamos el usuario_id dentro de solicitud_id para no alterar tu tabla
+      await pool.query(
+          'INSERT INTO agendamientos_transito (solicitud_id, fecha_reserva, hora_reserva) VALUES (?, ?, ?)',
+          [usuario_id, fecha_cita, hora_cita]
+      );
+
+      res.status(200).json({ ok: true, message: 'Hora reservada exitosamente' });
+  } catch (error) {
+      console.error('Error al agendar hora:', error);
+      res.status(500).json({ ok: false, error: 'Error interno del servidor al procesar la reserva' });
+  }
+});
+
+// ---------------------------------------------------
 // RUTA DE ADMINISTRADOR: LISTAR TODOS LOS TRÁMITES
 // ---------------------------------------------------
 app.get('/api/admin/tramites', async (req, res) => {

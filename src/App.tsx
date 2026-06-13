@@ -16,6 +16,9 @@ import AdminRevisarTramite from './pages/AdminRevisarTramite';
 import DetalleMiTramite from './pages/DetalleMiTramite';
 import TallerZumbaInfo from './pages/TallerZumbaInfo';
 import TallerZumbaInscripcion from './pages/TallerZumbaInscripcion';
+import TramitesPresenciales from './pages/TramitesPresenciales';
+import LicenciaInfo from './pages/LicenciaInfo';
+import LicenciaInscripcion from './pages/LicenciaInscripcion';
 
 // Importamos la nueva pantalla
 import PermisoCirculacionInfo from './pages/PermisoCirculacionInfo';
@@ -76,6 +79,18 @@ const App: React.FC = () => (
 
         <Route exact path="/tramite/permiso-circulacion/formulario">
           <PermisoCirculacionForm />
+        </Route>
+
+        <Route exact path="/tramites-presenciales">
+          <TramitesPresenciales />
+        </Route>
+
+        <Route exact path="/tramites-presenciales/licencia-b/info">
+          <LicenciaInfo />
+        </Route>
+
+        <Route exact path="/tramites-presenciales/licencia-b/agendar">
+          <LicenciaInscripcion />
         </Route>
 
         <Route exact path="/talleres/zumba">

@@ -42,7 +42,11 @@ export default function TramitesLogueado() {
       ruta: "/talleres" 
     },
     { titulo: "Dirección de obras municipales", subtitulo: "(DOM)", img: "/assets/dom.png" },
-    { titulo: "Trámites Presenciales", img: "/assets/presencial.png" },
+    { 
+      titulo: "Trámites Presenciales", 
+      img: "/assets/presencial.png",
+      ruta: "/tramites-presenciales" // Único cambio realizado aquí
+    },
   ];
 
   return (

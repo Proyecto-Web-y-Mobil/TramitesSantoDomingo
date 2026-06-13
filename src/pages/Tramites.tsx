@@ -1,7 +1,6 @@
 import { 
   IonPage, 
   IonContent, 
-  IonGrid, 
   IonCard, 
   IonCardContent, 
   IonButton 
@@ -15,16 +14,19 @@ export default function Tramites() {
   const history = useHistory();
   
   const tramites = [
-    { titulo: "Permiso Circulación", img: "/assets/permiso.png" },
+    // Marcamos Permiso de Circulación como especial
+    { titulo: "Permiso Circulación", img: "/assets/permiso.png", especial: true },
     { titulo: "Patentes Comerciales", img: "/assets/patente.png" },
     { titulo: "Pago Derechos de aseo", img: "/assets/aseo.png" },
     { titulo: "Tránsito", subtitulo: "(Primer permiso de circulación)", img: "/assets/transito.png" },
-    { titulo: "Talleres DIDECO", img: "/assets/talleres.png", especial: true }, // Marcado como especial
+    { titulo: "Talleres DIDECO", img: "/assets/talleres.png", especial: true },
     { titulo: "Dirección de obras municipales", subtitulo: "(DOM)", img: "/assets/dom.png" },
-    { titulo: "Trámites Presenciales", img: "/assets/presencial.png" },
+    // Marcamos Trámites Presenciales como especial
+    { titulo: "Trámites Presenciales", img: "/assets/presencial.png", especial: true },
   ];
 
-  const handleTalleresClick = () => {
+  // Renombramos la función para que tenga sentido con cualquier trámite
+  const handleProtectedClick = () => {
     alert("Esta función es solo para usuarios logueados. Por favor, inicia sesión.");
     history.push('/login');
   };
@@ -53,7 +55,7 @@ export default function Tramites() {
               justifyContent: 'center'
             }}>
               {tramites.map((item, index) => {
-                // Contenido de la tarjeta (se repite para ambos casos)
+                
                 const CardContent = (
                   <IonCard style={{ 
                     margin: '0', 
@@ -95,15 +97,16 @@ export default function Tramites() {
                   </IonCard>
                 );
 
-                // Lógica de envoltorio
+                // Si es especial (Permiso, Talleres o Presencial), usa la redirección al login
                 if (item.especial) {
                   return (
-                    <div key={index} onClick={handleTalleresClick} style={{ cursor: 'pointer' }}>
+                    <div key={index} onClick={handleProtectedClick} style={{ cursor: 'pointer' }}>
                       {CardContent}
                     </div>
                   );
                 }
 
+                // Si no, muestra la alerta de construcción
                 return (
                   <ConstructionAlert key={index}>
                     {CardContent}
