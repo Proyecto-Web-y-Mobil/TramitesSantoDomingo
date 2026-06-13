@@ -384,25 +384,43 @@ app.post('/api/dideco/inscripcion', async (req, res) => {
   try {
       const { usuario_id, taller_id } = req.body;
 
-      // 1. Verificar si el taller existe y tiene cupos
-      const [talleres] = await pool.query('SELECT cupos_disponibles FROM talleres_dideco WHERE id = ?', [taller_id]);
+      // 1. NUEVA VALIDACIÓN: Verificar si el usuario ya está inscrito
+      const [inscripcionPrevia] = await pool.query(
+          'SELECT * FROM inscripciones_dideco WHERE usuario_id = ? AND taller_id = ?',
+          [usuario_id, taller_id]
+      );
+
+      if (inscripcionPrevia.length > 0) {
+          return res.status(400).json({ 
+              ok: false, 
+              error: 'Ya te encuentras inscrito en este taller. No puedes reservar más de un cupo.' 
+          });
+      }
+
+      // 2. Verificar si el taller existe y tiene cupos
+      const [talleres] = await pool.query(
+          'SELECT cupos_disponibles FROM talleres_dideco WHERE id = ?', 
+          [taller_id]
+      );
       
       if (talleres.length === 0) {
           return res.status(404).json({ ok: false, error: 'Taller no encontrado' });
       }
       
       if (talleres[0].cupos_disponibles <= 0) {
-          return res.status(400).json({ ok: false, error: 'Lo sentimos, ya no quedan cupos disponibles para este taller.' });
+          return res.status(400).json({ 
+              ok: false, 
+              error: 'Lo sentimos, ya no quedan cupos disponibles para este taller.' 
+          });
       }
 
-      // 2. Insertar la inscripción en la base de datos
-      // Usamos NOW() para que MySQL asigne la fecha y hora actual automáticamente
+      // 3. Insertar la inscripción en la base de datos
       await pool.query(
           'INSERT INTO inscripciones_dideco (usuario_id, taller_id, fecha_inscripcion) VALUES (?, ?, NOW())',
           [usuario_id, taller_id]
       );
 
-      // 3. Restar 1 al contador de cupos disponibles
+      // 4. Restar 1 al contador de cupos disponibles
       await pool.query(
           'UPDATE talleres_dideco SET cupos_disponibles = cupos_disponibles - 1 WHERE id = ?',
           [taller_id]
