@@ -673,6 +673,55 @@ app.put('/api/admin/residencias/rechazar/:id', async (req, res) => {
 });
 
 // ---------------------------------------------------
+// RUTAS: GENERACIÓN DE REPORTES (ADMIN)
+// ---------------------------------------------------
+
+// 1. Obtener lista de talleres para el filtro
+app.get('/api/admin/reportes/talleres', async (req, res) => {
+  try {
+      const [talleres] = await pool.query('SELECT id, nombre FROM talleres_dideco');
+      res.status(200).json({ ok: true, talleres });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ ok: false, error: 'Error al cargar talleres' });
+  }
+});
+
+// 2. Obtener inscritos por Taller
+app.get('/api/admin/reportes/taller/:id', async (req, res) => {
+  try {
+      const [inscritos] = await pool.query(`
+          SELECT u.rut, u.nombres, u.apellido_p, u.apellido_m, u.correo
+          FROM inscripciones_dideco i
+          JOIN usuarios u ON i.usuario_id = u.id
+          WHERE i.taller_id = ?
+      `, [req.params.id]);
+      res.status(200).json({ ok: true, inscritos });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ ok: false, error: 'Error al cargar inscritos del taller' });
+  }
+});
+
+// 3. Obtener agendamientos presenciales por Fecha
+app.get('/api/admin/reportes/transito/:fecha', async (req, res) => {
+  try {
+      // Recordando que solicitud_id guarda el ID del usuario en tu tabla
+      const [agendas] = await pool.query(`
+          SELECT a.hora_reserva, u.rut, u.nombres, u.apellido_p, u.apellido_m, u.correo
+          FROM agendamientos_transito a
+          JOIN usuarios u ON a.solicitud_id = u.id
+          WHERE a.fecha_reserva = ?
+          ORDER BY a.hora_reserva ASC
+      `, [req.params.fecha]);
+      res.status(200).json({ ok: true, agendas });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ ok: false, error: 'Error al cargar agendamientos de tránsito' });
+  }
+});
+
+// ---------------------------------------------------
 // INICIO DEL SERVIDOR
 // ---------------------------------------------------
 const PORT = process.env.PORT || 3000;
