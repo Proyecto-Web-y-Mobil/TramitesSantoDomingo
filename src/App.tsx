@@ -13,6 +13,7 @@ import MisTramites from './pages/MisTramites';
 import ValidarResidencias from './pages/ValidarResidencias';
 import AdminTramites from './pages/AdminTramites';
 import AdminRevisarTramite from './pages/AdminRevisarTramite';
+import ReportesAdmin from './pages/ReportesAdmin';
 import DetalleMiTramite from './pages/DetalleMiTramite';
 import TallerZumbaInfo from './pages/TallerZumbaInfo';
 import TallerZumbaInscripcion from './pages/TallerZumbaInscripcion';
@@ -116,6 +117,10 @@ const App: React.FC = () => (
 
         <Route exact path="/admin/tramites/revisar/:id">
           <AdminRevisarTramite />
+        </Route>
+
+        <Route exact path="/admin/reportes">
+          <ReportesAdmin />
         </Route>
 
         <Route exact path="/mis-tramites/detalle/:id">

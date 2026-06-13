@@ -4,7 +4,7 @@ import {
   useIonToast, IonSegment, IonSegmentButton, IonLabel, IonSelect, IonSelectOption, IonInput, IonItem
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import { printOutline, peopleOutline, carOutline, searchOutline } from 'ionicons/icons';
+import { printOutline, peopleOutline, carOutline } from 'ionicons/icons';
 import HeaderBanner from '../components/HeaderBanner';
 
 export default function ReportesAdmin() {
@@ -50,13 +50,10 @@ export default function ReportesAdmin() {
     }
   };
 
-  const generarReporteDideco = async () => {
-    if (!tallerSeleccionado) {
-      presentToast({ message: 'Selecciona un taller primero', duration: 2000, color: 'warning' });
-      return;
-    }
+  // Ahora recibe el ID directamente para buscar al instante
+  const generarReporteDideco = async (idTaller: string) => {
     try {
-      const response = await fetch(`https://tramitessantodomingo-production-5cb4.up.railway.app/api/admin/reportes/taller/${tallerSeleccionado}`);
+      const response = await fetch(`https://tramitessantodomingo-production-5cb4.up.railway.app/api/admin/reportes/taller/${idTaller}`);
       const data = await response.json();
       if (data.ok) setResultadosDideco(data.inscritos);
     } catch (error) {
@@ -64,13 +61,10 @@ export default function ReportesAdmin() {
     }
   };
 
-  const generarReporteTransito = async () => {
-    if (!fechaSeleccionada) {
-      presentToast({ message: 'Selecciona una fecha primero', duration: 2000, color: 'warning' });
-      return;
-    }
+  // Ahora recibe la fecha directamente para buscar al instante
+  const generarReporteTransito = async (fecha: string) => {
     try {
-      const response = await fetch(`https://tramitessantodomingo-production-5cb4.up.railway.app/api/admin/reportes/transito/${fechaSeleccionada}`);
+      const response = await fetch(`https://tramitessantodomingo-production-5cb4.up.railway.app/api/admin/reportes/transito/${fecha}`);
       const data = await response.json();
       if (data.ok) setResultadosTransito(data.agendas);
     } catch (error) {
@@ -82,30 +76,34 @@ export default function ReportesAdmin() {
     window.print();
   };
 
+  const nombreTallerActual = talleres.find(t => t.id.toString() === tallerSeleccionado?.toString())?.nombre || 'Taller DIDECO';
+
   return (
     <IonPage>
       <IonContent fullscreen style={{ '--background': '#f5f5f5' }}>
-        <HeaderBanner 
-          title="Generador de Reportes"
-          backgroundImage="/assets/headerAdmin.png" 
-          buttonText="Volver al Panel"
-          buttonRoute="/admin-dashboard" 
-          showSecondaryButton={false} 
-        />
+        
+        <style>
+          {`
+            @media print {
+              .no-print { display: none !important; }
+              .print-area { width: 100%; border: none; box-shadow: none; padding: 20px; }
+              body, ion-content, main { background: white !important; --background: white !important; }
+            }
+          `}
+        </style>
+
+        <div className="no-print">
+          <HeaderBanner 
+            title="Generador de Reportes"
+            backgroundImage="/assets/headerAdmin.png" 
+            buttonText="Volver al Panel"
+            buttonRoute="/admin-dashboard" 
+            showSecondaryButton={false} 
+          />
+        </div>
 
         <main style={{ padding: '20px', maxWidth: '900px', margin: '0 auto' }}>
           
-          {/* Estilos para ocultar botones al imprimir */}
-          <style>
-            {`
-              @media print {
-                .no-print { display: none !important; }
-                .print-area { width: 100%; border: none; box-shadow: none; }
-                body { background: white; }
-              }
-            `}
-          </style>
-
           <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
             <IonSegment value={tipoReporte} onIonChange={e => setTipoReporte(e.detail.value as any)} style={{ maxWidth: '400px' }}>
               <IonSegmentButton value="dideco">
@@ -117,7 +115,7 @@ export default function ReportesAdmin() {
             </IonSegment>
 
             <IonButton color="medium" fill="outline" onClick={imprimirReporte}>
-              <IonIcon slot="start" icon={printOutline} /> Exportar PDF
+              <IonIcon slot="start" icon={printOutline} /> Imprimir / Guardar PDF
             </IonButton>
           </div>
 
@@ -125,27 +123,37 @@ export default function ReportesAdmin() {
             <IonCardContent>
               {tipoReporte === 'dideco' ? (
                 <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                  <IonItem style={{ flex: 1, minWidth: '250px', border: '1px solid #ccc', borderRadius: '6px' }} lines="none">
+                  <IonItem style={{ flex: 1, border: '1px solid #ccc', borderRadius: '6px' }} lines="none">
                     <IonLabel position="stacked">Seleccionar Taller</IonLabel>
-                    <IonSelect value={tallerSeleccionado} onIonChange={e => setTallerSeleccionado(e.detail.value)} placeholder="Elige un taller">
+                    <IonSelect 
+                      value={tallerSeleccionado} 
+                      onIonChange={e => {
+                        const valor = e.detail.value;
+                        setTallerSeleccionado(valor);
+                        if (valor) generarReporteDideco(valor); // Dispara la búsqueda automática
+                      }} 
+                      placeholder="Elige un taller"
+                    >
                       {talleres.map(t => (
                         <IonSelectOption key={t.id} value={t.id}>{t.nombre}</IonSelectOption>
                       ))}
                     </IonSelect>
                   </IonItem>
-                  <IonButton onClick={generarReporteDideco} style={{ height: '50px' }}>
-                    <IonIcon slot="start" icon={searchOutline} /> Buscar
-                  </IonButton>
                 </div>
               ) : (
                 <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                  <IonItem style={{ flex: 1, minWidth: '250px', border: '1px solid #ccc', borderRadius: '6px' }} lines="none">
+                  <IonItem style={{ flex: 1, border: '1px solid #ccc', borderRadius: '6px' }} lines="none">
                     <IonLabel position="stacked">Fecha de Agendamiento</IonLabel>
-                    <IonInput type="date" value={fechaSeleccionada} onIonChange={e => setFechaSeleccionada(e.detail.value!)} />
+                    <IonInput 
+                      type="date" 
+                      value={fechaSeleccionada} 
+                      onIonChange={e => {
+                        const valor = e.detail.value!;
+                        setFechaSeleccionada(valor);
+                        if (valor) generarReporteTransito(valor); // Dispara la búsqueda automática
+                      }} 
+                    />
                   </IonItem>
-                  <IonButton onClick={generarReporteTransito} style={{ height: '50px' }}>
-                    <IonIcon slot="start" icon={searchOutline} /> Buscar
-                  </IonButton>
                 </div>
               )}
             </IonCardContent>
@@ -155,15 +163,18 @@ export default function ReportesAdmin() {
           <div className="print-area">
             {tipoReporte === 'dideco' && resultadosDideco.length > 0 && (
               <>
-                <h2 style={{ color: '#1b3a6b', borderBottom: '2px solid #1b3a6b', paddingBottom: '10px' }}>
-                  Reporte de Inscritos: Taller DIDECO
-                </h2>
+                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                  <h1 style={{ color: '#1b3a6b', margin: '0 0 10px 0', textTransform: 'uppercase' }}>Municipalidad de Santo Domingo</h1>
+                  <h2 style={{ color: '#333', borderBottom: '2px solid #1b3a6b', paddingBottom: '10px', marginTop: 0 }}>
+                    Reporte de Inscritos: {nombreTallerActual}
+                  </h2>
+                </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', backgroundColor: 'white' }}>
                   <thead>
-                    <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>RUT</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Nombre Completo</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Correo</th>
+                    <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #1b3a6b' }}>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#1b3a6b' }}>RUT</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#1b3a6b' }}>Nombre Completo</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#1b3a6b' }}>Correo</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -181,22 +192,25 @@ export default function ReportesAdmin() {
 
             {tipoReporte === 'transito' && resultadosTransito.length > 0 && (
               <>
-                <h2 style={{ color: '#1b3a6b', borderBottom: '2px solid #1b3a6b', paddingBottom: '10px' }}>
-                  Agenda Tránsito: {new Date(fechaSeleccionada + 'T00:00:00').toLocaleDateString()}
-                </h2>
+                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                  <h1 style={{ color: '#1b3a6b', margin: '0 0 10px 0', textTransform: 'uppercase' }}>Municipalidad de Santo Domingo</h1>
+                  <h2 style={{ color: '#333', borderBottom: '2px solid #1b3a6b', paddingBottom: '10px', marginTop: 0 }}>
+                    Agenda Tránsito: {new Date(fechaSeleccionada + 'T00:00:00').toLocaleDateString()}
+                  </h2>
+                </div>
                 <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', backgroundColor: 'white' }}>
                   <thead>
-                    <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Hora</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>RUT</th>
-                      <th style={{ padding: '12px', textAlign: 'left' }}>Nombre Completo</th>
+                    <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #1b3a6b' }}>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#1b3a6b' }}>Hora</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#1b3a6b' }}>RUT</th>
+                      <th style={{ padding: '12px', textAlign: 'left', color: '#1b3a6b' }}>Nombre Completo</th>
                     </tr>
                   </thead>
                   <tbody>
                     {resultadosTransito.map((a, index) => (
                       <tr key={index} style={{ borderBottom: '1px solid #eee' }}>
                         <td style={{ padding: '12px', fontWeight: 'bold', color: '#1a73c8' }}>{a.hora_reserva}</td>
-                        <td style={{ padding: '12px' }}>{u.rut}</td>
+                        <td style={{ padding: '12px' }}>{a.rut}</td>
                         <td style={{ padding: '12px' }}>{a.nombres} {a.apellido_p} {a.apellido_m}</td>
                       </tr>
                     ))}
@@ -207,7 +221,7 @@ export default function ReportesAdmin() {
 
             {((tipoReporte === 'dideco' && resultadosDideco.length === 0 && tallerSeleccionado) || 
               (tipoReporte === 'transito' && resultadosTransito.length === 0 && fechaSeleccionada)) && (
-              <p style={{ textAlign: 'center', marginTop: '40px', color: '#666', fontSize: '1.2rem' }}>
+              <p className="no-print" style={{ textAlign: 'center', marginTop: '40px', color: '#666', fontSize: '1.2rem' }}>
                 No hay registros encontrados para la selección.
               </p>
             )}

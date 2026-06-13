@@ -115,22 +115,20 @@ const AdminDashboard: React.FC = () => {
             <IonCol size="12" sizeMd="9" sizeLg="8" sizeXl="7">
               <div style={{ padding: '32px 16px' }}>
 
-                {/* Generar Reportes */}
-                <ConstructionAlert>
-                  <div
-                    style={cardStyle}
-                    onMouseEnter={e => {
-                      (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
-                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
-                    }}
-                    onMouseLeave={e => {
-                      (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
-                      (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-                    }}
-                  >
-                    <p style={cardTitleStyle}>Generar reportes</p>
-                  </div>
-                </ConstructionAlert>
+              {/* Generar Reportes */}
+                <div
+                  style={cardStyle}
+                  onClick={() => history.push('/admin/reportes')}
+                  onMouseEnter={e => {                      (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
+                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)';
+                    (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
+                  }}
+                >
+                  <p style={cardTitleStyle}>Generar reportes</p>
+                </div>
 
                 {/* Trámites asignados */}
                 <div
