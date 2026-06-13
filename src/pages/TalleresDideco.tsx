@@ -27,9 +27,10 @@ export default function TalleresDideco() {
     checkSession();
   }, [history]);
 
+  // Agregamos la propiedad 'route' solo al taller que queremos que funcione
   const talleres = [
     { titulo: "Arteterapia", img: "/assets/arte.png" },
-    { titulo: "Zumba", img: "/assets/zumba.png" },
+    { titulo: "Zumba", img: "/assets/zumba.png", route: "/talleres/zumba" },
     { titulo: "Folklore", img: "/assets/folklore.png" },
     { titulo: "Cocina Saludable", img: "/assets/cocina.png" },
     { titulo: "Yoga 3ra edad", img: "/assets/yoga.png" },
@@ -59,9 +60,10 @@ export default function TalleresDideco() {
               maxWidth: '1000px',
               justifyContent: 'center'
             }}>
-              {talleres.map((item, index) => (
-                /* Envoltura de alerta para cada taller individual */
-                <ConstructionAlert key={index}>
+              {talleres.map((item, index) => {
+                
+                // Extraemos la tarjeta a una constante para no repetir código
+                const TarjetaTaller = (
                   <IonCard style={{ 
                     margin: '0 auto', 
                     width: '100%',
@@ -84,6 +86,12 @@ export default function TalleresDideco() {
                     <IonCardContent style={{ padding: '0', flex: 1 }}>
                       <IonButton 
                         expand="block" 
+                        onClick={() => {
+                          // Si tiene una ruta válida (Zumba), navegamos hacia ella
+                          if (item.route) {
+                            history.push(item.route);
+                          }
+                        }}
                         style={{ '--background': '#1b3a6b', '--border-radius': '0', margin: '0', minHeight: '60px' }}
                       >
                         <span style={{ fontSize: '0.9rem', fontWeight: 'bold', textTransform: 'none', whiteSpace: 'normal' }}>
@@ -92,8 +100,20 @@ export default function TalleresDideco() {
                       </IonButton>
                     </IonCardContent>
                   </IonCard>
-                </ConstructionAlert>
-              ))}
+                );
+
+                // Si el taller tiene la propiedad 'route', NO lo envolvemos en la alerta
+                if (item.route) {
+                  return <React.Fragment key={index}>{TarjetaTaller}</React.Fragment>;
+                }
+
+                // Para todos los demás, mantenemos el ConstructionAlert original
+                return (
+                  <ConstructionAlert key={index}>
+                    {TarjetaTaller}
+                  </ConstructionAlert>
+                );
+              })}
             </div>
           </main>
 

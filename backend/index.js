@@ -359,6 +359,25 @@ app.put('/api/tramites/:id/corregir', upload.single('documento'), async (req, re
 });
 
 // ---------------------------------------------------
+// RUTA: OBTENER INFORMACIÓN DE UN TALLER ESPECÍFICO
+// ---------------------------------------------------
+app.get('/api/dideco/talleres/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      const [rows] = await pool.query('SELECT * FROM talleres_dideco WHERE id = ?', [id]);
+      
+      if (rows.length === 0) {
+          return res.status(404).json({ ok: false, error: 'Taller no encontrado' });
+      }
+      
+      res.status(200).json({ ok: true, taller: rows[0] });
+  } catch (error) {
+      console.error('Error al obtener taller:', error);
+      res.status(500).json({ ok: false, error: 'Error al cargar la información del taller' });
+  }
+});
+
+// ---------------------------------------------------
 // RUTA: INSCRIPCIÓN A TALLERES DIDECO
 // ---------------------------------------------------
 app.post('/api/dideco/inscripcion', async (req, res) => {
