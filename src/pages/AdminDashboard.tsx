@@ -21,9 +21,20 @@ const AdminDashboard: React.FC = () => {
       try {
         await authService.verifySession();
         const session = localStorage.getItem('user_session');
+        
         if (session) {
-          const user = JSON.parse(session);
+          const userObj = JSON.parse(session);
+          const user = Array.isArray(userObj) ? userObj[0] : userObj;
+
+          // 🔥 CANDADO CORREGIDO: Verificamos el texto exacto del rol
+          if (user.rol !== 'funcionario') {
+            history.replace('/tramites-user');
+            return; 
+          }
+
           setNombreAdmin(`${user.nombres} ${user.apellidoP}`);
+        } else {
+          history.push('/login-funcionario');
         }
       } catch (error) {
         authService.logout();

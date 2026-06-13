@@ -3,7 +3,8 @@ import {
   IonContent, 
   IonCard, 
   IonCardContent, 
-  IonButton 
+  IonButton,
+  useIonAlert
 } from "@ionic/react";
 import { useHistory } from 'react-router-dom';
 import FooterBanner from '../components/FooterBanner';
@@ -12,23 +13,35 @@ import ConstructionAlert from '../components/ConstructionAlert';
 
 export default function Tramites() {
   const history = useHistory();
+  const [presentAlert] = useIonAlert();
   
   const tramites = [
-    // Marcamos Permiso de Circulación como especial
     { titulo: "Permiso Circulación", img: "/assets/permiso.png", especial: true },
     { titulo: "Patentes Comerciales", img: "/assets/patente.png" },
     { titulo: "Pago Derechos de aseo", img: "/assets/aseo.png" },
     { titulo: "Tránsito", subtitulo: "(Primer permiso de circulación)", img: "/assets/transito.png" },
     { titulo: "Talleres DIDECO", img: "/assets/talleres.png", especial: true },
     { titulo: "Dirección de obras municipales", subtitulo: "(DOM)", img: "/assets/dom.png" },
-    // Marcamos Trámites Presenciales como especial
     { titulo: "Trámites Presenciales", img: "/assets/presencial.png", especial: true },
   ];
 
-  // Renombramos la función para que tenga sentido con cualquier trámite
   const handleProtectedClick = () => {
-    alert("Esta función es solo para usuarios logueados. Por favor, inicia sesión.");
-    history.push('/login');
+    presentAlert({
+      header: 'Acceso Restringido',
+      message: 'Esta función es solo para usuarios logueados. Por favor, inicia sesión en la plataforma.',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel'
+        },
+        {
+          text: 'Ir al Login',
+          handler: () => {
+            history.push('/login');
+          }
+        }
+      ]
+    });
   };
 
   return (
@@ -97,7 +110,6 @@ export default function Tramites() {
                   </IonCard>
                 );
 
-                // Si es especial (Permiso, Talleres o Presencial), usa la redirección al login
                 if (item.especial) {
                   return (
                     <div key={index} onClick={handleProtectedClick} style={{ cursor: 'pointer' }}>
@@ -106,7 +118,6 @@ export default function Tramites() {
                   );
                 }
 
-                // Si no, muestra la alerta de construcción
                 return (
                   <ConstructionAlert key={index}>
                     {CardContent}

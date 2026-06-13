@@ -20,6 +20,30 @@ export default function AdminRevisarTramite() {
   const [textoMensaje, setTextoMensaje] = useState('');
   const [procesando, setProcesando] = useState(false);
 
+  // 🔒 CANDADO DE SEGURIDAD PARA ADMINISTRADORES
+  useEffect(() => {
+    const verificarPermisosAdmin = () => {
+      const sessionData = localStorage.getItem('user_session');
+      
+      // 1. Si no hay sesión en absoluto, lo mandamos al login de funcionarios
+      if (!sessionData) {
+        history.push('/login-funcionario');
+        return;
+      }
+
+      const userObj = JSON.parse(sessionData);
+      const user = Array.isArray(userObj) ? userObj[0] : userObj;
+
+      // 2. Si hay sesión pero no dice exactamente 'funcionario', es un ciudadano intruso.
+      // Lo expulsamos silenciosamente al menú de trámites logueado.
+      if (user.rol !== 'funcionario') {
+        history.replace('/tramites-user');
+      }
+    };
+
+    verificarPermisosAdmin();
+  }, [history]);
+
   useEffect(() => {
     cargarDetalle();
   }, [id]);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import {
   IonPage, IonContent, IonCard, IonCardHeader, IonCardTitle, 
   IonCardContent, IonButton, IonSpinner, useIonToast, IonIcon, IonBadge,
@@ -13,12 +13,36 @@ export default function AdminTramites() {
   const [presentToast] = useIonToast();
   const [tramites, setTramites] = useState<any[]>([]);
   const [cargando, setCargando] = useState(true);
+  
+  // 🔒 CANDADO DE SEGURIDAD PARA ADMINISTRADORES
+  useEffect(() => {
+    const verificarPermisosAdmin = () => {
+      const sessionData = localStorage.getItem('user_session');
+      
+      // 1. Si no hay sesión en absoluto, lo mandamos al login de funcionarios
+      if (!sessionData) {
+        history.push('/login-funcionario');
+        return;
+      }
+
+      const userObj = JSON.parse(sessionData);
+      const user = Array.isArray(userObj) ? userObj[0] : userObj;
+
+      // 2. Si hay sesión pero no dice exactamente 'funcionario', es un ciudadano intruso.
+      // Lo expulsamos silenciosamente al menú de trámites logueado.
+      if (user.rol !== 'funcionario') {
+        history.replace('/tramites-user');
+      }
+    };
+
+    verificarPermisosAdmin();
+  }, [history]);
 
   // El gancho mágico de Ionic que reemplaza a useEffect para evitar el error del F5
   useIonViewWillEnter(() => {
     cargarTramites();
   });
-
+  
   const cargarTramites = async () => {
     try {
       setCargando(true);
