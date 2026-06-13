@@ -53,7 +53,7 @@ export default function LicenciaInscripcion() {
 
       if (data.ok) {
         presentToast({ message: '¡Hora reservada con éxito! Revise su correo.', duration: 4000, color: 'success' });
-        history.push('/mis-tramites'); // Lo mandamos a su panel general
+        history.push('/tramites-presenciales');
       } else {
         throw new Error(data.error);
       }

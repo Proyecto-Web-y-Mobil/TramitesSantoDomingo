@@ -159,16 +159,15 @@ const Profile = () => {
             </IonButton>
           </div>
           
-          <ConstructionAlert>
-            <div style={{ width: 'fit-content' }}>
-              <IonButton
-                size="small"
-                style={{ '--background': '#1a73c8', '--border-radius': '6px', fontSize: '13px', fontWeight: '600' }}
-              >
-                Mis Agendas
-              </IonButton>
-            </div>
-          </ConstructionAlert>
+          <div style={{ width: 'fit-content' }}>
+            <IonButton
+              size="small"
+              onClick={() => history.push('/mis-agendas')}
+              style={{ '--background': '#1a73c8', '--border-radius': '6px', fontSize: '13px', fontWeight: '600' }}
+            >
+              Mis Agendas
+            </IonButton>
+          </div>
         </div>
 
         <div style={{ position: 'absolute', bottom: '10px', right: '16px' }}>

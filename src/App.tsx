@@ -19,6 +19,7 @@ import TallerZumbaInscripcion from './pages/TallerZumbaInscripcion';
 import TramitesPresenciales from './pages/TramitesPresenciales';
 import LicenciaInfo from './pages/LicenciaInfo';
 import LicenciaInscripcion from './pages/LicenciaInscripcion';
+import MisAgendas from './pages/MisAgendas';
 
 // Importamos la nueva pantalla
 import PermisoCirculacionInfo from './pages/PermisoCirculacionInfo';
@@ -71,6 +72,10 @@ const App: React.FC = () => (
         </Route>
         <Route exact path="/mis-tramites">
           <MisTramites />
+        </Route>
+
+        <Route exact path="/mis-agendas">
+          <MisAgendas />
         </Route>
 
         <Route exact path="/tramite/permiso-circulacion/info">

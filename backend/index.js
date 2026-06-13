@@ -481,6 +481,61 @@ app.post('/api/agendamientos/crear', async (req, res) => {
 });
 
 // ---------------------------------------------------
+// RUTAS: MIS AGENDAS (DIDECO Y TRÁNSITO)
+// ---------------------------------------------------
+
+// 1. Obtener todas las agendas del usuario
+app.get('/api/agendas/usuario/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      
+      // Obtener inscripciones DIDECO con Join para traer el nombre y fecha del taller
+      const [dideco] = await pool.query(`
+          SELECT i.id, t.nombre as titulo, t.fecha_taller as fecha_evento, 'Taller DIDECO' as tipo, t.id as taller_id
+          FROM inscripciones_dideco i
+          JOIN talleres_dideco t ON i.taller_id = t.id
+          WHERE i.usuario_id = ?
+      `, [id]);
+
+      // Obtener agendamientos de Tránsito (solicitud_id es el id del usuario)
+      const [transito] = await pool.query(`
+          SELECT id, 'Licencia Clase B' as titulo, CONCAT(fecha_reserva, ' ', hora_reserva) as fecha_evento, 'Trámite Presencial' as tipo, null as taller_id
+          FROM agendamientos_transito
+          WHERE solicitud_id = ?
+      `, [id]);
+
+      // Unir ambos arreglos y ordenarlos de la fecha más cercana a la más lejana
+      const agendas = [...dideco, ...transito].sort((a, b) => new Date(a.fecha_evento) - new Date(b.fecha_evento));
+
+      res.status(200).json({ ok: true, agendas });
+  } catch (error) {
+      console.error('Error al obtener agendas:', error);
+      res.status(500).json({ ok: false, error: 'Error al cargar las agendas' });
+  }
+});
+
+// 2. Cancelar una agenda
+app.delete('/api/agendas/cancelar', async (req, res) => {
+  try {
+      const { id, tipo, taller_id } = req.body;
+
+      if (tipo === 'Taller DIDECO') {
+          // Borrar inscripción y sumar 1 al cupo del taller
+          await pool.query('DELETE FROM inscripciones_dideco WHERE id = ?', [id]);
+          await pool.query('UPDATE talleres_dideco SET cupos_disponibles = cupos_disponibles + 1 WHERE id = ?', [taller_id]);
+      } else if (tipo === 'Trámite Presencial') {
+          // Borrar solo la reserva presencial
+          await pool.query('DELETE FROM agendamientos_transito WHERE id = ?', [id]);
+      }
+
+      res.status(200).json({ ok: true, message: 'Reserva cancelada con éxito' });
+  } catch (error) {
+      console.error('Error al cancelar agenda:', error);
+      res.status(500).json({ ok: false, error: 'Error interno al cancelar la agenda' });
+  }
+});
+
+// ---------------------------------------------------
 // RUTA DE ADMINISTRADOR: LISTAR TODOS LOS TRÁMITES
 // ---------------------------------------------------
 app.get('/api/admin/tramites', async (req, res) => {
