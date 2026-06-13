@@ -1,72 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import {
   IonPage, IonContent, IonCard, IonCardHeader, IonCardTitle, 
-  IonCardContent, IonButton, IonIcon, IonList, IonItem, IonLabel, IonSpinner, useIonToast
+  IonCardContent, IonButton, IonIcon, useIonToast, IonSpinner
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import { calendarOutline, timeOutline, locationOutline, checkmarkCircleOutline, arrowForwardOutline, arrowBackOutline, peopleOutline } from 'ionicons/icons';
+import { arrowBackOutline, saveOutline, fitnessOutline } from 'ionicons/icons';
 import HeaderBanner from '../components/HeaderBanner';
 import FooterBanner from '../components/FooterBanner';
 
-export default function TallerZumbaInfo() {
+export default function TallerZumbaInscripcion() {
   const history = useHistory();
   const [presentToast] = useIonToast();
   
-  const [taller, setTaller] = useState<any>(null);
-  const [cargando, setCargando] = useState(true);
-
-  // Variables para la fecha formateada
-  const [fechaTexto, setFechaTexto] = useState('');
-  const [horarioTexto, setHorarioTexto] = useState('');
+  const [cargando, setCargando] = useState(false);
+  const [usuario, setUsuario] = useState<any>(null);
 
   useEffect(() => {
-    cargarTaller();
-  }, []);
+    const sessionData = localStorage.getItem('user_session');
+    if (sessionData) {
+      const userObj = JSON.parse(sessionData);
+      setUsuario(Array.isArray(userObj) ? userObj[0] : userObj);
+    } else {
+      history.push('/login');
+    }
+  }, [history]);
 
-  const cargarTaller = async () => {
+  const enviarInscripcion = async () => {
+    setCargando(true);
     try {
-      // Pedimos el taller con ID 1
-      const response = await fetch('https://tramitessantodomingo-production-5cb4.up.railway.app/api/dideco/talleres/1');
+      // El ID del taller en la tabla talleres_dideco es 1
+      const payload = {
+        usuario_id: usuario.id,
+        taller_id: 1 
+      };
+
+      const response = await fetch('https://tramitessantodomingo-production-5cb4.up.railway.app/api/dideco/inscripcion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
       const data = await response.json();
-      
+
       if (data.ok) {
-        setTaller(data.taller);
-        formatearFechas(data.taller.fecha_taller);
+        presentToast({ message: '¡Inscripción confirmada exitosamente!', duration: 3000, color: 'success' });
+        history.push('/talleres'); // Lo devolvemos al menú de talleres
       } else {
-        throw new Error(data.error);
+        throw new Error(data.error || 'Error al procesar la inscripción');
       }
-    } catch (error) {
-      presentToast({ message: 'Error al cargar la información del taller', duration: 3000, color: 'danger' });
+    } catch (error: any) {
+      presentToast({ message: error.message, duration: 4000, color: 'danger' });
     } finally {
       setCargando(false);
     }
   };
-
-  const formatearFechas = (fechaString: string) => {
-    if (!fechaString) return;
-
-    const fechaObj = new Date(fechaString);
-    
-    // Formatear el día (Ej: Viernes, 26 de junio de 2026)
-    const opcionesFecha: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    setFechaTexto(fechaObj.toLocaleDateString('es-CL', opcionesFecha));
-
-    // Obtener hora de inicio
-    const opcionesHora: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit' };
-    const horaInicio = fechaObj.toLocaleTimeString('es-CL', opcionesHora);
-
-    // Sumar 2 horas para la hora de término
-    const fechaTermino = new Date(fechaObj.getTime() + 2 * 60 * 60 * 1000);
-    const horaTermino = fechaTermino.toLocaleTimeString('es-CL', opcionesHora);
-
-    setHorarioTexto(`${horaInicio} - ${horaTermino} hrs`);
-  };
-
-  if (cargando) {
-    return <IonPage><IonContent><div style={{ textAlign: 'center', marginTop: '50px' }}><IonSpinner /></div></IonContent></IonPage>;
-  }
-
-  if (!taller) return null;
 
   return (
     <IonPage>
@@ -74,10 +61,10 @@ export default function TallerZumbaInfo() {
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           
           <HeaderBanner 
-            title="Talleres DIDECO"
+            title="Confirmar Inscripción"
             backgroundImage="/assets/headerTramites.png" 
-            buttonText="Volver a Talleres"
-            buttonRoute="/talleres" 
+            buttonText="Volver a Información"
+            buttonRoute="/talleres/zumba" 
             showSecondaryButton={false} 
           />
 
@@ -87,70 +74,43 @@ export default function TallerZumbaInfo() {
               <IonIcon slot="start" icon={arrowBackOutline} /> Volver
             </IonButton>
 
-            <IonCard style={{ borderRadius: '8px', overflow: 'hidden', marginBottom: '20px' }}>
-              <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=2070&auto=format&fit=crop" alt="Clase de Zumba" style={{ width: '100%', height: '250px', objectFit: 'cover' }} />
-              
+            <IonCard style={{ borderRadius: '8px' }}>
               <IonCardHeader style={{ backgroundColor: '#1b3a6b', color: 'white' }}>
-                <IonCardTitle style={{ color: 'white', fontSize: '1.8rem', fontWeight: 'bold' }}>{taller.nombre}</IonCardTitle>
-                <p style={{ margin: '5px 0 0 0', opacity: 0.9 }}>Departamento de Desarrollo Comunitario (DIDECO)</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <IonIcon icon={fitnessOutline} style={{ fontSize: '2rem' }} />
+                  <div>
+                    <IonCardTitle style={{ color: 'white', fontSize: '1.4rem' }}>Taller de Zumba Fit</IonCardTitle>
+                    <p style={{ margin: 0, opacity: 0.9 }}>Reserva de Cupo</p>
+                  </div>
+                </div>
               </IonCardHeader>
 
-              <IonCardContent style={{ padding: '20px', fontSize: '1.1rem', color: '#333' }}>
-                <p style={{ marginBottom: '20px', lineHeight: '1.6', textTransform: 'capitalize' }}>
-                  {taller.descripcion}
-                </p>
+              <IonCardContent style={{ padding: '20px' }}>
+                
+                {usuario && (
+                  <div style={{ backgroundColor: '#e9ecef', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+                    <h3 style={{ margin: '0 0 10px 0', fontSize: '1.1rem', color: '#333' }}>Tus datos de inscripción</h3>
+                    <p style={{ margin: '5px 0', color: '#555' }}><strong>Nombre:</strong> {usuario.nombres} {usuario.apellido_p}</p>
+                    <p style={{ margin: '5px 0', color: '#555' }}><strong>RUT:</strong> {usuario.rut}</p>
+                    <p style={{ margin: '5px 0', color: '#555' }}><strong>Correo:</strong> {usuario.correo}</p>
+                  </div>
+                )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
-                  <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '8px' }}>
-                    <IonIcon icon={calendarOutline} style={{ color: '#1b3a6b', fontSize: '1.5rem', marginBottom: '5px' }} />
-                    <h4 style={{ margin: '0 0 5px 0', fontWeight: 'bold' }}>Fecha del Evento</h4>
-                    <p style={{ margin: 0, textTransform: 'capitalize' }}>{fechaTexto}</p>
-                  </div>
-                  <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '8px' }}>
-                    <IonIcon icon={timeOutline} style={{ color: '#1b3a6b', fontSize: '1.5rem', marginBottom: '5px' }} />
-                    <h4 style={{ margin: '0 0 5px 0', fontWeight: 'bold' }}>Horario</h4>
-                    <p style={{ margin: 0 }}>{horarioTexto}</p>
-                  </div>
-                  <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '8px' }}>
-                    <IonIcon icon={peopleOutline} style={{ color: '#1b3a6b', fontSize: '1.5rem', marginBottom: '5px' }} />
-                    <h4 style={{ margin: '0 0 5px 0', fontWeight: 'bold' }}>Cupos Disponibles</h4>
-                    <p style={{ margin: 0, color: taller.cupos_disponibles > 5 ? 'inherit' : '#dc3545', fontWeight: 'bold' }}>
-                      {taller.cupos_disponibles} de {taller.cupos_totales}
-                    </p>
-                  </div>
+                <div style={{ backgroundColor: '#e2f3f5', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #17a2b8', marginBottom: '30px' }}>
+                  <p style={{ margin: 0, color: '#0c5460', fontSize: '0.95rem' }}>
+                    Al confirmar, se reservará un cupo a tu nombre en la tabla de <strong>DIDECO</strong>. Recuerda asistir con ropa deportiva adecuada.
+                  </p>
                 </div>
 
-                <h3 style={{ borderBottom: '2px solid #eee', paddingBottom: '10px', marginTop: '30px', color: '#1b3a6b' }}>Requisitos de Inscripción</h3>
-                <IonList lines="none" style={{ backgroundColor: 'transparent' }}>
-                  <IonItem style={{ '--background': 'transparent' }}>
-                    <IonIcon icon={checkmarkCircleOutline} slot="start" color="success" />
-                    <IonLabel className="ion-text-wrap">Ser mayor de 18 años y residente de la comuna.</IonLabel>
-                  </IonItem>
-                  <IonItem style={{ '--background': 'transparent' }}>
-                    <IonIcon icon={checkmarkCircleOutline} slot="start" color="success" />
-                    <IonLabel className="ion-text-wrap">Uso obligatorio de ropa deportiva y zapatillas adecuadas.</IonLabel>
-                  </IonItem>
-                  <IonItem style={{ '--background': 'transparent' }}>
-                    <IonIcon icon={checkmarkCircleOutline} slot="start" color="success" />
-                    <IonLabel className="ion-text-wrap">Salud compatible con actividad física aeróbica intensa.</IonLabel>
-                  </IonItem>
-                </IonList>
-
-                <div style={{ textAlign: 'center', marginTop: '30px' }}>
-                  <IonButton 
-                    color="primary" 
-                    size="large" 
-                    expand="block"
-                    disabled={taller.cupos_disponibles <= 0}
-                    onClick={() => history.push('/talleres/zumba/inscripcion')}
-                  >
-                    {taller.cupos_disponibles > 0 ? (
-                      <>Ir al Formulario de Inscripción <IonIcon slot="end" icon={arrowForwardOutline} /></>
-                    ) : (
-                      "Cupos Agotados"
-                    )}
-                  </IonButton>
-                </div>
+                <IonButton 
+                  color="success" 
+                  expand="block" 
+                  size="large"
+                  onClick={enviarInscripcion}
+                  disabled={cargando}
+                >
+                  {cargando ? <IonSpinner name="crescent" /> : <><IonIcon slot="start" icon={saveOutline} /> Tomar Cupo Ahora</>}
+                </IonButton>
 
               </IonCardContent>
             </IonCard>

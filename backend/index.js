@@ -384,7 +384,20 @@ app.post('/api/dideco/inscripcion', async (req, res) => {
   try {
       const { usuario_id, taller_id } = req.body;
 
-      // 1. NUEVA VALIDACIÓN: Verificar si el usuario ya está inscrito
+      // --- NUEVO CANDADO DE ROL ---
+      const [usuarioDb] = await pool.query('SELECT id_rol FROM usuarios WHERE id = ?', [usuario_id]);
+      
+      if (usuarioDb.length === 0) {
+          return res.status(404).json({ ok: false, error: 'Usuario no encontrado.' });
+      }
+      
+      if (usuarioDb[0].id_rol !== 2) {
+          return res.status(403).json({ 
+              ok: false, 
+              error: 'Solo los usuarios con residencia validada (Residente) pueden inscribirse en los talleres.' 
+          });
+      }
+      // 1. Verificar si el usuario ya está inscrito (tu código actual)
       const [inscripcionPrevia] = await pool.query(
           'SELECT * FROM inscripciones_dideco WHERE usuario_id = ? AND taller_id = ?',
           [usuario_id, taller_id]
