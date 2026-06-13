@@ -63,7 +63,6 @@ export default function MisAgendas() {
 
       if (data.ok) {
         presentToast({ message: 'Reserva cancelada exitosamente.', duration: 3000, color: 'success' });
-        // Recargar la lista para que desaparezca visualmente
         cargarAgendas();
       } else {
         throw new Error(data.error);
@@ -73,11 +72,20 @@ export default function MisAgendas() {
     }
   };
 
-  // Función auxiliar para mostrar la fecha de forma legible arreglando el UTC
-  const formatearFechaHora = (fechaString: string) => {
-    const fechaObj = new Date(fechaString);
-    const opcionesFecha: Intl.DateTimeFormatOptions = { timeZone: 'UTC', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const opcionesHora: Intl.DateTimeFormatOptions = { timeZone: 'UTC', hour: '2-digit', minute: '2-digit', hour12: false };
+  const formatearFechaHora = (fechaString: string, tipo: string) => {
+    const stringSeguro = fechaString.replace(' ', 'T');
+    const fechaObj = new Date(stringSeguro);
+    
+    const usarUTC = tipo === 'Taller DIDECO';
+    
+    const opcionesFecha: Intl.DateTimeFormatOptions = { 
+      timeZone: usarUTC ? 'UTC' : undefined, 
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+    };
+    const opcionesHora: Intl.DateTimeFormatOptions = { 
+      timeZone: usarUTC ? 'UTC' : undefined, 
+      hour: '2-digit', minute: '2-digit', hour12: false 
+    };
     
     return {
       dia: fechaObj.toLocaleDateString('es-CL', opcionesFecha),
@@ -120,7 +128,8 @@ export default function MisAgendas() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                 {agendas.map((agenda, index) => {
-                  const fecha = formatearFechaHora(agenda.fecha_evento);
+                  
+                  const fecha = formatearFechaHora(agenda.fecha_evento, agenda.tipo);
                   const isDideco = agenda.tipo === 'Taller DIDECO';
 
                   return (

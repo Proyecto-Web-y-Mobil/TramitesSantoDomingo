@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   IonPage, IonContent, IonCard, IonCardHeader, IonCardTitle, 
-  IonCardContent, IonButton, IonIcon, IonList, IonItem, IonLabel, IonSpinner, useIonToast
+  IonCardContent, IonButton, IonIcon, IonList, IonItem, IonLabel, IonSpinner, useIonToast, useIonViewWillEnter
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import { calendarOutline, timeOutline, locationOutline, checkmarkCircleOutline, arrowForwardOutline, arrowBackOutline, peopleOutline } from 'ionicons/icons';
@@ -11,28 +11,33 @@ import FooterBanner from '../components/FooterBanner';
 export default function TallerZumbaInfo() {
   const history = useHistory();
   const [presentToast] = useIonToast();
-
-  const [usuario, setUsuario] = useState<any>(null);
-
+  
   const [taller, setTaller] = useState<any>(null);
   const [cargando, setCargando] = useState(true);
+  const [usuario, setUsuario] = useState<any>(null);
 
   // Variables para la fecha formateada
   const [fechaTexto, setFechaTexto] = useState('');
   const [horarioTexto, setHorarioTexto] = useState('');
 
+  // 1. Cargamos la sesión una sola vez al montar el componente
   useEffect(() => {
-  const sessionData = localStorage.getItem('user_session');
-  if (sessionData) {
-    const userObj = JSON.parse(sessionData);
-    setUsuario(Array.isArray(userObj) ? userObj[0] : userObj);
-  }
-  cargarTaller();
-}, []);
+    const sessionData = localStorage.getItem('user_session');
+    if (sessionData) {
+      const userObj = JSON.parse(sessionData);
+      setUsuario(Array.isArray(userObj) ? userObj[0] : userObj);
+    }
+  }, []);
+
+  // 2. 🔥 LA SOLUCIÓN: Usamos el ciclo de vida de Ionic en lugar de useEffect normal
+  // Esto obliga a consultar la base de datos CADA VEZ que se entra a esta pantalla
+  useIonViewWillEnter(() => {
+    cargarTaller();
+  });
 
   const cargarTaller = async () => {
+    setCargando(true);
     try {
-      // Pedimos el taller con ID 1
       const response = await fetch('https://tramitessantodomingo-production-5cb4.up.railway.app/api/dideco/talleres/1');
       const data = await response.json();
       
@@ -54,7 +59,6 @@ export default function TallerZumbaInfo() {
 
     const fechaObj = new Date(fechaString);
     
-    // Agregamos timeZone: 'UTC' para evitar que JS reste 4 horas por la zona de Chile
     const opcionesFecha: Intl.DateTimeFormatOptions = { 
       timeZone: 'UTC',
       weekday: 'long', 
@@ -64,7 +68,6 @@ export default function TallerZumbaInfo() {
     };
     setFechaTexto(fechaObj.toLocaleDateString('es-CL', opcionesFecha));
 
-    // Forzamos formato 24 horas y bloqueamos el cambio de zona horaria
     const opcionesHora: Intl.DateTimeFormatOptions = { 
       timeZone: 'UTC',
       hour: '2-digit', 
@@ -73,14 +76,13 @@ export default function TallerZumbaInfo() {
     };
     const horaInicio = fechaObj.toLocaleTimeString('es-CL', opcionesHora);
 
-    // Sumar 2 horas (en milisegundos) para la hora de término
     const fechaTermino = new Date(fechaObj.getTime() + 2 * 60 * 60 * 1000);
     const horaTermino = fechaTermino.toLocaleTimeString('es-CL', opcionesHora);
 
     setHorarioTexto(`${horaInicio} - ${horaTermino} hrs`);
   };
 
-  if (cargando) {
+  if (cargando && !taller) {
     return <IonPage><IonContent><div style={{ textAlign: 'center', marginTop: '50px' }}><IonSpinner /></div></IonContent></IonPage>;
   }
 
@@ -155,46 +157,42 @@ export default function TallerZumbaInfo() {
                 </IonList>
 
                 <div style={{ textAlign: 'center', marginTop: '30px' }}>
-                {(() => {
-                    // Si no hay cupos, botón bloqueado
+                  {(() => {
                     if (taller.cupos_disponibles <= 0) {
-                    return (
+                      return (
                         <IonButton color="medium" size="large" expand="block" disabled>
-                        Cupos Agotados
+                          Cupos Agotados
                         </IonButton>
-                    );
+                      );
                     }
                     
-                    // Si es ciudadano (Rol 1), botón bloqueado
                     if (usuario && usuario.id_rol === 1) {
-                    return (
+                      return (
                         <IonButton color="warning" size="large" expand="block" disabled>
-                        Debes validar tu residencia para inscribirte
+                          Debes validar tu residencia para inscribirte
                         </IonButton>
-                    );
+                      );
                     }
 
-                    // Si es admin (Rol 3), botón bloqueado
                     if (usuario && usuario.id_rol === 3) {
-                    return (
+                      return (
                         <IonButton color="medium" size="large" expand="block" disabled>
-                        Uso exclusivo para ciudadanos
+                          Uso exclusivo para ciudadanos
                         </IonButton>
-                    );
+                      );
                     }
 
-                    // Si es residente (Rol 2) y hay cupos, botón habilitado
                     return (
-                    <IonButton 
+                      <IonButton 
                         color="primary" 
                         size="large" 
                         expand="block"
                         onClick={() => history.push('/talleres/zumba/inscripcion')}
-                    >
+                      >
                         Ir al Formulario de Inscripción <IonIcon slot="end" icon={arrowForwardOutline} />
-                    </IonButton>
+                      </IonButton>
                     );
-                })()}
+                  })()}
                 </div>
 
               </IonCardContent>

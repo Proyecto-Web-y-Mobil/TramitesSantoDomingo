@@ -25,8 +25,9 @@ export default function TramitesPresenciales() {
 
   const presenciales = [
     { titulo: "Licencia de Conducir (Clase B)", img: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?q=80&w=2070&auto=format&fit=crop", ruta: "/tramites-presenciales/licencia-b/info" },
-    { titulo: "Renovación Cédula de Identidad", img: "https://images.unsplash.com/photo-1633265486064-086b219458ce?q=80&w=2070&auto=format&fit=crop" },
-    { titulo: "Subsidio Familiar (SUF)", img: "https://images.unsplash.com/photo-1555252136-1161f369d7a2?q=80&w=2070&auto=format&fit=crop" },
+    // Cambié los enlaces caídos por unos de reserva más estables
+    { titulo: "Renovación Cédula de Identidad", img: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?q=80&w=2070&auto=format&fit=crop" },
+    { titulo: "Subsidio Familiar (SUF)", img: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2070&auto=format&fit=crop" },
     { titulo: "Registro Social de Hogares", img: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=2070&auto=format&fit=crop" }
   ];
 
@@ -34,11 +35,13 @@ export default function TramitesPresenciales() {
     <IonPage>
       <IonContent fullscreen>
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#f5f5f5' }}>
+          
           <HeaderBanner 
             title="Agendamiento Presencial"
             backgroundImage="/assets/headerTramites.png"
             buttonText="Volver"
-            buttonRoute="/tramites"
+            // 🔥 AQUÍ ESTÁ LA CORRECCIÓN: Ahora apunta a la ruta de usuario logueado
+            buttonRoute="/tramites-user" 
             showSecondaryButton={false} 
           />
 
