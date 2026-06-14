@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # 1. SERVICIO DE BASE DE DATOS
+  db:
+    image: mysql:8.0
+    container_name: santodomingo_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tramites_db
+      MYSQL_USER: user_admin
+      MYSQL_PASSWORD: user_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # 2. SERVICIO DEL BACKEND (Node.js)
+  backend:
+    build: 
+      context: ./backend
+    container_name: santodomingo_backend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      # Variables para que el backend se conecte al contenedor de BD
+      - DB_HOST=db
+      - DB_USER=user_admin
+      - DB_PASSWORD=user_password
+      - DB_NAME=tramites_db
+      - DB_PORT=3306
+      # Aquí puedes sumar tu JWT_SECRET u otras de tu .env
+    depends_on:
+      - db
+
+  # 3. SERVICIO DEL FRONTEND (Ionic/React + Nginx)
+  frontend:
+    build: 
+      context: .
+    container_name: santodomingo_frontend
+    restart: always
+    ports:
+      # Mapeamos el puerto 8080 de tu PC al 80 del contenedor Nginx
+      - "8080:80"
+    depends_on:
+      - backend
+
+# Declaramos el volumen para que la BD no se borre al apagar Docker
+volumes:
+  db_data:
