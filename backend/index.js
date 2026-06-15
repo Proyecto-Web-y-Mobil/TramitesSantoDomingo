@@ -1,0 +1,730 @@
+const express = require('express');
+const cors = require('cors');
+const bcrypt = require('bcryptjs'); 
+const jwt = require('jsonwebtoken'); 
+require('dotenv').config();
+const pool = require('./db');
+
+// --- NUEVAS HERRAMIENTAS PARA SUBIR ARCHIVOS ---
+const multer = require('multer');
+const cloudinary = require('./config/cloudinary'); 
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+const JWT_SECRET = process.env.JWT_SECRET || 'llave_secreta_municipalidad_2026';
+
+// ---------------------------------------------------
+// MIDDLEWARE DE AUTENTICACIÓN (El Guardia de Seguridad)
+// ---------------------------------------------------
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1]; 
+
+  if (!token) {
+    return res.status(403).json({ message: 'Acceso denegado: Se requiere un token.' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded; 
+    next(); 
+  } catch (error) {
+    return res.status(401).json({ message: 'Token inválido o expirado. Inicie sesión nuevamente.' });
+  }
+};
+
+// ---------------------------------------------------
+// RUTAS PÚBLICAS (No exigen Token)
+// ---------------------------------------------------
+app.get('/api', (req, res) => {
+  res.json({ status: 'success', message: 'Servidor Backend Municipal operativo y seguro.' });
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  const { credential, password } = req.body;
+
+  if (!credential || !password) {
+    return res.status(400).json({ message: 'Por favor, complete todos los campos.' });
+  }
+
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM usuarios WHERE rut = ? OR correo = ?',
+      [credential, credential]
+    );
+
+    if (rows.length === 0) {
+      return res.status(401).json({ message: 'Credenciales incorrectas.' });
+    }
+
+    const user = rows[0];
+
+    const validPassword = await bcrypt.compare(password, user.password_hash);
+    if (!validPassword) {
+      return res.status(401).json({ message: 'Credenciales incorrectas.' });
+    }
+
+    const [roles] = await pool.query(
+      'SELECT nombre FROM roles WHERE id = ?',
+      [user.id_rol]
+    );
+    const rol = roles[0]?.nombre || 'ciudadano';
+
+    const token = jwt.sign(
+      { id: user.id, rut: user.rut, rol: rol },
+      JWT_SECRET,
+      { expiresIn: '2h' } 
+    );
+
+    res.json({
+      message: 'Login exitoso',
+      token: token, 
+      user: {
+        id: user.id,
+        rut: user.rut,
+        correo: user.correo,
+        nombres: user.nombres,
+        apellidoP: user.apellido_p,
+        apellidoM: user.apellido_m,
+        region: user.region,
+        comuna: user.comuna,
+        rol: rol,
+        estado_validacion: user.estado_validacion // <-- ¡Añadido para que el perfil lo lea al logearse!
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+});
+
+app.post('/api/auth/register', async (req, res) => {
+  const { rut, nombres, apellidoP, apellidoM, correo, password, region, comuna } = req.body;
+
+  if (!rut || !correo || !password) {
+    return res.status(400).json({ message: 'RUT, correo y contraseña son obligatorios.' });
+  }
+
+  try {
+    const [existe] = await pool.query(
+      'SELECT id FROM usuarios WHERE rut = ? OR correo = ?',
+      [rut, correo]
+    );
+
+    if (existe.length > 0) {
+      return res.status(400).json({ message: 'El usuario ya está registrado.' });
+    }
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    await pool.query(
+      `INSERT INTO usuarios 
+        (nombres, apellido_p, apellido_m, rut, correo, region, comuna, password_hash, id_rol) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+      [nombres, apellidoP, apellidoM, rut, correo, region, comuna, hashedPassword] 
+    );
+
+    res.status(201).json({
+      message: 'Usuario registrado con éxito.',
+      user: { rut, correo, rol: 'ciudadano' }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTAS PRIVADAS (Exigen Token - EP 2.5)
+// ---------------------------------------------------
+app.get('/api/dashboard/datos', verifyToken, (req, res) => {
+  res.json({
+    message: 'Acceso autorizado a datos municipales',
+    datosSeguros: {
+      informacion: 'Aquí irían los trámites, pagos o datos sensibles desde la BD.',
+      usuarioToken: req.user 
+    }
+  });
+});
+
+// ---------------------------------------------------
+// NUEVA RUTA: TRÁMITES CON SUBIDA DE ARCHIVOS (EP 3)
+// ---------------------------------------------------
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+app.post('/api/tramites/permiso-circulacion', upload.single('documento'), async (req, res) => {
+    try {
+        const { usuario_id, tramite_id, patente, marca, modelo, anio } = req.body;
+        
+        if (!req.file) {
+            return res.status(400).json({ ok: false, error: 'Falta el documento de revisión técnica' });
+        }
+
+        const uploadResult = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+              { 
+                  folder: 'municipalidad/revisiones',
+                  resource_type: 'auto' // 🔥 ESTA ES LA LÍNEA MÁGICA
+              }, 
+              (error, result) => {
+                  if (error) reject(error);
+                  else resolve(result);
+              }
+          );
+          stream.end(req.file.buffer);
+      });
+
+        const url_revision_tecnica = uploadResult.secure_url;
+
+        const querySolicitud = `INSERT INTO solicitudes_tramite (usuario_id, tramite_id) VALUES (?, ?)`;
+        const [resultSolicitud] = await pool.query(querySolicitud, [usuario_id, tramite_id]);
+        
+        const solicitud_id = resultSolicitud.insertId;
+
+        const queryVehiculo = `
+            INSERT INTO detalles_vehiculo (solicitud_id, patente, marca, modelo, anio, url_revision_tecnica)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        await pool.query(queryVehiculo, [solicitud_id, patente, marca, modelo, anio, url_revision_tecnica]);
+
+        res.status(201).json({
+            ok: true,
+            message: 'Trámite ingresado correctamente',
+            solicitud_id: solicitud_id,
+            url_documento: url_revision_tecnica
+        });
+
+    } catch (error) {
+        console.error('Error al procesar el trámite:', error);
+        res.status(500).json({ ok: false, error: 'Error interno del servidor al procesar la solicitud' });
+    }
+});
+
+// ---------------------------------------------------
+// RUTA: ACREDITAR RESIDENCIA
+// ---------------------------------------------------
+app.post('/api/usuarios/residencia', upload.single('documento_residencia'), async (req, res) => {
+  try {
+      const { usuario_id } = req.body;
+      
+      if (!req.file) {
+          return res.status(400).json({ ok: false, error: 'Falta el documento de residencia' });
+      }
+      if (!usuario_id || usuario_id === 'null' || usuario_id === 'undefined') {
+          return res.status(400).json({ ok: false, error: 'Falta o es inválido el ID del usuario' });
+      }
+
+      const uploadResult = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            { 
+                folder: 'municipalidad/residencia',
+                resource_type: 'auto' // 🔥 ESTA ES LA LÍNEA MÁGICA
+            }, 
+            (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+            }
+        );
+        stream.end(req.file.buffer);
+    });
+
+      const url_residencia = uploadResult.secure_url;
+
+      const queryUpdate = `
+          UPDATE usuarios 
+          SET url_residencia = ?, estado_validacion = 'En revisión'
+          WHERE id = ?
+      `;
+      
+      const [resultadoBD] = await pool.query(queryUpdate, [url_residencia, usuario_id]);
+
+      if (resultadoBD.affectedRows === 0) {
+           return res.status(404).json({ ok: false, error: 'Usuario no encontrado en la BD' });
+      }
+
+      res.status(200).json({
+          ok: true,
+          message: 'Documento subido y en revisión',
+          url_documento: url_residencia
+      });
+
+  } catch (error) {
+      console.error('Error al subir documento de residencia:', error);
+      res.status(500).json({ ok: false, error: 'Error interno del servidor' });
+  }
+});
+
+// ---------------------------------------------------
+// NUEVA RUTA: OBTENER MIS TRÁMITES
+// ---------------------------------------------------
+app.get('/api/tramites/usuario/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      
+      const query = `
+          SELECT s.id, s.estado, s.observacion, s.fecha_solicitud, t.nombre AS nombre_tramite
+          FROM solicitudes_tramite s
+          JOIN tramites t ON s.tramite_id = t.id
+          WHERE s.usuario_id = ?
+          ORDER BY s.fecha_solicitud DESC
+      `;
+      
+      const [tramites] = await pool.query(query, [id]);
+      
+      res.status(200).json({
+          ok: true,
+          tramites: tramites
+      });
+  } catch (error) {
+      console.error('Error al obtener trámites:', error);
+      res.status(500).json({ ok: false, error: 'Error interno al cargar los trámites' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTA: VER DETALLE DE UN TRÁMITE (CIUDADANO)
+// ---------------------------------------------------
+app.get('/api/tramites/detalle/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      const query = `
+          SELECT 
+              s.id AS solicitud_id, s.estado, s.fecha_solicitud, s.observacion,
+              t.nombre AS nombre_tramite,
+              d.patente, d.marca, d.modelo, d.anio, d.url_revision_tecnica
+          FROM solicitudes_tramite s
+          JOIN tramites t ON s.tramite_id = t.id
+          LEFT JOIN detalles_vehiculo d ON s.id = d.solicitud_id
+          WHERE s.id = ?
+      `;
+      const [rows] = await pool.query(query, [id]);
+      
+      if (rows.length === 0) return res.status(404).json({ ok: false, error: 'Trámite no encontrado' });
+      
+      res.status(200).json({ ok: true, tramite: rows[0] });
+  } catch (error) {
+      console.error('Error al obtener detalle ciudadano:', error);
+      res.status(500).json({ ok: false, error: 'Error al cargar el detalle' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTA: CORREGIR TRÁMITE COMPLETAMENTE (TEXTO Y/O ARCHIVO)
+// ---------------------------------------------------
+app.put('/api/tramites/:id/corregir', upload.single('documento'), async (req, res) => {
+  try {
+      const { id } = req.params;
+      const { patente, marca, modelo, anio } = req.body;
+      
+      // 1. Actualizamos los datos de texto siempre
+      await pool.query(
+          `UPDATE detalles_vehiculo SET patente = ?, marca = ?, modelo = ?, anio = ? WHERE solicitud_id = ?`, 
+          [patente, marca, modelo, anio, id]
+      );
+
+      // 2. Si el usuario adjuntó un archivo nuevo, lo subimos a Cloudinary y actualizamos la URL
+      if (req.file) {
+          const uploadResult = await new Promise((resolve, reject) => {
+              const stream = cloudinary.uploader.upload_stream(
+                  { folder: 'municipalidad/revisiones', resource_type: 'auto' }, 
+                  (error, result) => {
+                      if (error) reject(error);
+                      else resolve(result);
+                  }
+              );
+              stream.end(req.file.buffer);
+          });
+          await pool.query(
+              `UPDATE detalles_vehiculo SET url_revision_tecnica = ? WHERE solicitud_id = ?`, 
+              [uploadResult.secure_url, id]
+          );
+      }
+      
+      // 3. Cambiamos el estado a 'corregido'
+      await pool.query(`UPDATE solicitudes_tramite SET estado = 'corregido' WHERE id = ?`, [id]);
+
+      res.status(200).json({ ok: true, message: 'Trámite modificado exitosamente' });
+  } catch (error) {
+      console.error('Error al corregir trámite:', error);
+      res.status(500).json({ ok: false, error: 'Error interno al corregir' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTA: OBTENER INFORMACIÓN DE UN TALLER ESPECÍFICO
+// ---------------------------------------------------
+app.get('/api/dideco/talleres/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      const [rows] = await pool.query('SELECT * FROM talleres_dideco WHERE id = ?', [id]);
+      
+      if (rows.length === 0) {
+          return res.status(404).json({ ok: false, error: 'Taller no encontrado' });
+      }
+      
+      res.status(200).json({ ok: true, taller: rows[0] });
+  } catch (error) {
+      console.error('Error al obtener taller:', error);
+      res.status(500).json({ ok: false, error: 'Error al cargar la información del taller' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTA: INSCRIPCIÓN A TALLERES DIDECO
+// ---------------------------------------------------
+app.post('/api/dideco/inscripcion', async (req, res) => {
+  try {
+      const { usuario_id, taller_id } = req.body;
+
+      // --- NUEVO CANDADO DE ROL ---
+      const [usuarioDb] = await pool.query('SELECT id_rol FROM usuarios WHERE id = ?', [usuario_id]);
+      
+      if (usuarioDb.length === 0) {
+          return res.status(404).json({ ok: false, error: 'Usuario no encontrado.' });
+      }
+      
+      if (usuarioDb[0].id_rol !== 2) {
+          return res.status(403).json({ 
+              ok: false, 
+              error: 'Solo los usuarios con residencia validada (Residente) pueden inscribirse en los talleres.' 
+          });
+      }
+      // 1. Verificar si el usuario ya está inscrito (tu código actual)
+      const [inscripcionPrevia] = await pool.query(
+          'SELECT * FROM inscripciones_dideco WHERE usuario_id = ? AND taller_id = ?',
+          [usuario_id, taller_id]
+      );
+
+      if (inscripcionPrevia.length > 0) {
+          return res.status(400).json({ 
+              ok: false, 
+              error: 'Ya te encuentras inscrito en este taller. No puedes reservar más de un cupo.' 
+          });
+      }
+
+      // 2. Verificar si el taller existe y tiene cupos
+      const [talleres] = await pool.query(
+          'SELECT cupos_disponibles FROM talleres_dideco WHERE id = ?', 
+          [taller_id]
+      );
+      
+      if (talleres.length === 0) {
+          return res.status(404).json({ ok: false, error: 'Taller no encontrado' });
+      }
+      
+      if (talleres[0].cupos_disponibles <= 0) {
+          return res.status(400).json({ 
+              ok: false, 
+              error: 'Lo sentimos, ya no quedan cupos disponibles para este taller.' 
+          });
+      }
+
+      // 3. Insertar la inscripción en la base de datos
+      await pool.query(
+          'INSERT INTO inscripciones_dideco (usuario_id, taller_id, fecha_inscripcion) VALUES (?, ?, NOW())',
+          [usuario_id, taller_id]
+      );
+
+      // 4. Restar 1 al contador de cupos disponibles
+      await pool.query(
+          'UPDATE talleres_dideco SET cupos_disponibles = cupos_disponibles - 1 WHERE id = ?',
+          [taller_id]
+      );
+
+      res.status(200).json({ ok: true, message: 'Inscripción realizada con éxito' });
+  } catch (error) {
+      console.error('Error al inscribir en taller:', error);
+      res.status(500).json({ ok: false, error: 'Error interno del servidor al procesar la inscripción' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTA: AGENDAMIENTO DE TRÁMITES PRESENCIALES
+// ---------------------------------------------------
+app.post('/api/agendamientos/crear', async (req, res) => {
+  try {
+      const { usuario_id, fecha_cita, hora_cita } = req.body;
+
+      // 1. Validar que la fecha no esté tomada en ese mismo bloque horario
+      const [ocupado] = await pool.query(
+          'SELECT * FROM agendamientos_transito WHERE fecha_reserva = ? AND hora_reserva = ?',
+          [fecha_cita, hora_cita]
+      );
+
+      if (ocupado.length > 0) {
+          return res.status(400).json({ 
+              ok: false, 
+              error: 'Este bloque horario ya se encuentra reservado. Por favor, seleccione otro.' 
+          });
+      }
+
+      // 2. Insertar la reserva usando tus columnas exactas.
+      // Guardamos el usuario_id dentro de solicitud_id para no alterar tu tabla
+      await pool.query(
+          'INSERT INTO agendamientos_transito (solicitud_id, fecha_reserva, hora_reserva) VALUES (?, ?, ?)',
+          [usuario_id, fecha_cita, hora_cita]
+      );
+
+      res.status(200).json({ ok: true, message: 'Hora reservada exitosamente' });
+  } catch (error) {
+      console.error('Error al agendar hora:', error);
+      res.status(500).json({ ok: false, error: 'Error interno del servidor al procesar la reserva' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTAS: MIS AGENDAS (DIDECO Y TRÁNSITO)
+// ---------------------------------------------------
+
+// 1. Obtener todas las agendas del usuario
+app.get('/api/agendas/usuario/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      
+      // Obtener inscripciones DIDECO con Join para traer el nombre y fecha del taller
+      const [dideco] = await pool.query(`
+          SELECT i.id, t.nombre as titulo, t.fecha_taller as fecha_evento, 'Taller DIDECO' as tipo, t.id as taller_id
+          FROM inscripciones_dideco i
+          JOIN talleres_dideco t ON i.taller_id = t.id
+          WHERE i.usuario_id = ?
+      `, [id]);
+
+      // Obtener agendamientos de Tránsito (solicitud_id es el id del usuario)
+      const [transito] = await pool.query(`
+          SELECT id, 'Licencia Clase B' as titulo, CONCAT(fecha_reserva, ' ', hora_reserva) as fecha_evento, 'Trámite Presencial' as tipo, null as taller_id
+          FROM agendamientos_transito
+          WHERE solicitud_id = ?
+      `, [id]);
+
+      // Unir ambos arreglos y ordenarlos de la fecha más cercana a la más lejana
+      const agendas = [...dideco, ...transito].sort((a, b) => new Date(a.fecha_evento) - new Date(b.fecha_evento));
+
+      res.status(200).json({ ok: true, agendas });
+  } catch (error) {
+      console.error('Error al obtener agendas:', error);
+      res.status(500).json({ ok: false, error: 'Error al cargar las agendas' });
+  }
+});
+
+// 2. Cancelar una agenda
+app.delete('/api/agendas/cancelar', async (req, res) => {
+  try {
+      const { id, tipo, taller_id } = req.body;
+
+      if (tipo === 'Taller DIDECO') {
+          // Borrar inscripción y sumar 1 al cupo del taller
+          await pool.query('DELETE FROM inscripciones_dideco WHERE id = ?', [id]);
+          await pool.query('UPDATE talleres_dideco SET cupos_disponibles = cupos_disponibles + 1 WHERE id = ?', [taller_id]);
+      } else if (tipo === 'Trámite Presencial') {
+          // Borrar solo la reserva presencial
+          await pool.query('DELETE FROM agendamientos_transito WHERE id = ?', [id]);
+      }
+
+      res.status(200).json({ ok: true, message: 'Reserva cancelada con éxito' });
+  } catch (error) {
+      console.error('Error al cancelar agenda:', error);
+      res.status(500).json({ ok: false, error: 'Error interno al cancelar la agenda' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTA DE ADMINISTRADOR: LISTAR TODOS LOS TRÁMITES
+// ---------------------------------------------------
+app.get('/api/admin/tramites', async (req, res) => {
+  try {
+      // Unimos solicitudes_tramite, tramites y usuarios para tener toda la foto completa
+      const query = `
+          SELECT 
+              s.id AS solicitud_id, 
+              s.estado, 
+              s.fecha_solicitud, 
+              t.nombre AS nombre_tramite,
+              u.nombres, 
+              u.apellido_p, 
+              u.apellido_m, 
+              u.rut
+          FROM solicitudes_tramite s
+          JOIN tramites t ON s.tramite_id = t.id
+          JOIN usuarios u ON s.usuario_id = u.id
+          ORDER BY s.fecha_solicitud DESC
+      `;
+      
+      const [tramites] = await pool.query(query);
+      
+      res.status(200).json({
+          ok: true,
+          tramites: tramites
+      });
+  } catch (error) {
+      console.error('Error al obtener la lista de trámites (Admin):', error);
+      res.status(500).json({ ok: false, error: 'Error al cargar los trámites' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTA: VER DETALLE DE UN TRÁMITE ESPECÍFICO (ADMIN)
+// ---------------------------------------------------
+app.get('/api/admin/tramites/:id', async (req, res) => {
+  try {
+      const { id } = req.params;
+      
+      // Unimos solicitudes, tramites, usuarios y detalles_vehiculo
+      const query = `
+          SELECT 
+              s.id AS solicitud_id, s.estado, s.fecha_solicitud, s.observacion,
+              t.nombre AS nombre_tramite,
+              u.nombres, u.apellido_p, u.apellido_m, u.rut, u.correo,
+              d.patente, d.marca, d.modelo, d.anio, d.url_revision_tecnica
+          FROM solicitudes_tramite s
+          JOIN tramites t ON s.tramite_id = t.id
+          JOIN usuarios u ON s.usuario_id = u.id
+          LEFT JOIN detalles_vehiculo d ON s.id = d.solicitud_id
+          WHERE s.id = ?
+      `;
+      
+      const [rows] = await pool.query(query, [id]);
+      
+      if (rows.length === 0) {
+          return res.status(404).json({ ok: false, error: 'Trámite no encontrado' });
+      }
+      
+      res.status(200).json({ ok: true, tramite: rows[0] });
+  } catch (error) {
+      console.error('Error al obtener detalle del trámite:', error);
+      res.status(500).json({ ok: false, error: 'Error al cargar el detalle' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTA: ACTUALIZAR ESTADO DEL TRÁMITE (APROBAR/OBSERVAR)
+// ---------------------------------------------------
+app.put('/api/admin/tramites/:id/estado', async (req, res) => {
+  try {
+      const { id } = req.params;
+      const { estado, observacion } = req.body;
+      
+      const query = `UPDATE solicitudes_tramite SET estado = ?, observacion = ? WHERE id = ?`;
+      await pool.query(query, [estado, observacion || null, id]);
+      
+      res.status(200).json({ ok: true, message: 'Estado del trámite actualizado' });
+  } catch (error) {
+      console.error('Error al actualizar estado:', error);
+      res.status(500).json({ ok: false, error: 'Error al actualizar el trámite' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTAS DE ADMINISTRADOR: RESIDENCIAS
+// ---------------------------------------------------
+
+// 1. Obtener la lista de usuarios pendientes
+app.get('/api/admin/residencias-pendientes', async (req, res) => {
+  try {
+      const query = `
+          SELECT id, rut, nombres, apellido_p, apellido_m, correo, url_residencia, estado_validacion 
+          FROM usuarios 
+          WHERE estado_validacion = 'En revisión'
+      `;
+      const [pendientes] = await pool.query(query);
+      
+      res.status(200).json({ ok: true, usuarios: pendientes });
+  } catch (error) {
+      console.error('Error al obtener residencias:', error);
+      res.status(500).json({ ok: false, error: 'Error al cargar los datos' });
+  }
+});
+
+// 2. Aprobar residencia
+app.put('/api/admin/residencias/aprobar/:id', async (req, res) => {
+  try {
+      const userId = req.params.id;
+      // Cambiamos el id_rol a 2 (Residente) y el estado a Aprobado
+      const query = `UPDATE usuarios SET id_rol = 2, estado_validacion = 'Aprobado' WHERE id = ?`;
+      await pool.query(query, [userId]);
+      
+      res.status(200).json({ ok: true, message: 'Usuario promovido a Residente' });
+  } catch (error) {
+      console.error('Error al aprobar residencia:', error);
+      res.status(500).json({ ok: false, error: 'Error al aprobar' });
+  }
+});
+
+// 3. Rechazar residencia
+app.put('/api/admin/residencias/rechazar/:id', async (req, res) => {
+  try {
+      const userId = req.params.id;
+      // Devolvemos el estado a 'Sin subir' y borramos la URL del documento malo
+      const query = `UPDATE usuarios SET estado_validacion = 'Sin subir', url_residencia = NULL WHERE id = ?`;
+      await pool.query(query, [userId]);
+      
+      res.status(200).json({ ok: true, message: 'Documento rechazado' });
+  } catch (error) {
+      console.error('Error al rechazar residencia:', error);
+      res.status(500).json({ ok: false, error: 'Error al rechazar' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTAS: GENERACIÓN DE REPORTES (ADMIN)
+// ---------------------------------------------------
+
+// 1. Obtener lista de talleres para el filtro
+app.get('/api/admin/reportes/talleres', async (req, res) => {
+  try {
+      const [talleres] = await pool.query('SELECT id, nombre FROM talleres_dideco');
+      res.status(200).json({ ok: true, talleres });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ ok: false, error: 'Error al cargar talleres' });
+  }
+});
+
+// 2. Obtener inscritos por Taller
+app.get('/api/admin/reportes/taller/:id', async (req, res) => {
+  try {
+      const [inscritos] = await pool.query(`
+          SELECT u.rut, u.nombres, u.apellido_p, u.apellido_m, u.correo
+          FROM inscripciones_dideco i
+          JOIN usuarios u ON i.usuario_id = u.id
+          WHERE i.taller_id = ?
+      `, [req.params.id]);
+      res.status(200).json({ ok: true, inscritos });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ ok: false, error: 'Error al cargar inscritos del taller' });
+  }
+});
+
+// 3. Obtener agendamientos presenciales por Fecha
+app.get('/api/admin/reportes/transito/:fecha', async (req, res) => {
+  try {
+      // Recordando que solicitud_id guarda el ID del usuario en tu tabla
+      const [agendas] = await pool.query(`
+          SELECT a.hora_reserva, u.rut, u.nombres, u.apellido_p, u.apellido_m, u.correo
+          FROM agendamientos_transito a
+          JOIN usuarios u ON a.solicitud_id = u.id
+          WHERE a.fecha_reserva = ?
+          ORDER BY a.hora_reserva ASC
+      `, [req.params.fecha]);
+      res.status(200).json({ ok: true, agendas });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ ok: false, error: 'Error al cargar agendamientos de tránsito' });
+  }
+});
+
+// ---------------------------------------------------
+// INICIO DEL SERVIDOR
+// ---------------------------------------------------
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
+});
