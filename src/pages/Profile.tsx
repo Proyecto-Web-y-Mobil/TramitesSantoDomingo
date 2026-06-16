@@ -25,6 +25,7 @@ const ASSETS = {
   perfilVerde:   'https://raw.githubusercontent.com/MrD1ego/AssetsProyectoMunicipalidadSD/main/Ingenier%C3%ADa%20Web/InicioSesion/PerfilVerde.png',
   phone:         'https://raw.githubusercontent.com/MrD1ego/AssetsProyectoMunicipalidadSD/main/Ingenier%C3%ADa%20Web/InicioSesion/PhoneBlanco.png',
   tramite:       'https://raw.githubusercontent.com/MrD1ego/AssetsProyectoMunicipalidadSD/main/Ingenier%C3%ADa%20Web/InicioSesion/TramiteBlanco.png',
+  volver:        'https://raw.githubusercontent.com/MrD1ego/AssetsProyectoMunicipalidadSD/main/Ingenier%C3%ADa%20Web/InicioSesion/PerfilBlanco.png',
 };
 
 const Profile = () => {
@@ -43,7 +44,6 @@ const Profile = () => {
   const [isLoaded, setIsLoaded]               = useState(false);
   const [subiendoArchivo, setSubiendoArchivo] = useState(false);
 
-  // ── Estado popup modificar correo ──
   const [showCorreoModal, setShowCorreoModal] = useState(false);
   const [nuevoCorreo, setNuevoCorreo]         = useState('');
   const [guardandoCorreo, setGuardandoCorreo] = useState(false);
@@ -83,7 +83,6 @@ const Profile = () => {
     if (fileInputRef.current) fileInputRef.current.click();
   };
 
-  // ── Guardar nuevo correo ──
   const handleGuardarCorreo = async () => {
     if (!nuevoCorreo || !nuevoCorreo.includes('@')) {
       presentToast({ message: 'Por favor ingresa un correo válido.', duration: 3000, color: 'warning' });
@@ -91,7 +90,7 @@ const Profile = () => {
     }
     setGuardandoCorreo(true);
     try {
-      const BACKEND_URL = `http://localhost:3000/api/usuarios/${userId}/correo`;
+      const BACKEND_URL = `https://tramitessantodomingo-production-5cb4.up.railway.app/api/usuarios/${userId}/correo`;
       const response = await fetch(BACKEND_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -100,7 +99,6 @@ const Profile = () => {
       const data = await response.json();
       if (data.ok || response.ok) {
         setCorreo(nuevoCorreo);
-        // Sincronizar localStorage
         const sessionData = localStorage.getItem('user_session');
         if (sessionData) {
           let userObj = JSON.parse(sessionData);
@@ -133,7 +131,7 @@ const Profile = () => {
     formData.append('usuario_id', String(userId));
     formData.append('documento_residencia', file);
     try {
-      const BACKEND_URL = 'http://localhost:3000/api/usuarios/residencia';
+      const BACKEND_URL = 'https://tramitessantodomingo-production-5cb4.up.railway.app/api/usuarios/residencia';
       const response = await fetch(BACKEND_URL, { method: 'POST', body: formData });
       const data = await response.json();
       if (data.ok) {
@@ -217,6 +215,23 @@ const Profile = () => {
             flex-shrink: 0; filter: brightness(0) invert(1); opacity: 0.80;
           }
           .prf-sidebar-spacer { flex: 1; }
+
+          /* ── Botón volver ── */
+          .prf-nav-volver {
+            --background: rgba(255,255,255,0.08);
+            --background-hover: rgba(255,255,255,0.15);
+            --color: #ffffff;
+            --border-radius: 8px;
+            --padding-start: 10px; --padding-end: 10px;
+            --padding-top: 10px; --padding-bottom: 10px;
+            text-transform: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.88rem; font-weight: 600;
+            width: 100%; margin: 0 0 8px 0;
+            justify-content: flex-start;
+            border: 1px solid rgba(255,255,255,0.20);
+          }
+
           .prf-nav-logout {
             --background: transparent;
             --background-hover: rgba(255,255,255,0.08);
@@ -236,7 +251,7 @@ const Profile = () => {
             flex: 1; display: flex; flex-direction: column; min-width: 0;
           }
 
-          /* ── HEADER: fondo completo siempre visible ── */
+          /* ── HEADER ── */
           .prf-header {
             position: relative;
             background-image: url('${ASSETS.fondo}');
@@ -266,7 +281,6 @@ const Profile = () => {
             font-family: 'Inter', sans-serif;
           }
 
-          /* Foto perfil */
           .prf-photo-area {
             position: absolute; top: 16px; right: 20px; z-index: 2;
             display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -317,7 +331,6 @@ const Profile = () => {
             filter: brightness(0) invert(1); opacity: 0.50;
           }
 
-          /* Correo con borde #42B3DB */
           .prf-correo-wrapper {
             display: flex; align-items: center; gap: 0;
             border: 1.5px solid #42B3DB; border-radius: 10px;
@@ -349,7 +362,6 @@ const Profile = () => {
             height: 48px; margin: 0; flex-shrink: 0;
           }
 
-          /* Estado actual */
           .prf-estado-box {
             display: flex; align-items: center; gap: 12px;
             background: #19314A; border: 1px solid #254d73;
@@ -363,7 +375,6 @@ const Profile = () => {
           .prf-estado-verde { color: #4cde80; font-weight: 700; }
           .prf-estado-normal { color: #fff; font-weight: 700; }
 
-          /* Acreditar residencia */
           .prf-residencia-box {
             display: flex; align-items: center; gap: 16px;
             background: #19314A; border: 1px solid #254d73;
@@ -479,10 +490,9 @@ const Profile = () => {
             font-size: 0.9rem; font-weight: 600; margin: 0;
           }
 
-          /* Bottom nav móvil */
           .prf-bottom-nav { display: none; }
 
-          /* ══════════════ MÓVIL ══════════════ */
+          /* ══ MÓVIL ══ */
           @media (max-width: 600px) and (orientation: portrait) {
             .prf-root { flex-direction: column; }
             .prf-sidebar { display: none; }
@@ -532,13 +542,12 @@ const Profile = () => {
           }
         `}</style>
 
-        {/* ══ POPUP MODIFICAR CORREO ══ */}
+        {/* POPUP MODIFICAR CORREO */}
         {showCorreoModal && (
           <div className="modal-overlay" onClick={() => setShowCorreoModal(false)}>
             <div className="modal-box" onClick={e => e.stopPropagation()}>
               <h2>Modificar correo electrónico</h2>
               <p>Ingresa tu nuevo correo. Una vez guardado reemplazará el actual.</p>
-
               <div className="modal-input-wrapper">
                 <img src={ASSETS.email} alt="" />
                 <input
@@ -550,7 +559,6 @@ const Profile = () => {
                   autoFocus
                 />
               </div>
-
               <div className="modal-actions">
                 <IonButton
                   className="btn-modal-cancel"
@@ -573,7 +581,7 @@ const Profile = () => {
 
         <div className="prf-root">
 
-          {/* ══ SIDEBAR ══ */}
+          {/* SIDEBAR */}
           <div className="prf-sidebar">
             <img className="prf-sidebar-logo" src={ASSETS.logo} alt="Municipalidad de Santo Domingo" />
             <IonButton className="prf-nav-btn active-nav" fill="clear" onClick={() => history.push('/profile')}>
@@ -586,15 +594,18 @@ const Profile = () => {
               <img className="prf-nav-icon" src={ASSETS.calendario} alt="" />Mis agendas
             </IonButton>
             <div className="prf-sidebar-spacer" />
+            {/* ── BOTÓN VOLVER ── */}
+            <IonButton className="prf-nav-volver" fill="clear" onClick={() => history.push('/tramites-user')}>
+              ← Volver a trámites
+            </IonButton>
             <IonButton className="prf-nav-logout" fill="clear" onClick={handleLogout}>
               <img className="prf-nav-icon" src={ASSETS.puerta} alt="" />Cerrar sesión
             </IonButton>
           </div>
 
-          {/* ══ COLUMNA DERECHA ══ */}
+          {/* COLUMNA DERECHA */}
           <div className="prf-right">
 
-            {/* Header con fondo completo */}
             <div className="prf-header">
               <div className="prf-header-content">
                 <h1>Mi perfil</h1>
@@ -612,7 +623,6 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Campos */}
             <div className="prf-fields-area">
               <IonGrid style={{ padding: 0 }}>
                 <IonRow>
@@ -771,8 +781,8 @@ const Profile = () => {
               <IonButton className="prf-bottom-btn" fill="clear" onClick={() => history.push('/mis-agendas')}>
                 <img className="prf-bottom-icon" src={ASSETS.calendario} alt="" />Mis agendas
               </IonButton>
-              <IonButton className="prf-bottom-btn" fill="clear" onClick={handleLogout}>
-                <img className="prf-bottom-icon" src={ASSETS.puerta} alt="" />Cerrar sesión
+              <IonButton className="prf-bottom-btn" fill="clear" onClick={() => history.push('/tramites-user')}>
+                <img className="prf-bottom-icon" src={ASSETS.puerta} alt="" />Volver
               </IonButton>
             </div>
 
