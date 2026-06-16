@@ -90,7 +90,7 @@ const Profile = () => {
     }
     setGuardandoCorreo(true);
     try {
-      const BACKEND_URL = `https://tramitessantodomingo-production-5cb4.up.railway.app/api/usuarios/${userId}/correo`;
+      const BACKEND_URL = `http://localhost:3000/api/usuarios/${userId}/correo`;
       const response = await fetch(BACKEND_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -131,7 +131,7 @@ const Profile = () => {
     formData.append('usuario_id', String(userId));
     formData.append('documento_residencia', file);
     try {
-      const BACKEND_URL = 'https://tramitessantodomingo-production-5cb4.up.railway.app/api/usuarios/residencia';
+      const BACKEND_URL = 'http://localhost:3000/api/usuarios/residencia';
       const response = await fetch(BACKEND_URL, { method: 'POST', body: formData });
       const data = await response.json();
       if (data.ok) {
@@ -216,7 +216,6 @@ const Profile = () => {
           }
           .prf-sidebar-spacer { flex: 1; }
 
-          /* ── Botón volver ── */
           .prf-nav-volver {
             --background: rgba(255,255,255,0.08);
             --background-hover: rgba(255,255,255,0.15);
@@ -246,12 +245,10 @@ const Profile = () => {
             justify-content: flex-start;
           }
 
-          /* ── COLUMNA DERECHA ── */
           .prf-right {
             flex: 1; display: flex; flex-direction: column; min-width: 0;
           }
 
-          /* ── HEADER ── */
           .prf-header {
             position: relative;
             background-image: url('${ASSETS.fondo}');
@@ -304,7 +301,6 @@ const Profile = () => {
             filter: brightness(0) invert(1);
           }
 
-          /* ── CAMPOS ── */
           .prf-fields-area {
             background: #001830; padding: 32px 36px 28px; flex: 1; color: #fff;
           }
@@ -404,7 +400,6 @@ const Profile = () => {
             filter: brightness(0) invert(1); margin-right: 6px;
           }
 
-          /* ── FOOTER ── */
           .prf-footer {
             background: #003060; border-top: 1px solid rgba(255,255,255,0.10);
             padding: 28px 36px 16px;
@@ -427,7 +422,6 @@ const Profile = () => {
             font-family: 'Inter', sans-serif;
           }
 
-          /* ══ POPUP MODIFICAR CORREO ══ */
           .modal-overlay {
             position: fixed; inset: 0; z-index: 1000;
             background: rgba(0,0,0,0.65);
@@ -492,34 +486,26 @@ const Profile = () => {
 
           .prf-bottom-nav { display: none; }
 
-          /* ══ MÓVIL ══ */
           @media (max-width: 600px) and (orientation: portrait) {
             .prf-root { flex-direction: column; }
             .prf-sidebar { display: none; }
-
             .prf-header { min-height: 150px; padding: 16px; }
             .prf-header-content h1 { font-size: 1.6rem; }
             .prf-photo-area { top: 10px; right: 12px; }
             .prf-photo-box { width: 80px; height: 80px; }
             .prf-photo-box img { width: 55px; height: 55px; }
             .prf-photo-btn { width: 80px; font-size: 0.72rem; }
-
             .prf-fields-area { padding: 20px 16px 16px; }
-
             .prf-correo-wrapper { flex-direction: column; border-radius: 10px; }
             .prf-correo-divider { width: 100%; height: 1px; align-self: auto; }
             .btn-modificar { width: 100%; height: 40px; --border-radius: 0 0 8px 8px; }
-
             .prf-residencia-box { flex-direction: column; align-items: flex-start; }
             .btn-subir { align-self: flex-end; }
-
             .prf-footer { flex-direction: column; padding: 20px 20px 12px; gap: 16px; }
             .prf-footer-divider { display: none; }
-
             .modal-box { padding: 24px 18px; }
             .modal-actions { flex-direction: column; }
             .btn-modal-cancel, .btn-modal-save { width: 100%; }
-
             .prf-bottom-nav {
               display: flex; justify-content: space-around;
               background: #003060; border-top: 1px solid rgba(255,255,255,0.15);
@@ -594,7 +580,6 @@ const Profile = () => {
               <img className="prf-nav-icon" src={ASSETS.calendario} alt="" />Mis agendas
             </IonButton>
             <div className="prf-sidebar-spacer" />
-            {/* ── BOTÓN VOLVER ── */}
             <IonButton className="prf-nav-volver" fill="clear" onClick={() => history.push('/tramites-user')}>
               ← Volver a trámites
             </IonButton>
@@ -740,7 +725,6 @@ const Profile = () => {
               </IonGrid>
             </div>
 
-            {/* Footer */}
             <div className="prf-footer">
               <div className="prf-footer-block">
                 <div className="prf-footer-icon-row">
@@ -770,7 +754,6 @@ const Profile = () => {
               ©2026 Municipalidad de Santo Domingo &nbsp;•&nbsp; Política de Privacidad
             </div>
 
-            {/* Bottom nav móvil */}
             <div className="prf-bottom-nav">
               <IonButton className="prf-bottom-btn active-nav" fill="clear" onClick={() => history.push('/profile')}>
                 <img className="prf-bottom-icon" src={ASSETS.perfilBlanco} alt="" />Mi perfil
