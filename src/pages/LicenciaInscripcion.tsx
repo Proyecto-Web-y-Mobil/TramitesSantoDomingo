@@ -43,7 +43,7 @@ export default function LicenciaInscripcion() {
         hora_cita: horaSeleccionada
       };
 
-      const response = await fetch('https://tramitessantodomingo-production-5cb4.up.railway.app/api/agendamientos/crear', {
+      const response = await fetch('http://localhost:3000/api/agendamientos/crear', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -157,14 +157,12 @@ export default function LicenciaInscripcion() {
             line-height: 1.6; margin: 0 0 24px; font-family: 'Inter', sans-serif;
           }
 
-          /* ── Sección label ── */
           .la-section-label {
             font-size: 0.8rem; font-weight: 700; color: #003060;
             text-transform: uppercase; letter-spacing: 0.6px;
             margin: 0 0 10px; font-family: 'Inter', sans-serif;
           }
 
-          /* ── Fecha item ── */
           .la-date-item {
             --background: #f8fafc;
             --border-color: #e2e8f0;
@@ -178,13 +176,11 @@ export default function LicenciaInscripcion() {
             margin-bottom: 20px;
             font-family: 'Inter', sans-serif;
           }
-
           .la-date-item ion-datetime {
             --background: transparent;
             padding: 8px 0;
           }
 
-          /* ── Hora item ── */
           .la-hora-item {
             --background: #f8fafc;
             --border-color: #e2e8f0;
@@ -198,13 +194,11 @@ export default function LicenciaInscripcion() {
             margin-bottom: 28px;
             font-family: 'Inter', sans-serif;
           }
-
           .la-item-label {
             font-size: 0.82rem; font-weight: 600; color: #003060;
             font-family: 'Inter', sans-serif;
           }
 
-          /* ── Botón confirmar ── */
           .btn-confirmar {
             --background: #003060; --background-hover: #00428a;
             --background-activated: #00224a; --border-radius: 12px;
@@ -233,7 +227,6 @@ export default function LicenciaInscripcion() {
             padding: 12px 0 10px; background: #003060; font-family: 'Inter', sans-serif;
           }
 
-          /* ── Responsive ── */
           @media (max-width: 600px) {
             .la-header-inner    { padding: 14px 16px 18px; flex-direction: column; align-items: flex-start; }
             .la-header-logo     { width: 70px; }
@@ -272,7 +265,6 @@ export default function LicenciaInscripcion() {
                 <IonRow>
                   <IonCol size="12">
 
-                    {/* Card agendamiento */}
                     <div className="la-card">
                       <div className="la-card-header">
                         <div className="la-card-header-icon">
@@ -293,6 +285,7 @@ export default function LicenciaInscripcion() {
                         <IonItem className="la-date-item" lines="none">
                           <IonDatetime
                             presentation="date"
+                            locale="es-CL"
                             min={fechaMinima}
                             value={fechaSeleccionada}
                             onIonChange={e => setFechaSeleccionada(e.detail.value as string)}
