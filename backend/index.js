@@ -706,18 +706,58 @@ app.get('/api/admin/reportes/taller/:id', async (req, res) => {
 // 3. Obtener agendamientos presenciales por Fecha
 app.get('/api/admin/reportes/transito/:fecha', async (req, res) => {
   try {
-      // Recordando que solicitud_id guarda el ID del usuario en tu tabla
+      // Usamos INNER JOIN para asegurar que encuentre la coincidencia
       const [agendas] = await pool.query(`
           SELECT a.hora_reserva, u.rut, u.nombres, u.apellido_p, u.apellido_m, u.correo
-          FROM agendamientos_transito a
-          JOIN usuarios u ON a.solicitud_id = u.id
-          WHERE a.fecha_reserva = ?
+          FROM agendamientos_transito AS a
+          INNER JOIN usuarios AS u ON a.solicitud_id = u.id
+          WHERE DATE(a.fecha_reserva) = ?
           ORDER BY a.hora_reserva ASC
       `, [req.params.fecha]);
       res.status(200).json({ ok: true, agendas });
   } catch (error) {
       console.error(error);
       res.status(500).json({ ok: false, error: 'Error al cargar agendamientos de tránsito' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTA MÁGICA DE REPARACIÓN (Para forzar a Docker)
+// ---------------------------------------------------
+app.get('/api/admin/reparar-bd', async (req, res) => {
+  try {
+    await pool.query('SET FOREIGN_KEY_CHECKS = 0;');
+    
+    // 1. Forzamos la creación de la tabla si Docker la ignoró
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS agendamientos_transito (
+        id int NOT NULL AUTO_INCREMENT,
+        solicitud_id int NOT NULL,
+        fecha_reserva date NOT NULL,
+        hora_reserva time NOT NULL,
+        PRIMARY KEY (id),
+        KEY solicitud_id (solicitud_id),
+        CONSTRAINT agendamientos_transito_ibfk_1 FOREIGN KEY (solicitud_id) REFERENCES solicitudes_tramite (id) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // 2. Revisamos si está vacía, y le inyectamos tus datos de prueba originales
+    const [rows] = await pool.query('SELECT * FROM agendamientos_transito');
+    if (rows.length === 0) {
+        await pool.query(`
+          INSERT INTO agendamientos_transito (id, solicitud_id, fecha_reserva, hora_reserva) VALUES 
+          (1,8,'2026-06-14','10:00:00'),
+          (2,8,'2026-06-15','10:00:00'),
+          (3,8,'2026-06-15','15:30:00'),
+          (4,8,'2026-06-30','15:30:00'),
+          (5,13,'2026-06-24','15:30:00');
+        `);
+    }
+    
+    await pool.query('SET FOREIGN_KEY_CHECKS = 1;');
+    res.json({ ok: true, message: '¡Tabla creada y datos rellenados con éxito!' });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
   }
 });
 

@@ -227,7 +227,7 @@ User:     root
 
 Password: yzbXDSfWnEhClCrhJSSTLBlecYxwMqeA
 
-Database: railway
+Database: 
 
 ### 5. Importante
 Cabe destacar que multiples de las funciones pensadas para la pagina aun no han sido implementadas, por ello a aquellas paginas que

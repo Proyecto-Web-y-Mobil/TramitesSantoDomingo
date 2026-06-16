@@ -7,12 +7,11 @@ console.log("Puerto leído:", process.env.MYSQLPORT || process.env.DB_PORT || 33
 console.log("====================================");
 
 const pool = mysql.createPool({
-  // Busca la variable de Railway, luego la de Docker, y por último el contenedor 'db'
-  host: process.env.MYSQLHOST || process.env.DB_HOST || 'db',
-  port: process.env.MYSQLPORT || process.env.DB_PORT || 3306,
-  user: process.env.MYSQLUSER || process.env.DB_USER || 'user_admin',
-  password: process.env.MYSQLPASSWORD || process.env.DB_PASSWORD || 'user_password',
-  database: process.env.MYSQLDATABASE || process.env.DB_NAME || 'tramites_db',
+  host: 'db', // Fuerza el nombre del servicio en docker-compose
+  port: 3306,
+  user: 'user_admin', 
+  password: 'user_password',
+  database: 'tramites_db',
 });
 
 module.exports = pool;

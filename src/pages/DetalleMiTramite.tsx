@@ -49,7 +49,7 @@ export default function DetalleMiTramite() {
   const cargarDetalle = async () => {
     try {
       const response = await fetch(
-        `https://tramitessantodomingo-production-5cb4.up.railway.app/api/tramites/detalle/${id}`
+        `http://localhost:3000/api/tramites/detalle/${id}`
       );
       const data = await response.json();
       if (data.ok) {
@@ -86,7 +86,7 @@ export default function DetalleMiTramite() {
     if (archivoSeleccionado) formData.append('documento', archivoSeleccionado);
     try {
       const response = await fetch(
-        `https://tramitessantodomingo-production-5cb4.up.railway.app/api/tramites/${id}/corregir`,
+        `http://localhost:3000/api/tramites/${id}/corregir`,
         { method: 'PUT', body: formData }
       );
       const data = await response.json();

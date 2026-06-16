@@ -85,8 +85,8 @@ export default function PermisoCirculacionForm() {
     formData.append('documento', archivo);
 
     try {
-      // URL de producción en Railway
-      const BACKEND_URL = 'https://tramitessantodomingo-production-5cb4.up.railway.app/api/tramites/permiso-circulacion';
+      // URL de producción
+      const BACKEND_URL = 'http://localhost:3000/api/tramites/permiso-circulacion';
 
       const respuesta = await fetch(BACKEND_URL, {
         method: 'POST',

@@ -58,7 +58,7 @@ export default function MisTramites() {
       const userObj = JSON.parse(sessionData);
       const user = Array.isArray(userObj) ? userObj[0] : userObj;
       const response = await fetch(
-        `https://tramitessantodomingo-production-5cb4.up.railway.app/api/tramites/usuario/${user.id}`
+        `http://localhost:3000/api/tramites/usuario/${user.id}`
       );
       const data = await response.json();
       if (data.ok) setTramites(data.tramites);

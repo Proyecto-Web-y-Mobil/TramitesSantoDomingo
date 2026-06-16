@@ -38,7 +38,7 @@ export default function TallerZumbaInfo() {
   const cargarTaller = async () => {
     setCargando(true);
     try {
-      const response = await fetch('https://tramitessantodomingo-production-5cb4.up.railway.app/api/dideco/talleres/1');
+      const response = await fetch('http://localhost:3000/api/dideco/talleres/1');
       const data = await response.json();
       
       if (data.ok) {

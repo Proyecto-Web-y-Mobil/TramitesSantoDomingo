@@ -91,7 +91,7 @@ const Profile = () => {
     }
     setGuardandoCorreo(true);
     try {
-      const BACKEND_URL = `https://tramitessantodomingo-production-5cb4.up.railway.app/api/usuarios/${userId}/correo`;
+      const BACKEND_URL = `http://localhost:3000/api/usuarios/${userId}/correo`;
       const response = await fetch(BACKEND_URL, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -133,7 +133,7 @@ const Profile = () => {
     formData.append('usuario_id', String(userId));
     formData.append('documento_residencia', file);
     try {
-      const BACKEND_URL = 'https://tramitessantodomingo-production-5cb4.up.railway.app/api/usuarios/residencia';
+      const BACKEND_URL = 'http://localhost:3000/api/usuarios/residencia';
       const response = await fetch(BACKEND_URL, { method: 'POST', body: formData });
       const data = await response.json();
       if (data.ok) {

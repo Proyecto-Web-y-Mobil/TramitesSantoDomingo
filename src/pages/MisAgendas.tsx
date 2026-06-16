@@ -73,7 +73,7 @@ export default function MisAgendas() {
       const userObj = JSON.parse(sessionData);
       const usuario = Array.isArray(userObj) ? userObj[0] : userObj;
       const response = await fetch(
-        `https://tramitessantodomingo-production-5cb4.up.railway.app/api/agendas/usuario/${usuario.id}`
+        `http://localhost:3000/api/agendas/usuario/${usuario.id}`
       );
       const data = await response.json();
       if (data.ok) setAgendas(data.agendas);
@@ -90,7 +90,7 @@ export default function MisAgendas() {
     if (!confirmacion) return;
     try {
       const response = await fetch(
-        'https://tramitessantodomingo-production-5cb4.up.railway.app/api/agendas/cancelar',
+        'http://localhost:3000/api/agendas/cancelar',
         { method: 'DELETE', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ id, tipo, taller_id }) }
       );

@@ -43,7 +43,7 @@ export default function LicenciaInscripcion() {
         hora_cita: horaSeleccionada
       };
 
-      const response = await fetch('https://tramitessantodomingo-production-5cb4.up.railway.app/api/agendamientos/crear', {
+      const response = await fetch('http://localhost:3000/api/agendamientos/crear', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

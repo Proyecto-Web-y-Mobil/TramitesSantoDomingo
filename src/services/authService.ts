@@ -1,4 +1,4 @@
-const API_URL = 'https://tramitessantodomingo-production-5cb4.up.railway.app/api';
+const API_URL = 'http://localhost:3000/api';
 
 export const authService = {
   register: async (userData: any) => {

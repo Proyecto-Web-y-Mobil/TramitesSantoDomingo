@@ -34,7 +34,7 @@ export default function TallerZumbaInscripcion() {
         taller_id: 1 
       };
 
-      const response = await fetch('https://tramitessantodomingo-production-5cb4.up.railway.app/api/dideco/inscripcion', {
+      const response = await fetch('http://localhost:3000/api/dideco/inscripcion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
