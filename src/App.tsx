@@ -1,6 +1,7 @@
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
+import GlobalSync from './components/GlobalSync';
 import Login from './pages/Login'; 
 import LoginFuncionario from './pages/LoginFuncionario'; 
 import Register from './pages/Register';
@@ -46,6 +47,9 @@ setupIonicReact();
 const App: React.FC = () => (
   <IonApp>
     <IonReactRouter>
+      {/* Nuestro vigía invisible que sincronizará la sesión al navegar */}
+      <GlobalSync />
+      
       <IonRouterOutlet>
         <Route exact path="/login">
           <Login />

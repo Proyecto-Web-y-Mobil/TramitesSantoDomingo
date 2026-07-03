@@ -325,7 +325,7 @@ export default function LicenciaInfo() {
 
                     {/* CTA card */}
                     <div className="li-cta-card" style={{ marginTop: '20px' }}>
-                      {usuario && usuario.id_rol === 1 ? (
+                      {usuario && usuario.rol?.toLowerCase() !== 'residente' ? (
                         <>
                           <IonButton className="btn-bloqueado" disabled>
                             Debes validar tu residencia para agendar

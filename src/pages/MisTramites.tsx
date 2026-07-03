@@ -114,7 +114,8 @@ export default function MisTramites() {
     switch (estado.toLowerCase()) {
       case 'aprobado':
       case 'completado':
-        return <span className="badge-estado badge-aprobado"><IonIcon icon={checkmarkCircleOutline} /> Completado</span>;
+        // 🔥 CORRECCIÓN: Ahora dice "Aprobado"
+        return <span className="badge-estado badge-aprobado"><IonIcon icon={checkmarkCircleOutline} /> Aprobado</span>;
       case 'rechazado':
         return <span className="badge-estado badge-rechazado"><IonIcon icon={closeCircleOutline} /> Rechazado</span>;
       case 'pendiente':
@@ -539,7 +540,8 @@ export default function MisTramites() {
                       >
                         <IonSelectOption value="todos">Todos los estados</IonSelectOption>
                         <IonSelectOption value="pendiente">Pendiente</IonSelectOption>
-                        <IonSelectOption value="aprobado">Completado</IonSelectOption>
+                        {/* 🔥 CORRECCIÓN: Ahora dice "Aprobado" en el filtro */}
+                        <IonSelectOption value="aprobado">Aprobado</IonSelectOption>
                         <IonSelectOption value="rechazado">Rechazado</IonSelectOption>
                         <IonSelectOption value="observado">Requiere Corrección</IonSelectOption>
                       </IonSelect>

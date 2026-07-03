@@ -37,22 +37,30 @@ export default function ValidarResidencias() {
     const userObj = JSON.parse(sessionData);
     const user = Array.isArray(userObj) ? userObj[0] : userObj;
     if (user.rol !== 'funcionario') { history.replace('/tramites-user'); return; }
-    setNombreAdmin(`${user.nombres} ${user.apellidoP}`);
+    setNombreAdmin(`${user.nombres} ${user.apellidoP || user.apellido_p || ''}`);
   }, [history]);
 
-  useEffect(() => { cargarPendientes(); }, []);
+  // 🔥 SOLUCIÓN: El useEffect ahora escucha los cambios de 'tabActiva'
+  useEffect(() => { 
+    cargarSolicitudesPorEstado(); 
+  }, [tabActiva]);
 
-  const cargarPendientes = async () => {
+  // Se modificó la función para que llame dinámicamente al backend según la pestaña
+  const cargarSolicitudesPorEstado = async () => {
     try {
       setCargando(true);
-      // 🔥 CORRECCIÓN: Apuntando al backend local
-      const response = await fetch(
-        'http://localhost:3000/api/admin/residencias-pendientes'
-      );
+      // Llama a la ruta dinámica: /pendiente, /aprobado o /rechazado
+      const response = await fetch(`http://localhost:3000/api/admin/residencias/${tabActiva}`);
       const data = await response.json();
-      if (data.ok) setUsuarios(data.usuarios);
+      
+      if (data.ok) {
+        setUsuarios(data.usuarios || []);
+      } else {
+        setUsuarios([]);
+      }
     } catch (error) {
       presentToast({ message: 'Error al cargar la lista', duration: 3000, color: 'danger' });
+      setUsuarios([]);
     } finally {
       setCargando(false);
     }
@@ -60,7 +68,6 @@ export default function ValidarResidencias() {
 
   const procesarSolicitud = async (id: number, accion: 'aprobar' | 'rechazar') => {
     try {
-      // 🔥 CORRECCIÓN: Apuntando al backend local
       const url = `http://localhost:3000/api/admin/residencias/${accion}/${id}`;
       const response = await fetch(url, { method: 'PUT' });
       const data = await response.json();
@@ -70,28 +77,31 @@ export default function ValidarResidencias() {
           duration: 3000,
           color: accion === 'aprobar' ? 'success' : 'warning'
         });
-        cargarPendientes();
+        // Recargamos la lista actual para que el usuario desaparezca de los "pendientes"
+        cargarSolicitudesPorEstado();
       }
     } catch (error) {
       presentToast({ message: 'Error de conexión con el servidor', duration: 3000, color: 'danger' });
     }
   };
 
-  const handleCerrarSesion = () => { authService.logout(); history.push('/login-funcionario'); };
+  const handleCerrarSesion = () => { 
+    authService.logout(); 
+    window.location.href = '/login-funcionario'; // Hard reset de caché
+  };
 
-  // Filtrado por tab + búsqueda
+  // Filtrado interno solo para la búsqueda por texto
   const usuariosFiltrados = useMemo(() => {
     return usuarios.filter(u => {
-      const estadoMatch = (u.estado_residencia || 'pendiente').toLowerCase() === tabActiva;
       const q = busqueda.toLowerCase();
-      const busquedaMatch = q
-        ? (`${u.nombres} ${u.apellido_p} ${u.apellido_m}`.toLowerCase().includes(q) ||
-           (u.rut || '').toLowerCase().includes(q) ||
-           (u.correo || '').toLowerCase().includes(q))
-        : true;
-      return estadoMatch && busquedaMatch;
+      if (!q) return true;
+      return (
+        `${u.nombres} ${u.apellido_p} ${u.apellido_m}`.toLowerCase().includes(q) ||
+        (u.rut || '').toLowerCase().includes(q) ||
+        (u.correo || '').toLowerCase().includes(q)
+      );
     });
-  }, [usuarios, tabActiva, busqueda]);
+  }, [usuarios, busqueda]);
 
   const totalPags   = Math.max(1, Math.ceil(usuariosFiltrados.length / POR_PAG));
   const usuariosPag = usuariosFiltrados.slice((pagina - 1) * POR_PAG, pagina * POR_PAG);
@@ -99,6 +109,7 @@ export default function ValidarResidencias() {
   const handleTab = (tab: 'pendiente' | 'aprobado' | 'rechazado') => {
     setTabActiva(tab);
     setPagina(1);
+    setBusqueda(''); // Limpiamos la búsqueda al cambiar de pestaña
   };
 
   return (
@@ -444,9 +455,10 @@ export default function ValidarResidencias() {
                                 className="btn-ver-doc"
                                 fill="outline"
                                 onClick={() => window.open(user.url_residencia, '_blank')}
+                                disabled={!user.url_residencia}
                               >
                                 <IonIcon slot="start" icon={eyeOutline} />
-                                Ver documento
+                                {user.url_residencia ? 'Ver documento' : 'Sin documento'}
                               </IonButton>
                             </div>
                           </div>

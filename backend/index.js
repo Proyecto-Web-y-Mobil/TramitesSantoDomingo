@@ -17,7 +17,7 @@ app.use(express.json());
 const JWT_SECRET = process.env.JWT_SECRET || 'llave_secreta_municipalidad_2026';
 
 // ---------------------------------------------------
-// MIDDLEWARE DE AUTENTICACIÓN (El Guardia de Seguridad)
+// MIDDLEWARE DE AUTENTICACIÓN
 // ---------------------------------------------------
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -164,6 +164,20 @@ app.post('/api/tramites/permiso-circulacion', upload.single('documento'), async 
     try {
         const { usuario_id, tramite_id, patente, marca, modelo, anio } = req.body;
         
+        const [usuarioDb] = await pool.query('SELECT id_rol FROM usuarios WHERE id = ?', [usuario_id]);
+        
+        if (usuarioDb.length === 0) {
+            return res.status(404).json({ ok: false, error: 'Usuario no encontrado.' });
+        }
+        
+        if (usuarioDb[0].id_rol !== 2) {
+            return res.status(403).json({ 
+                ok: false, 
+                error: 'Acceso denegado. Solo los usuarios con residencia validada pueden solicitar el Permiso de Circulación.' 
+            });
+        }
+        // -----------------------------
+
         if (!req.file) {
             return res.status(400).json({ ok: false, error: 'Falta el documento de revisión técnica' });
         }
@@ -172,7 +186,7 @@ app.post('/api/tramites/permiso-circulacion', upload.single('documento'), async 
           const stream = cloudinary.uploader.upload_stream(
               { 
                   folder: 'municipalidad/revisiones',
-                  resource_type: 'auto' // 🔥 ESTA ES LA LÍNEA MÁGICA
+                  resource_type: 'auto' 
               }, 
               (error, result) => {
                   if (error) reject(error);
@@ -259,6 +273,30 @@ app.post('/api/usuarios/residencia', upload.single('documento_residencia'), asyn
   } catch (error) {
       console.error('Error al subir documento de residencia:', error);
       res.status(500).json({ ok: false, error: 'Error interno del servidor' });
+  }
+});
+
+// ---------------------------------------------------
+// RUTA: SINCRONIZAR ESTADO DEL USUARIO EN TIEMPO REAL
+// ---------------------------------------------------
+app.get('/api/usuarios/:id/sincronizar', async (req, res) => {
+  try {
+      const { id } = req.params;
+      
+      const query = `
+          SELECT u.estado_validacion, u.id_rol, r.nombre AS rol 
+          FROM usuarios u 
+          JOIN roles r ON u.id_rol = r.id 
+          WHERE u.id = ?
+      `;
+      const [rows] = await pool.query(query, [id]);
+      
+      if (rows.length === 0) return res.status(404).json({ ok: false });
+      
+      res.status(200).json({ ok: true, data: rows[0] });
+  } catch (error) {
+      console.error('Error al sincronizar:', error);
+      res.status(500).json({ ok: false });
   }
 });
 
@@ -625,17 +663,31 @@ app.put('/api/admin/tramites/:id/estado', async (req, res) => {
 // RUTAS DE ADMINISTRADOR: RESIDENCIAS
 // ---------------------------------------------------
 
-// 1. Obtener la lista de usuarios pendientes
-app.get('/api/admin/residencias-pendientes', async (req, res) => {
+// 1. Obtener la lista de usuarios según su estado de residencia (Dinámico)
+app.get('/api/admin/residencias/:estado', async (req, res) => {
   try {
+      const { estado } = req.params;
+      let estadoBD = '';
+
+      // Mapeamos lo que pide el frontend (pestañas) con los estados reales de tu BD
+      if (estado === 'pendiente') {
+          estadoBD = 'En revisión';
+      } else if (estado === 'aprobado') {
+          estadoBD = 'Aprobado';
+      } else if (estado === 'rechazado') {
+          estadoBD = 'Rechazado';
+      } else {
+          return res.status(400).json({ ok: false, error: 'Estado de búsqueda inválido' });
+      }
+
       const query = `
           SELECT id, rut, nombres, apellido_p, apellido_m, correo, url_residencia, estado_validacion 
           FROM usuarios 
-          WHERE estado_validacion = 'En revisión'
+          WHERE estado_validacion = ?
       `;
-      const [pendientes] = await pool.query(query);
+      const [usuarios] = await pool.query(query, [estadoBD]);
       
-      res.status(200).json({ ok: true, usuarios: pendientes });
+      res.status(200).json({ ok: true, usuarios: usuarios });
   } catch (error) {
       console.error('Error al obtener residencias:', error);
       res.status(500).json({ ok: false, error: 'Error al cargar los datos' });
@@ -661,8 +713,9 @@ app.put('/api/admin/residencias/aprobar/:id', async (req, res) => {
 app.put('/api/admin/residencias/rechazar/:id', async (req, res) => {
   try {
       const userId = req.params.id;
-      // Devolvemos el estado a 'Sin subir' y borramos la URL del documento malo
-      const query = `UPDATE usuarios SET estado_validacion = 'Sin subir', url_residencia = NULL WHERE id = ?`;
+      // MEJORA: Lo marcamos como 'Rechazado' en vez de 'Sin subir'.
+      // Así aparece en la pestaña de rechazados del Admin, y el ciudadano puede volver a intentarlo.
+      const query = `UPDATE usuarios SET estado_validacion = 'Rechazado', url_residencia = NULL WHERE id = ?`;
       await pool.query(query, [userId]);
       
       res.status(200).json({ ok: true, message: 'Documento rechazado' });

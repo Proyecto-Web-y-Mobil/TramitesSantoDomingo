@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   IonPage, IonContent, IonButton, IonSpinner,
-  useIonToast, IonIcon, IonTextarea, IonItem, IonGrid, IonRow, IonCol
+  useIonToast, IonIcon, IonTextarea, IonItem, IonGrid, IonRow, IonCol, useIonViewWillEnter
 } from '@ionic/react';
 import { useParams, useHistory } from 'react-router-dom';
 import {
@@ -29,21 +29,26 @@ export default function AdminRevisarTramite() {
   const [procesando, setProcesando]       = useState(false);
   const [nombreAdmin, setNombreAdmin]     = useState('');
 
-  // 🔒 Validación de seguridad mantenida
+  // 🔒 Validación de seguridad
   useEffect(() => {
     const sessionData = localStorage.getItem('user_session');
     if (!sessionData) { history.push('/login-funcionario'); return; }
     const userObj = JSON.parse(sessionData);
     const user = Array.isArray(userObj) ? userObj[0] : userObj;
     if (user.rol !== 'funcionario') { history.replace('/tramites-user'); return; }
-    setNombreAdmin(`${user.nombres} ${user.apellidoP}`);
+    setNombreAdmin(`${user.nombres} ${user.apellidoP || user.apellido_p || ''}`);
   }, [history]);
-
+  
   useEffect(() => { cargarDetalle(); }, [id]);
+
+  // 🔥 Resetear estados al entrar a la página para evitar la caché
+  useIonViewWillEnter(() => {
+    setAccionPendiente(null);
+    setTextoMensaje('');
+  });
 
   const cargarDetalle = async () => {
     try {
-      // 🔥 CORRECCIÓN: Apuntando al backend de Docker local
       const response = await fetch(`http://localhost:3000/api/admin/tramites/${id}`);
       const data = await response.json();
       if (data.ok) setTramite(data.tramite);
@@ -66,7 +71,6 @@ export default function AdminRevisarTramite() {
     }
     setProcesando(true);
     try {
-      // 🔥 CORRECCIÓN: Apuntando al backend de Docker local
       const response = await fetch(`http://localhost:3000/api/admin/tramites/${id}/estado`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -94,7 +98,10 @@ export default function AdminRevisarTramite() {
     }
   };
 
-  const handleCerrarSesion = () => { authService.logout(); history.push('/login-funcionario'); };
+  const handleCerrarSesion = () => { 
+    authService.logout(); 
+    window.location.href = '/login-funcionario'; 
+  };
 
   if (cargando) return (
     <IonPage>
@@ -110,9 +117,13 @@ export default function AdminRevisarTramite() {
 
   const yaGestionado = tramite.estado !== 'pendiente' && tramite.estado !== 'corregido';
 
+  // 🔥 HOMOLOGACIÓN DE ESTADOS: Agrupamos 'aprobado', 'completado' y 'finalizado' bajo la misma etiqueta visual
   const getEstadoCfg = (estado: string) => {
     switch ((estado || '').toLowerCase()) {
-      case 'aprobado':  return { label: 'Aprobado',  color: '#27ae60', bg: '#f0fff5', border: '#b7e9c8' };
+      case 'aprobado':  
+      case 'completado': 
+      case 'finalizado':
+        return { label: 'Aprobado',  color: '#27ae60', bg: '#f0fff5', border: '#b7e9c8' };
       case 'rechazado': return { label: 'Rechazado', color: '#c0392b', bg: '#fff0f0', border: '#f5c6c6' };
       case 'observado': case 'requiere modificación':
         return { label: 'Observado', color: '#d97706', bg: '#fffbeb', border: '#fde68a' };

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  IonPage, IonContent, IonButton, IonIcon
+  IonPage, IonContent, IonButton, IonIcon, useIonAlert
 } from "@ionic/react";
 import { useHistory } from 'react-router-dom';
 import {
@@ -17,6 +17,38 @@ const ASSETS = {
 
 export default function PermisoCirculacionInfo() {
   const history = useHistory();
+  const [usuario, setUsuario] = useState<any>(null);
+  const [presentAlert] = useIonAlert();
+
+  useEffect(() => {
+    const sessionData = localStorage.getItem('user_session');
+    if (sessionData) {
+      const userObj = JSON.parse(sessionData);
+      setUsuario(Array.isArray(userObj) ? userObj[0] : userObj);
+    }
+  }, []);
+
+  const handleComenzarTramite = () => {
+    if (!usuario) {
+      presentAlert({
+        header: 'Sesión Requerida',
+        message: 'Debes iniciar sesión en la plataforma para poder realizar este trámite.',
+        buttons: ['Entendido']
+      });
+      return;
+    }
+
+    if (usuario.rol?.toLowerCase() !== 'residente') {
+      presentAlert({
+        header: 'Acceso Restringido',
+        message: 'Debes tener tu residencia validada (perfil Residente) para solicitar el Permiso de Circulación.',
+        buttons: ['Entendido']
+      });
+      return;
+    }
+
+    history.push('/tramite/permiso-circulacion/formulario');
+  };
 
   return (
     <IonPage>
@@ -282,7 +314,7 @@ export default function PermisoCirculacionInfo() {
                   <IonButton
                     expand="block"
                     className="btn-comenzar"
-                    onClick={() => history.push('/tramite/permiso-circulacion/formulario')}
+                    onClick={handleComenzarTramite}
                   >
                     Comenzar Trámite →
                   </IonButton>

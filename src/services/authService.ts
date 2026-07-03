@@ -28,8 +28,6 @@ export const authService = {
     return data.user; 
   },
 
-  // --- NUEVAS FUNCIONES PARA EP 2.5 --- //
-
   // Valida el token contra la ruta protegida del servidor
   verifySession: async () => {
     const token = localStorage.getItem('user_token');

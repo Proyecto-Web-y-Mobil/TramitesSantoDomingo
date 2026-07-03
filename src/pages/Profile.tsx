@@ -75,9 +75,10 @@ const Profile = () => {
   }, [history]);
 
   const handleLogout = () => {
-    authService.logout();
-    history.push('/tramites');
-  };
+  authService.logout();
+  // Cambiamos history.push por window.location.href
+  window.location.href = '/tramites';
+};
 
   const triggerFileSelect = () => {
     if (fileInputRef.current) fileInputRef.current.click();

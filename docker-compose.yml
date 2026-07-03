@@ -34,6 +34,8 @@ services:
       - DB_NAME=tramites_db
       - DB_PORT=3306
       # Aquí puedes sumar tu JWT_SECRET u otras de tu .env
+    env_file: 
+      - ./backend/.env
     depends_on:
       - db
 

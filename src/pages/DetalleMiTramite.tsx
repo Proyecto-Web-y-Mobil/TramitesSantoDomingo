@@ -118,7 +118,8 @@ export default function DetalleMiTramite() {
   const getEstadoConfig = (estado: string) => {
     switch ((estado || '').toLowerCase()) {
       case 'aprobado': case 'completado':
-        return { label: 'Completado', color: '#4cde80', bg: 'rgba(76,222,128,0.12)' };
+        // 🔥 CORRECCIÓN: Ahora dice "Aprobado"
+        return { label: 'Aprobado', color: '#4cde80', bg: 'rgba(76,222,128,0.12)' };
       case 'rechazado':
         return { label: 'Rechazado', color: '#ff5c5c', bg: 'rgba(255,92,92,0.12)' };
       case 'pendiente':
